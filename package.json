@@ -1,0 +1,15 @@
+{
+  "name": "frame-dashboard",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Arabic family dashboard for an Android photo frame",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node test/worker.test.mjs && node test/ics-import.test.mjs && node test/frame-logic.test.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.40.0"
+  }
+}

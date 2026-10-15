@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2A0D1B">
+  <title>لوحة العائلة</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <!-- iPhone: full-screen app from the home screen, with its own name and splash screens -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="الإطار">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="brand/splash-1290x2796.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="brand/splash-1179x2556.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="brand/splash-1284x2778.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="brand/splash-1170x2532.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="brand/splash-1125x2436.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="brand/splash-1242x2688.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="brand/splash-828x1792.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="brand/splash-750x1334.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="brand/splash-640x1136.png">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <header class="top">
+    <div class="top-row">
+      <h1><img class="brand-mark" src="brand/mark.svg" alt="" width="34" height="34">لوحة التحكم</h1>
+      <a class="view-frame" id="viewFrame" href="/" target="_blank" rel="noopener">عرض الإطار</a>
+    </div>
+    <p class="frame-status" id="frameStatus"><span class="dot"></span><span id="frameStatusText">جاري الاتصال…</span></p>
+  </header>
+
+  <nav class="tabs" id="tabs" role="tablist" aria-label="الأقسام">
+    <button type="button" role="tab" data-view="message" class="is-on">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg><span>الرسالة</span></button>
+    <button type="button" role="tab" data-view="lists">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg><span>القوائم</span></button>
+    <button type="button" role="tab" data-view="photos">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><span>الصور</span></button>
+    <button type="button" role="tab" data-view="dates">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>المناسبات</span></button>
+    <button type="button" role="tab" data-view="settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span>الإعدادات</span></button>
+  </nav>
+
+  <main>
+    <!-- ===== message ===== -->
+    <section id="v-message" class="view">
+      <h2>رسالة على الإطار</h2>
+      <p class="lead">تظهر تحت التاريخ على شاشة الساعة، بخط كبير يُقرأ من بعيد.</p>
+      <div class="msg-preview" id="msgPreview">
+        <span class="star" aria-hidden="true"></span>
+        <p id="msgPreviewText"></p>
+      </div>
+      <p class="hint" id="msgUntil"></p>
+      <form id="msgForm" class="card">
+        <label for="msgText">الرسالة</label>
+        <textarea id="msgText" maxlength="200" rows="3" placeholder="مثلاً: العشاء الليلة عند الجدة على الساعة الثامنة"></textarea>
+        <div class="row-between"><span class="hint" id="msgCount">0 / 200</span></div>
+        <label for="msgHours">تبقى على الإطار</label>
+        <select id="msgHours">
+          <option value="">حتى أزيلها</option>
+          <option value="1">ساعة</option>
+          <option value="3">3 ساعات</option>
+          <option value="12">12 ساعة</option>
+          <option value="24" selected>يوماً واحداً</option>
+          <option value="72">3 أيام</option>
+          <option value="168">أسبوعاً</option>
+        </select>
+        <div class="actions">
+          <button type="submit" class="primary">عرض على الإطار</button>
+          <button type="button" class="ghost" id="msgClear">إزالة الرسالة</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===== lists ===== -->
+    <section id="v-lists" class="view" hidden>
+      <div class="seg" role="tablist" aria-label="القائمة">
+        <button type="button" data-list="shopping" class="is-on">التسوق <span class="n" id="nShopping"></span></button>
+        <button type="button" data-list="tasks">المهام <span class="n" id="nTasks"></span></button>
+      </div>
+      <form class="addbar" id="addForm">
+        <label class="sr" for="addInput">عنصر جديد</label>
+        <input id="addInput" type="text" maxlength="120" autocomplete="off" enterkeyhint="done">
+        <button type="submit">إضافة</button>
+      </form>
+      <div class="quick" id="quick"></div>
+      <ul class="items" id="items"></ul>
+      <button type="button" class="ghost" id="clearDone" hidden></button>
+
+      <div class="card routines-card" id="routinesCard" hidden>
+        <p class="card-title">مهام متكررة</p>
+        <p class="hint">تعود إلى قائمة المهام وحدها في موعدها، فلا داعي لكتابتها كل مرة. تُعلَّم منجزة على الإطار كأي مهمة.</p>
+        <ul class="routines" id="routineList"></ul>
+        <div class="quick" id="routineQuick"></div>
+        <form id="rtForm">
+          <label for="rtText">المهمة</label>
+          <input id="rtText" type="text" maxlength="120" autocomplete="off" placeholder="مثلاً: سقي النباتات">
+          <div class="two">
+            <div>
+              <label for="rtKind">تتكرر</label>
+              <select id="rtKind">
+                <option value="days">كل عدد من الأيام</option>
+                <option value="weekly">كل أسبوع</option>
+                <option value="monthly">كل شهر</option>
+              </select>
+            </div>
+            <div id="rtEveryBox"><label for="rtEvery">كل كم يوماً</label><input id="rtEvery" type="number" min="1" max="90" value="3" dir="ltr"></div>
+            <div id="rtWeekdayBox" hidden><label for="rtWeekday">في يوم</label><select id="rtWeekday"></select></div>
+            <div id="rtDayBox" hidden><label for="rtDay">يوم الشهر</label><input id="rtDay" type="number" min="1" max="31" value="5" dir="ltr"></div>
+          </div>
+          <label for="rtStart">ابتداءً من</label>
+          <input id="rtStart" type="date">
+          <p class="hint" id="rtPreview"></p>
+          <div class="actions"><button type="submit" class="primary">إضافة المهمة المتكررة</button></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===== photos ===== -->
+    <section id="v-photos" class="view" hidden>
+      <h2>صور الإطار</h2>
+      <label class="upload">
+        <input id="fileInput" type="file" accept="image/*" multiple>
+        <span>إضافة صور</span>
+      </label>
+      <p class="hint" id="uploadStatus">تُصغَّر الصور على جهازك قبل الرفع لتناسب شاشة الإطار. الصور الطولية تظهر كاملة على خلفية من ألوانها.</p>
+      <details class="howto">
+        <summary>إرسال الصور من المعرض أو واتساب مباشرة</summary>
+        <ol>
+          <li>على هاتف أندرويد، افتح لوحة التحكم في Chrome، ثم من القائمة ⋮ اختر «إضافة إلى الشاشة الرئيسية» (أو «تثبيت التطبيق»).</li>
+          <li>بعدها، في المعرض أو واتساب: اختر الصور، اضغط «مشاركة»، ثم اختر «الإطار».</li>
+          <li>تُفتح لوحة التحكم وتُرفع الصور وحدها، وتظهر على الإطار خلال دقائق.</li>
+        </ol>
+        <p class="hint">آيفون لا يسمح للمواقع بالظهور في قائمة المشاركة؛ استعمل زر «إضافة صور» أعلاه.</p>
+      </details>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <!-- ===== family dates ===== -->
+    <section id="v-dates" class="view" hidden>
+      <h2>مناسبات العائلة</h2>
+      <p class="lead">تظهر على شاشة التقويم وفي قائمة المناسبات القادمة. العطل الرسمية والأعياد الدينية تُضاف تلقائياً. يمكنك إضافة مناسبة واحدة أو استيراد ملف تقويم كامل.</p>
+      <form id="evForm" class="card">
+        <label for="evName">المناسبة</label>
+        <input id="evName" type="text" maxlength="100" autocomplete="off" placeholder="مثلاً: عيد ميلاد سلمى">
+        <div class="two">
+          <div>
+            <label for="evDate">التاريخ</label>
+            <input id="evDate" type="date">
+          </div>
+          <div>
+            <label for="evRepeat">التكرار</label>
+            <select id="evRepeat">
+              <option value="yearly">كل سنة</option>
+              <option value="once">مرة واحدة</option>
+            </select>
+          </div>
+        </div>
+        <div class="actions"><button type="submit" class="primary">إضافة المناسبة</button></div>
+      </form>
+      <div class="card" id="importCard">
+        <p class="card-title">استيراد ملف تقويم</p>
+        <p class="hint">ملف <bdi dir="ltr">.ics</bdi> من Google Calendar أو Outlook، أو أي ملف تقويم يصلك (جدول المدرسة مثلاً). تظهر مواعيده على الإطار من الشهر الماضي إلى سنة قادمة، والمواعيد المتكررة تُوزَّع تلقائياً.</p>
+        <label class="upload upload-ghost">
+          <input id="icsInput" type="file" accept=".ics,text/calendar">
+          <span>اختيار ملف <bdi dir="ltr">.ics</bdi></span>
+        </label>
+        <div id="icsPreview" class="ics-preview" hidden>
+          <p id="icsSummary"></p>
+          <label for="icsName">اسم هذا التقويم</label>
+          <input id="icsName" type="text" maxlength="60" autocomplete="off">
+          <p class="hint">إذا استوردت ملفاً بالاسم نفسه لاحقاً، يحل محل المواعيد القديمة بدل أن يكررها.</p>
+          <div class="actions">
+            <button type="button" class="primary" id="icsImport">استيراد إلى التقويم</button>
+            <button type="button" class="ghost" id="icsCancel">إلغاء</button>
+          </div>
+        </div>
+        <details class="howto">
+          <summary>كيف أحصل على الملف من Google Calendar؟</summary>
+          <ol>
+            <li>افتح calendar.google.com على الحاسوب.</li>
+            <li>اضغط على الإعدادات (رمز الترس)، ثم «استيراد وتصدير».</li>
+            <li>اضغط «تصدير». يُنزَّل ملف <bdi dir="ltr">.zip</bdi>؛ افتحه وستجد ملف <bdi dir="ltr">.ics</bdi> لكل تقويم.</li>
+            <li>اختر هنا ملف التقويم الذي تريده.</li>
+          </ol>
+        </details>
+      </div>
+      <ul class="imports" id="importList"></ul>
+      <ul class="events" id="evList"></ul>
+    </section>
+
+    <!-- ===== settings ===== -->
+    <section id="v-settings" class="view" hidden>
+      <h2>الإعدادات</h2>
+
+      <fieldset class="card">
+        <legend>المدينة</legend>
+        <p class="hint">للطقس ومواقيت الصلاة.</p>
+        <label for="sCity">المدينة</label>
+        <select id="sCity"></select>
+        <div id="customCity" class="two" hidden>
+          <div><label for="sCityName">الاسم</label><input id="sCityName" type="text" maxlength="40"></div>
+          <div class="two">
+            <div><label for="sLat">خط العرض</label><input id="sLat" type="number" step="0.0001" min="-90" max="90" dir="ltr"></div>
+            <div><label for="sLon">خط الطول</label><input id="sLon" type="number" step="0.0001" min="-180" max="180" dir="ltr"></div>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="card">
+        <legend>مواقيت الصلاة</legend>
+        <p class="hint">تُحسب حسب طريقة وزارة الأوقاف. إذا اختلف مسجدكم، أضف أو انقص دقائق.</p>
+        <div class="steppers" id="prayerAdjust"></div>
+        <label class="switch"><input type="checkbox" id="sPrayerFocus"><span>إظهار شاشة الصلاة قبل الأذان بعشر دقائق</span></label>
+      </fieldset>
+
+      <fieldset class="card">
+        <legend>الأذان</legend>
+        <p class="hint">يُرفع الأذان من سماعة الإطار في وقت كل صلاة. ارفع ملف الأذان الذي تحبه (MP3 مثلاً، حتى 10 ميغابايت).</p>
+        <label class="switch"><input type="checkbox" id="sAdhan"><span>تشغيل الأذان على الإطار</span></label>
+        <div class="chips-row" id="adhanPrayers"></div>
+        <label for="sAdhanVol">مستوى الصوت <span id="sAdhanVolOut"></span></label>
+        <input id="sAdhanVol" type="range" min="0.1" max="1" step="0.05">
+        <div class="audio-rows">
+          <div class="audio-row" data-audio="adhan">
+            <div class="audio-head"><span class="audio-name">صوت الأذان</span><span class="hint audio-info"></span></div>
+            <audio controls preload="none" hidden></audio>
+            <div class="actions">
+              <label class="upload upload-ghost small"><input type="file" accept="audio/*"><span>رفع ملف</span></label>
+              <button type="button" class="ghost small audio-del" hidden>حذف</button>
+            </div>
+          </div>
+          <div class="audio-row" data-audio="adhan-fajr">
+            <div class="audio-head"><span class="audio-name">أذان الفجر <span class="hint">(اختياري، وإلا يُستعمل نفس الأذان)</span></span><span class="hint audio-info"></span></div>
+            <audio controls preload="none" hidden></audio>
+            <div class="actions">
+              <label class="upload upload-ghost small"><input type="file" accept="audio/*"><span>رفع ملف</span></label>
+              <button type="button" class="ghost small audio-del" hidden>حذف</button>
+            </div>
+          </div>
+        </div>
+        <p class="frame-audio" id="frameAudio"></p>
+        <div class="actions"><button type="button" class="ghost" id="testAdhan">تجربة الأذان على الإطار الآن</button></div>
+      </fieldset>
+
+      <fieldset class="card">
+        <legend>رمضان</legend>
+        <p class="hint" id="ramadanWhen"></p>
+        <label class="switch"><input type="checkbox" id="sRamadan"><span>وضع رمضان على شاشة الصلاة (يعمل وحده طوال الشهر): عدّ تنازلي للإفطار والسحور ووقت الإمساك</span></label>
+        <label class="switch"><input type="checkbox" id="sQuran"><span>عداد ختمة القرآن على الإطار (اضغط «+ جزء» كلما قرأتم جزءاً)</span></label>
+        <div class="actions">
+          <button type="button" class="ghost" id="previewRamadan">معاينة وضع رمضان على الإطار (10 دقائق)</button>
+          <button type="button" class="ghost" id="previewStop" hidden>إيقاف المعاينة</button>
+        </div>
+        <p class="hint" id="previewNote"></p>
+      </fieldset>
+
+      <fieldset class="card">
+        <legend>الأذكار</legend>
+        <label class="switch"><input type="checkbox" id="sAdhkar"><span>عرض أذكار الصباح بعد الفجر وأذكار المساء بعد العصر</span></label>
+        <label for="sAdhkarMin">تبقى على الشاشة (دقائق)، أو حتى تُكمَل</label>
+        <input id="sAdhkarMin" type="number" min="5" max="120" dir="ltr">
+        <div class="actions"><button type="button" class="ghost" id="previewAdhkar">عرض الأذكار على الإطار الآن</button></div>
+      </fieldset>
+
+      <fieldset class="card">
+        <legend>شاشة الساعة</legend>
+        <label class="switch"><input type="checkbox" id="sVerse"><span>آية أو حديث كل يوم (حين لا توجد رسالة)</span></label>
+        <label class="switch"><input type="checkbox" id="sNudge"><span>جملة عن الطقس بدل الأرقام: المظلة، البرد، الحر…</span></label>
+      </fieldset>
+
+      <fieldset class="card">
+        <legend>التاريخ الهجري</legend>
+        <p class="hint">إذا كان اليوم الهجري على الإطار مختلفاً عن المعلن في المغرب.</p>
+        <div class="stepper-line">
+          <div class="stepper" id="hijriStepper"></div>
+          <span class="hint" id="hijriToday"></span>
+        </div>
+      </fieldset>
+
+      <fieldset class="card">
+        <legend>الشاشات</legend>
+        <p class="hint">الشاشات التي تتناوب على الإطار، وكم ثانية تبقى كل واحدة.</p>
+        <div id="screensList"></div>
+        <label class="switch"><input type="checkbox" id="sTouch"><span>السماح بالتنقل بين الشاشات باللمس على الإطار</span></label>
+        <label for="sPhotoSeconds">مدة كل صورة (ثوانٍ)</label>
+        <input id="sPhotoSeconds" type="number" min="5" max="120" dir="ltr">
+      </fieldset>
+
+      <fieldset class="card">
+        <legend>الوضع الليلي</legend>
+        <label class="switch"><input type="checkbox" id="sNight"><span>تخفيف الإضاءة ليلاً وعرض الساعة فقط</span></label>
+        <div class="two">
+          <div><label for="sNightStart">من</label><input id="sNightStart" type="time" dir="ltr"></div>
+          <div><label for="sNightEnd">إلى</label><input id="sNightEnd" type="time" dir="ltr"></div>
+        </div>
+        <label for="sNightDim">درجة التعتيم <span id="sNightDimOut"></span></label>
+        <input id="sNightDim" type="range" min="0" max="0.95" step="0.05">
+      </fieldset>
+
+      <fieldset class="card">
+        <legend>الإضافة السريعة</legend>
+        <p class="hint">أزرار جاهزة في القوائم. افصل بينها بفاصلة.</p>
+        <label for="sQuickShopping">التسوق</label>
+        <textarea id="sQuickShopping" rows="3"></textarea>
+        <label for="sQuickTasks">المهام</label>
+        <textarea id="sQuickTasks" rows="2"></textarea>
+      </fieldset>
+
+      <div class="savebar" id="saveBar" hidden>
+        <span>لديك تغييرات غير محفوظة</span>
+        <button type="button" class="primary" id="saveSettings">حفظ</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

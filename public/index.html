@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#18205A">
+  <title>لوحة العائلة</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="preload" href="fonts/reem-kufi.woff" as="font" type="font/woff" crossorigin>
+  <link rel="preload" href="fonts/readex-pro.woff" as="font" type="font/woff" crossorigin>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <!-- Shown while the frame starts up (its processor is slow); fades out when ready. -->
+  <div id="boot" aria-hidden="true">
+    <img src="brand/mark.svg" alt="">
+    <div class="boot-name">لوحة العائلة</div>
+  </div>
+  <main id="stage"></main>
+  <script type="module" src="js/main.js"></script>
+  <script nomodule>document.body.innerHTML = '<p style="color:#fff;font:24px sans-serif;padding:40px">This browser is too old. Install Android System WebView 106 or newer (see README).</p>';</script>
+</body>
+</html>
