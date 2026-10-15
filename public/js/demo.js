@@ -162,3 +162,59 @@ export function setMessage(text, hours) {
   return m;
 }
 export function clearMessage() { store.set('demo-message', null); return null; }
+
+// «نبضة» in demo mode: moments live in this browser's storage, so the demo control panel and
+// the demo frame (/?demo) in another tab see each other's moments at once (storage events).
+// Voice notes are kept as data: URLs (a 15-second note is about 60 KB).
+const PULSE_KEEP = 40;
+export function pulses(since) {
+  const week = Date.now() - 7 * DAY;
+  return store.get('demo-pulses', []).filter((p) => p.at > (since || 0) && p.at > week);
+}
+export function pulseAdd(p) {
+  const list = pulses(0);
+  const at = Math.max(Date.now(), list.length ? list[list.length - 1].at + 1 : 0);
+  if (list.some((x) => x.from === p.from && x.kind === p.kind && at - x.at < 2000)) {
+    const e = new Error('لحظة… أُرسلت للتو.');
+    e.status = 429;
+    throw e;
+  }
+  const pulse = Object.assign({ id: at.toString(36) + Math.random().toString(36).slice(2, 6), at }, p);
+  list.push(pulse);
+  while (list.length > PULSE_KEEP) list.shift();
+  try { localStorage.setItem('fd:demo-pulses', JSON.stringify(list)); } catch (e) {
+    // Storage full (voice notes): drop the oldest voice notes and try once more.
+    const lean = list.filter((x, i) => !x.audioData || i >= list.length - 4);
+    store.set('demo-pulses', lean);
+  }
+  return { pulse, live: Date.now() - store.get('demo-frame-alive', 0) < 12000 ? 1 : 0 };
+}
+
+// A child's drawing for the preview: a heart, the house, the sun and some grass.
+export function sampleDrawing() {
+  const strokes = [];
+  let t = 0;
+  const stroke = (c, w, pts) => {
+    const p = [];
+    for (const [x, y] of pts) { p.push(Math.round(x), Math.round(y), t); t += 18; }
+    t += 350;
+    strokes.push({ c, w, p });
+  };
+  const heart = [];
+  for (let i = 0; i <= 80; i++) {
+    const a = (i / 80) * 2 * Math.PI;
+    const x = 16 * Math.pow(Math.sin(a), 3), y = 13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a);
+    heart.push([280 + x * 11, 420 - y * 14]);
+  }
+  stroke(5, 2, heart);
+  stroke(0, 1, [[560, 720], [560, 450], [700, 320], [840, 450], [840, 720], [560, 720]]);
+  stroke(1, 1, [[665, 720], [665, 600], [735, 600], [735, 720]]);
+  stroke(4, 1, [[600, 520], [640, 520], [640, 560], [600, 560], [600, 520]]);
+  const sun = [];
+  for (let i = 0; i <= 40; i++) { const a = (i / 40) * 2 * Math.PI; sun.push([880 + 55 * Math.cos(a), 170 + 73 * Math.sin(a)]); }
+  stroke(1, 2, sun);
+  const grass = [];
+  for (let i = 0; i < 30; i++) grass.push([70 + i * 30, 890 - (i % 2) * 60]);
+  stroke(3, 1, grass);
+  return strokes;
+}

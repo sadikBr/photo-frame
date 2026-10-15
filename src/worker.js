@@ -17,6 +17,7 @@
 //   PUT  /api/audio/<name>         upload the adhan (name: adhan | adhan-fajr; body = audio bytes)
 //   GET  /api/audio/<name>         the audio file;  DELETE removes it
 //   POST /api/preview              {what:"ramadan"|"adhkar"|"adhan"|"none", minutes?}  show it on the frame now
+//   /api/pulse…                    «نبضة»: moments from phones to the frame (see pulse-hub.js)
 //   GET  /api/photos               photo index
 //   POST /api/photos               upload one JPEG (body = image bytes)
 //   GET  /api/photos/<id>          the photo
@@ -27,6 +28,8 @@ import { sanitizeSettings, clean, num } from './settings.js';
 import { dueFrom, addDays } from '../public/js/routines.js';
 
 export { dueFrom };
+// «نبضة» lives in a Durable Object (see pulse-hub.js and wrangler.jsonc).
+export { PulseHub } from './pulse-hub.js';
 
 const LISTS = ['tasks', 'shopping'];
 const MAX_ITEMS = 200;
@@ -406,6 +409,10 @@ export default {
       if (!authorized(request, env, url)) return fail(401, 'Wrong or missing access key.');
 
       if (path === '/api/board' && method === 'GET') return board(env, url);
+      if (path === '/api/pulse' || path.startsWith('/api/pulse/')) {
+        if (!env.PULSE) return fail(500, 'The PULSE Durable Object is not bound. See wrangler.jsonc and the README.');
+        return env.PULSE.get(env.PULSE.idFromName('family')).fetch(request);
+      }
       if (path === '/api/settings') {
         if (method === 'GET') return json((await needStore(env).get('settings', 'json')) || {});
         if (method === 'PUT') return putSettings(request, env);

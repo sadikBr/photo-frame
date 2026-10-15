@@ -51,6 +51,9 @@ export default {
   dailyVerse: true,
   weatherNudge: true,
 
+  // «نبضة»: a soft chime when a moment arrives from a phone (never at night).
+  pulseSound: true,
+
   // Quick-add buttons in the control panel.
   quickShopping: ['خبز', 'حليب', 'بيض', 'نعناع', 'طماطم', 'بصل', 'زيت الزيتون', 'سكر', 'أتاي', 'فواكه', 'خضر', 'ماء'],
   quickTasks: ['أداء الفاتورة', 'الاتصال بالوالدة', 'تنظيف البيت', 'سقي النباتات'],

@@ -11,6 +11,8 @@ import { createLists } from './screens/lists.js';
 import { createPhotos } from './screens/photos.js';
 import * as adhan from './adhan.js';
 import { setRamadanPreview, ramadanPreviewing } from './ramadan.js';
+import { createPulse } from './pulse.js';
+import * as demo from './demo.js';
 
 const SCREEN_W = 1280;
 const stage = $('#stage');
@@ -35,6 +37,11 @@ for (const sc of screens) {
   nav.appendChild(tab);
 }
 stage.append(track, nav, status, adhanBar, night);
+
+// «نبضة»: moments from the family's phones play over whatever screen is up. At night they play
+// under the dimmed layer and without sound.
+const pulse = createPulse({ stage, isNight: () => isNight(now()) && Date.now() > awakeUntil, hold: () => !!adhan.adhanPlaying() });
+stage.insertBefore(night, null); // keep the night layer last
 
 // Screens are stacked; only the one shown and the one sliding in are visible. The order loops:
 // after the last screen comes the first. RTL: the next screen comes in from the left.
@@ -98,6 +105,7 @@ stage.addEventListener('click', (e) => {
 stage.addEventListener('pointerdown', (e) => {
   touched(); // any touch also wakes a dimmed screen
   adhan.unlock(); // and lets the page play the adhan from now on, if the browser asked for that
+  pulse.unlockSound();
   if (!config.touchNavigation) return;
   drag = { x: e.clientX, y: e.clientY, id: e.pointerId, active: false };
 });
@@ -169,6 +177,8 @@ function schedule(t) {
 
   // The adhan brings the prayer screen forward, even while someone is using the frame.
   if (adhan.adhanPlaying()) { if (screens[index].name !== 'prayer') go('prayer'); shownAt = real; return; }
+  // A moment from a phone is playing: stay on this screen until it's done.
+  if (pulse.busy()) { shownAt = real; return; }
   if (idle < config.resumeAfterSeconds * 1000) return; // someone is using it
   if (!resumed) { resumed = true; rotIndex = 0; go('home'); return; }
   if (ramadanPreviewing()) { if (screens[index].name !== 'prayer') go('prayer'); shownAt = real; return; }
@@ -243,6 +253,15 @@ if (DEMO) {
   window.frameDemo = {
     ramadan(on) { setRamadanPreview(on ? Infinity : 0); go('prayer', true); },
     adhkar() { adhkarScreen.force(now() + 10 * MINUTE); go('adhkar', true); },
+    // A moment as if sent from a phone: a tap ('love', 'miss', 'morning', 'night', 'way', 'news')
+    // or 'draw'.
+    pulse(kind) {
+      const from = ['ماما', 'بابا', 'جدتي', 'سلمى'][Math.floor(Math.random() * 4)];
+      try {
+        demo.pulseAdd(kind === 'draw' ? { kind: 'draw', from, strokes: demo.sampleDrawing() } : { kind: 'tap', tap: kind, from });
+      } catch (e) { return; } // the same one twice in two seconds
+      pulse.poke();
+    },
   };
 }
 
@@ -263,12 +282,14 @@ function loop() {
   const sc = screens[index];
   try { sc.tick(t); } catch (e) { console.error(e); }
   try { adhan.tick(t); } catch (e) { console.error(e); }
+  try { pulse.tick(t); } catch (e) { console.error(e); }
   try { schedule(t); } catch (e) { console.error(e); }
   setTimeout(loop, 1000 - (Date.now() % 1000) + 5);
 }
 
 const startScreen = (location.hash || '').slice(1);
 start();
+pulse.start();
 go(byName[startScreen] ? startScreen : 'home');
 if (byName[startScreen]) touched();
 updateStatus();

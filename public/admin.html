@@ -35,7 +35,9 @@
   </header>
 
   <nav class="tabs" id="tabs" role="tablist" aria-label="الأقسام">
-    <button type="button" role="tab" data-view="message" class="is-on">
+    <button type="button" role="tab" data-view="pulse" class="is-on">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.5-4.6-8.6-9.3C2.7 7.6 4.8 4.8 7.8 4.8c1.9 0 3.2 1.1 4.2 2.4 1-1.3 2.3-2.4 4.2-2.4 3 0 5.1 2.8 4.4 5.9C19.5 15.4 12 20 12 20z"/><path d="M6.5 11.5h3l1.2-2.4 2 4.6 1.3-2.2h3.5"/></svg><span>نبضة</span></button>
+    <button type="button" role="tab" data-view="message">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg><span>الرسالة</span></button>
     <button type="button" role="tab" data-view="lists">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg><span>القوائم</span></button>
@@ -48,8 +50,77 @@
   </nav>
 
   <main>
+    <!-- ===== «نبضة»: moments to the frame ===== -->
+    <section id="v-pulse" class="view">
+      <div class="pulse-head">
+        <h2>نبضة</h2>
+        <p class="pulse-live" id="pulseLive" hidden><span class="dot"></span><span id="pulseLiveText"></span></p>
+      </div>
+      <p class="lead">لحظة صغيرة إلى البيت: تظهر على الإطار في ثوانٍ، ويستطيع من في البيت أن يردّ عليك بقلب.</p>
+
+      <!-- who is sending -->
+      <div class="card who" id="whoCard">
+        <label>من يرسل؟</label>
+        <div class="chips-row" id="whoChips"></div>
+        <form class="who-other" id="whoForm">
+          <input id="whoInput" type="text" maxlength="24" placeholder="أو اكتب اسمك" autocomplete="nickname">
+          <button type="submit" class="primary">حفظ</button>
+        </form>
+      </div>
+      <p class="who-line" id="whoLine" hidden>ترسل باسم <b id="whoName"></b> · <button type="button" id="whoChange">تغيير</button></p>
+
+      <div class="taps" id="taps"></div>
+
+      <!-- drawing -->
+      <div class="card pad-card">
+        <div class="row-title"><h3>رسمة بإصبعك</h3><span class="hint">تُرسم من جديد على الإطار، خطاً خطاً</span></div>
+        <div class="pad-wrap"><canvas id="pad" width="800" height="600" aria-label="لوحة الرسم"></canvas><p class="pad-empty" id="padEmpty">ارسم هنا</p></div>
+        <div class="pad-tools">
+          <div class="swatches" id="swatches" role="radiogroup" aria-label="اللون"></div>
+          <div class="tools">
+            <button type="button" class="tool" id="penSize" aria-label="سُمك القلم"><span class="size-dot"></span></button>
+            <button type="button" class="tool" id="padUndo" aria-label="تراجع"><svg viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
+            <button type="button" class="tool" id="padClear" aria-label="مسح"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+          </div>
+        </div>
+        <button type="button" class="primary wide" id="padSend" disabled>أرسل الرسمة</button>
+      </div>
+
+      <!-- voice -->
+      <div class="card voice-card">
+        <div class="row-title"><h3>رسالة صوتية</h3><span class="hint">حتى 15 ثانية</span></div>
+        <div class="rec">
+          <button type="button" class="rec-btn" id="recBtn" aria-label="ابدأ التسجيل">
+            <svg class="rec-ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56"/><circle class="rec-prog" id="recProg" cx="60" cy="60" r="56"/></svg>
+            <span class="rec-icon" id="recIcon"></span>
+          </button>
+          <div class="rec-text">
+            <p class="rec-state" id="recState">اضغط وتكلّم</p>
+            <p class="hint" id="recHint">يُسمع صوتك على الإطار مع «رسالة صوتية من …».</p>
+          </div>
+        </div>
+        <div class="rec-done" id="recDone" hidden>
+          <audio id="recAudio" controls preload="auto"></audio>
+          <div class="actions">
+            <button type="button" class="primary" id="recSend">أرسل الرسالة</button>
+            <button type="button" class="ghost" id="recAgain">سجّل من جديد</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- what happened -->
+      <h3 class="feed-title">آخر النبضات</h3>
+      <ul class="feed" id="pulseFeed"></ul>
+
+      <div class="card invite">
+        <h3>للأجداد والأقارب</h3>
+        <p class="hint">أرسل لهم هذا الرابط مرة واحدة. يفتحونه على الهاتف، ثم «إضافة إلى الشاشة الرئيسية»، فيصير عندهم تطبيق «الإطار» ويرسلون النبضات مثلك.</p>
+        <button type="button" class="ghost" id="inviteBtn">مشاركة الرابط</button>
+      </div>
+    </section>
+
     <!-- ===== message ===== -->
-    <section id="v-message" class="view">
+    <section id="v-message" class="view" hidden>
       <h2>رسالة على الإطار</h2>
       <p class="lead">تظهر تحت التاريخ على شاشة الساعة، بخط كبير يُقرأ من بعيد.</p>
       <div class="msg-preview" id="msgPreview">
@@ -273,6 +344,11 @@
         <legend>شاشة الساعة</legend>
         <label class="switch"><input type="checkbox" id="sVerse"><span>آية أو حديث كل يوم (حين لا توجد رسالة)</span></label>
         <label class="switch"><input type="checkbox" id="sNudge"><span>جملة عن الطقس بدل الأرقام: المظلة، البرد، الحر…</span></label>
+      </fieldset>
+
+      <fieldset class="card">
+        <legend>نبضة</legend>
+        <label class="switch"><input type="checkbox" id="sPulseSound"><span>رنّة خفيفة على الإطار حين تصل نبضة (لا رنّة في الليل)</span></label>
       </fieldset>
 
       <fieldset class="card">

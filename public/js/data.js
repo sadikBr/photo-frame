@@ -68,6 +68,7 @@ function applySettings(s) {
   config.adhkar = Object.assign({}, DEFAULTS.adhkar, s.adhkar);
   config.dailyVerse = typeof s.dailyVerse === 'boolean' ? s.dailyVerse : DEFAULTS.dailyVerse;
   config.weatherNudge = typeof s.weatherNudge === 'boolean' ? s.weatherNudge : DEFAULTS.weatherNudge;
+  config.pulseSound = typeof s.pulseSound === 'boolean' ? s.pulseSound : DEFAULTS.pulseSound;
   if (s.screens) {
     config.rotation = ROTATION_ORDER.filter((k) => s.screens[k] && s.screens[k].on).map((k) => [k, s.screens[k].seconds]);
   } else {

@@ -58,6 +58,7 @@ export function sanitizeSettings(input) {
   if (i.adhkar && typeof i.adhkar === 'object') s.adhkar = { auto: i.adhkar.auto !== false, minutes: int(i.adhkar.minutes, 5, 120) || 30 };
   if (typeof i.dailyVerse === 'boolean') s.dailyVerse = i.dailyVerse;
   if (typeof i.weatherNudge === 'boolean') s.weatherNudge = i.weatherNudge;
+  if (typeof i.pulseSound === 'boolean') s.pulseSound = i.pulseSound;
   const qs = words(i.quickShopping, 30, 30), qt = words(i.quickTasks, 30, 40);
   if (qs) s.quickShopping = qs;
   if (qt) s.quickTasks = qt;

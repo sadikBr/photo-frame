@@ -19,10 +19,11 @@ on the clock. On the frame itself, people can switch screens by touch (you can t
 tap a shopping item when it's bought or a task when it's done (tap again to undo), clear
 finished tasks and bought items with a second tap to confirm, and count the Quran in Ramadan.
 
-The **control panel** (`/admin`) has five sections:
+The **control panel** (`/admin`) has six sections:
 
 | Section | What you can do |
 | --- | --- |
+| **نبضة** | Send a moment to the frame from wherever you are: a tap (أفكر فيكم, اشتقت إليكم, صباح الخير, تصبحون على خير, في الطريق, خبر سعيد), a finger drawing, or a voice note of up to 15 seconds. It appears on the frame within a second or two with its own animation; the family at home can tap «ردّ بقلب» and you see it in the app. See [نبضة](#نبضة-moments-from-your-phone) |
 | **الرسالة** | Put a note on the clock screen, for an hour, a day, a week or until you remove it |
 | **القوائم** | Add, tick and remove shopping items and tasks, with quick-add buttons. **Repeating tasks** (every N days, every week on a day, or every month on a date) come back on the to-do list by themselves when due |
 | **الصور** | Upload photos (resized on your phone first) and delete them |
@@ -151,6 +152,42 @@ Cloudflare); it is handled by `public/sw.js`.
 Repeating tasks use Morocco's date (GMT). If you live elsewhere, set your offset from UTC in
 minutes as a variable in `wrangler.jsonc`: `"vars": { "UTC_OFFSET_MINUTES": 60 }`.
 
+### نبضة: moments from your phone
+
+Open the control panel (it opens on «نبضة»), choose who you are once (ماما, بابا, جدتي… or type
+a name), then:
+
+- **Tap** one of six buttons. The frame shows it over whatever screen is up, with its own
+  animation: hearts rising, rose petals, a sunrise, a night sky with the moon, a car driving
+  home, confetti. A soft two-note chime plays (not at night; switch it off in الإعدادات → نبضة).
+- **Draw** with your finger. The frame draws it again stroke by stroke, in the time you took,
+  then keeps it as a small card in the bottom corner for the rest of the day. Tap the card on
+  the frame to see it again.
+- **Record** a voice note (tap, speak up to 15 seconds, tap, listen, send). The frame shows
+  «رسالة صوتية» with your name and plays it. Voice notes also stay in the corner for the day.
+
+Under each moment there is a «ردّ بقلب» button. When someone at home taps it, your app shows
+«البيت ردّ عليك بقلب» with a few hearts, and the list at the bottom of «نبضة» shows it. (The
+app finds out while it is open; there are no phone notifications.)
+
+At night the moments still arrive, but under the dimmed screen and without sound; a voice note
+waits for someone to tap «▶ استمع». Moments sent while the frame is off play when it comes
+back (if they're less than 12 hours old). Each moment plays once.
+
+**Grandparents and family far away**: press «مشاركة الرابط» at the bottom of «نبضة» and send
+the link by WhatsApp. They open it once and add it to the home screen. The link contains the
+access key, so it also lets them use the other sections; send it only to family.
+
+**Voice notes need HTTPS**: phones only allow the microphone on secure sites. On Cloudflare
+that's automatic; on `localhost` it works too, but not on your computer's address from a phone
+(`http://192.168…`).
+
+How it works: one Cloudflare **Durable Object** (`src/pulse-hub.js`, binding `PULSE` in
+`wrangler.jsonc`) keeps the last 60 moments for a week, with recordings and drawings, and holds
+a live WebSocket to the frame so each moment is pushed the instant it's sent. If the live
+connection drops, the frame asks every 8 seconds instead. It's included in the free plan
+(SQLite-backed Durable Objects); `npm run deploy` creates it the first time.
+
 ## About the time zone
 
 Morocco returned to permanent GMT on 20 September 2026. Older Android versions, including the
@@ -163,6 +200,8 @@ against the server every hour.
 
 - Cloudflare's free plan allows 1,000 storage writes a day. Each change in the control panel
   is one or two writes, and the frame's check-in about 150 a day, far below the limit.
+- «نبضة» uses Durable Object requests: a frame with the live connection uses about 5,000 a day,
+  one without it about 11,000; the free plan allows 100,000.
 - Up to 300 photos are kept. Delete old ones from the control panel to add more.
 - If the internet drops, the frame keeps showing the last weather, prayer times, lists, message
   and settings it received. The calendar and holidays need no internet. A small notice appears in the corner
@@ -173,13 +212,15 @@ against the server every hour.
 ```
 src/worker.js        Cloudflare Worker: API for lists, repeating tasks, photos, adhan audio,
                      settings, dates, message, Quran tracker, previews, time
+src/pulse-hub.js     «نبضة»: the Durable Object that keeps moments and talks live to the frame
 src/settings.js      Validation of settings saved from the control panel
 public/index.html    The frame (display only)
 public/admin.html    The control panel (/admin); public/sw.js receives photos shared from phones
 public/js/           Frame screens (screens/), frame data (data.js), holidays (holidays.js),
                      Ramadan (ramadan.js, decorations in ramadan-decor.js), adhan (adhan.js), adhkar and verses
                      (adhkar-data.js), weather tip (nudge.js), repeating-task dates
-                     (routines.js), control panel (admin.js), .ics import (ics.js,
+                     (routines.js), «نبضة» on the frame (pulse.js) and on the phone
+                     (admin-pulse.js, shared parts in pulse-common.js), control panel (admin.js), .ics import (ics.js,
                      ics-import.js), defaults (config.js)
 public/css/          Styles: app.css (frame), admin.css (control panel)
 public/fonts/        Reem Kufi and Readex Pro (SIL Open Font License)

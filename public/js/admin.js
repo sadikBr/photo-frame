@@ -4,6 +4,7 @@ import { store, hijri, durationAr, MONTHS, HIJRI_MONTHS, WEEKDAYS, DAY } from '.
 import * as demo from './demo.js';
 import { importICS } from './ics-import.js';
 import { dueFrom } from './routines.js';
+import { initPulse } from './admin-pulse.js';
 
 const DEMO = !!(window.FRAME_DEMO || /[?&]demo\b/.test(location.search));
 (function captureKey() {
@@ -54,6 +55,9 @@ async function api(path, opts) {
 }
 const send = (path, method, body) => api(path, { method, body: JSON.stringify(body), headers: { 'content-type': 'application/json' } });
 
+// «نبضة» lives in its own file.
+const pulse = initPulse({ api, send, toast, el, $, key, DEMO });
+
 // ================= shared state =================
 let board = { lists: { tasks: [], shopping: [] }, settings: {}, events: [], message: null, frameSeen: null, routines: [], audio: {}, preview: null };
 let settings = {}; // what is saved on the server
@@ -68,9 +72,9 @@ async function loadBoard() {
 }
 
 // ================= tabs =================
-const VIEWS = ['message', 'lists', 'photos', 'dates', 'settings'];
+const VIEWS = ['pulse', 'message', 'lists', 'photos', 'dates', 'settings'];
 function showView(v) {
-  if (!VIEWS.includes(v)) v = 'message';
+  if (!VIEWS.includes(v)) v = 'pulse';
   for (const b of document.querySelectorAll('#tabs button')) {
     const on = b.dataset.view === v;
     b.classList.toggle('is-on', on);
@@ -79,6 +83,7 @@ function showView(v) {
   for (const name of VIEWS) $('v-' + name).hidden = name !== v;
   store.set('admin-view', v);
   if (v === 'photos') loadPhotos();
+  pulse.shown(v === 'pulse');
   window.scrollTo(0, 0);
 }
 for (const b of document.querySelectorAll('#tabs button')) b.addEventListener('click', () => showView(b.dataset.view));
@@ -641,6 +646,7 @@ function fillSettings(s) {
   $('sAdhkarMin').value = ak.minutes;
   $('sVerse').checked = typeof s.dailyVerse === 'boolean' ? s.dailyVerse : config.dailyVerse;
   $('sNudge').checked = typeof s.weatherNudge === 'boolean' ? s.weatherNudge : config.weatherNudge;
+  $('sPulseSound').checked = typeof s.pulseSound === 'boolean' ? s.pulseSound : config.pulseSound;
 
   $('sQuickShopping').value = (s.quickShopping || config.quickShopping).join('، ');
   $('sQuickTasks').value = (s.quickTasks || config.quickTasks).join('، ');
@@ -680,6 +686,7 @@ function collectSettings() {
     adhkar: { auto: $('sAdhkar').checked, minutes: Number($('sAdhkarMin').value) || 30 },
     dailyVerse: $('sVerse').checked,
     weatherNudge: $('sNudge').checked,
+    pulseSound: $('sPulseSound').checked,
   };
 }
 
@@ -815,7 +822,8 @@ $('testAdhan').addEventListener('click', () => {
 
 // ================= start =================
 const fromHash = (location.hash || '').slice(1);
-showView(VIEWS.includes(fromHash) ? fromHash : store.get('admin-view', 'message'));
+showView(VIEWS.includes(fromHash) ? fromHash : store.get('admin-view', 'pulse'));
+window.addEventListener('hashchange', () => { const v = location.hash.slice(1); if (VIEWS.includes(v)) showView(v); });
 loadBoard();
 takeShared();
 setInterval(() => { if (document.visibilityState === 'visible') loadBoard(); }, 15000);

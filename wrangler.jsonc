@@ -1,19 +1,40 @@
 {
-  "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "frame-dashboard",
-  "main": "src/worker.js",
-  "compatibility_date": "2026-10-01",
-  // Lets the frame notice a new deploy and reload itself.
-  "version_metadata": { "binding": "CF_VERSION_METADATA" },
-  "assets": {
-    "directory": "./public",
-    "binding": "ASSETS"
-  },
-  // Create the namespace with:  npx wrangler kv namespace create STORE
-  // then paste the id it prints here.
-  "kv_namespaces": [
-    { "binding": "STORE", "id": "PASTE_YOUR_KV_NAMESPACE_ID_HERE" }
-  ]
-  // Secret (set with `npx wrangler secret put ACCESS_KEY`, never written in this file):
-  //   ACCESS_KEY  – a long random password; the frame and phone open the site with ?key=<it>
+    "$schema": "./node_modules/wrangler/config-schema.json",
+    "name": "frame-dashboard",
+    "main": "src/worker.js",
+    "compatibility_date": "2026-10-01",
+    // Lets the frame notice a new deploy and reload itself.
+    "version_metadata": {
+        "binding": "CF_VERSION_METADATA",
+    },
+    "assets": {
+        "directory": "./public",
+        "binding": "ASSETS",
+    },
+    // Create the namespace with:  npx wrangler kv namespace create STORE
+    // then paste the id it prints here.
+    "kv_namespaces": [
+        {
+            "binding": "STORE",
+            "id": "94385e1a07dd4ea2adbbc0f3262e0f1c",
+        },
+    ],
+    // «نبضة»: one Durable Object holds the moments sent to the frame and keeps a live
+    // connection to it. SQLite-backed, so it works on the free plan.
+    "durable_objects": {
+        "bindings": [
+            {
+                "name": "PULSE",
+                "class_name": "PulseHub",
+            },
+        ],
+    },
+    "migrations": [
+        {
+            "tag": "v1",
+            "new_sqlite_classes": ["PulseHub"],
+        },
+    ],
+    // Secret (set with `npx wrangler secret put ACCESS_KEY`, never written in this file):
+    //   ACCESS_KEY  – a long random password; the frame and phone open the site with ?key=<it>
 }

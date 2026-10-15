@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import worker from '../src/worker.js';
+import worker, { PulseHub } from '../src/worker.js';
+import { fakeNamespace } from './fake-do.mjs';
 
 // In-memory stand-in for a KV namespace.
 function memoryKV() {
@@ -22,6 +23,7 @@ function memoryKV() {
 
 const env = {
   STORE: memoryKV(),
+  PULSE: fakeNamespace(PulseHub, {}),
   ACCESS_KEY: 'secret-key-123',
   ASSETS: { fetch: async (req) => new Response('asset ' + new URL(req.url).pathname) },
 };
@@ -218,6 +220,76 @@ assert.deepEqual(data.ramadan, { enabled: false, quran: true });
 assert.deepEqual(data.adhkar, { auto: true, minutes: 120 });
 assert.equal(data.dailyVerse, false);
 assert.equal(data.weatherNudge, undefined);
+
+// «نبضة»: taps, drawings, voice notes, replies; a live frame gets each one at once
+const frameGot = [];
+env.PULSE.sockets.add({ send: (m) => frameGot.push(JSON.parse(m)) }); // a frame with a live connection
+const pulse = (body, path = '/api/pulse') => call(k(path), { method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json' } });
+r = await pulse({ kind: 'tap', tap: 'love', from: '  بابا  ' });
+data = await r.json();
+assert.equal(r.status, 200);
+assert.equal(data.pulse.from, 'بابا');
+assert.equal(data.live, 1, 'delivered to the live frame');
+assert.equal(frameGot[0].pulse.tap, 'love');
+r = await pulse({ kind: 'tap', tap: 'love', from: 'بابا' });
+assert.equal(r.status, 429, 'not twice in two seconds');
+r = await pulse({ kind: 'tap', tap: 'fireworks', from: 'بابا' });
+assert.equal(r.status, 400);
+r = await pulse({ kind: 'tap', tap: 'night' });
+assert.equal(r.status, 400, 'sender required');
+r = await pulse({ kind: 'draw', from: 'ماما', strokes: [{ c: 9, w: 5, p: [10, 20, 0, 2000, -5, 40, 'x', 1, 2] }, { p: [] }, 'junk'] });
+data = await r.json();
+assert.deepEqual(data.pulse.strokes, [{ c: 5, w: 1, p: [10, 20, 0, 1000, 0, 40] }], 'drawing cleaned and clamped');
+assert.deepEqual(frameGot[1].pulse.strokes, data.pulse.strokes, 'the live frame gets the drawing itself');
+const drawId = data.pulse.id;
+assert.equal(JSON.stringify(await env.PULSE.obj.ctx.storage.get('pulses')).includes('strokes'), false, 'drawings are stored apart from the list');
+r = await pulse({ kind: 'draw', from: 'ماما', strokes: [] });
+assert.equal(r.status, 400, 'empty drawing');
+const voice = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3, 1, 2, 3]);
+r = await call(k('/api/pulse/voice?from=' + encodeURIComponent('جدة') + '&dur=6.27'), { method: 'POST', body: voice, headers: { 'content-type': 'audio/webm;codecs=opus' } });
+data = await r.json();
+assert.deepEqual(data.pulse.audio, { type: 'audio/webm', dur: 6.3 });
+r = await call(k('/api/pulse/audio/' + data.pulse.id));
+assert.equal(r.headers.get('content-type'), 'audio/webm');
+assert.deepEqual(new Uint8Array(await r.arrayBuffer()), voice);
+r = await call(k('/api/pulse/voice?from=x'), { method: 'POST', body: 'x', headers: { 'content-type': 'text/plain' } });
+assert.equal(r.status, 415);
+const loveId = frameGot[0].pulse.id;
+data = await (await pulse({ to: loveId }, '/api/pulse/reply')).json();
+assert.deepEqual([data.pulse.kind, data.pulse.from, data.pulse.toName, data.pulse.toKind], ['reply', 'البيت', 'بابا', 'tap']);
+r = await pulse({ to: 'nope000' }, '/api/pulse/reply');
+assert.equal(r.status, 404);
+data = await (await call(k('/api/pulse?light=1'))).json();
+assert.deepEqual(data.pulses.map((p) => p.kind), ['tap', 'draw', 'voice', 'reply']);
+assert.equal(data.pulses[1].strokes, undefined, 'light list leaves drawings out');
+assert.equal(data.pulses[1].points, 2);
+assert.equal(data.live, 1);
+let full = await (await call(k('/api/pulse'))).json();
+assert.deepEqual(full.pulses.find((p) => p.id === drawId).strokes, [{ c: 5, w: 1, p: [10, 20, 0, 1000, 0, 40] }], 'the frame gets drawings back');
+data = await (await call(k('/api/pulse?since=' + data.pulses[2].at))).json();
+assert.deepEqual(data.pulses.map((p) => p.kind).filter((x) => x !== 'voice'), ['reply'], 'since: only newer ones');
+assert.equal(frameGot.length, 4, 'the live frame got every one');
+r = await call('/api/pulse');
+assert.equal(r.status, 401, 'key required');
+// a week later, old moments go, with their drawings and recordings
+{
+  const st = env.PULSE.obj.ctx.storage;
+  const old = await st.get('pulses');
+  await st.put('pulses', old.map((x) => Object.assign(x, { at: x.at - 8 * 86400000 })));
+  await pulse({ kind: 'tap', tap: 'love', from: 'جدي' });
+  assert.deepEqual((await st.get('pulses')).map((x) => x.from), ['جدي']);
+  assert.deepEqual(st.keys().filter((x) => /^(draw|audio):/.test(x)), [], 'nothing left behind');
+}
+// a frame that only asks (no live socket) still counts as listening for 20 s; phones don't count
+env.PULSE.sockets.clear();
+env.PULSE.obj.lastPoll = 0; // (the test above asked like a frame)
+data = await (await call(k('/api/pulse?light=1'))).json();
+assert.equal(data.live, 0, 'a phone asking is not a frame');
+await call(k('/api/pulse?since=' + Date.now()));
+data = await (await call(k('/api/pulse?light=1'))).json();
+assert.equal(data.live, 1, 'the frame asked just now');
+data = await (await pulse({ kind: 'tap', tap: 'news', from: 'سلمى' })).json();
+assert.equal(data.live, 1, 'it will pick it up within seconds');
 
 // static
 r = await call('/m');
