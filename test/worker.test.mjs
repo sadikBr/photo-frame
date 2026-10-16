@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import worker, { PulseHub } from '../src/worker.js';
+import { pushDeps } from '../src/pulse-hub.js';
+import { b64u } from '../src/webpush.js';
 import { fakeNamespace } from './fake-do.mjs';
 
 // In-memory stand-in for a KV namespace.
@@ -290,6 +292,86 @@ data = await (await call(k('/api/pulse?light=1'))).json();
 assert.equal(data.live, 1, 'the frame asked just now');
 data = await (await pulse({ kind: 'tap', tap: 'news', from: 'سلمى' })).json();
 assert.equal(data.live, 1, 'it will pick it up within seconds');
+
+// «نبضة» on the family's phones (Web Push)
+{
+  r = await call(k('/api/pulse/push'));
+  assert.deepEqual(await r.json(), { enabled: false, publicKey: null }, 'no keys: notifications off');
+  const kp = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign']);
+  const pushEnv = { VAPID_PUBLIC_KEY: b64u(new Uint8Array(await crypto.subtle.exportKey('raw', kp.publicKey))), VAPID_PRIVATE_KEY: (await crypto.subtle.exportKey('jwk', kp.privateKey)).d };
+  env.PULSE = fakeNamespace(PulseHub, pushEnv);
+  const hub = env.PULSE.obj;
+  const sent = [];
+  let status = 201;
+  pushDeps.fetch = async (url, init) => { sent.push({ url, headers: init.headers }); return new Response(null, { status: typeof status === 'function' ? status(url) : status }); };
+  const phone = async (n) => {
+    const ua = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']);
+    return { endpoint: 'https://fcm.googleapis.com/fcm/send/' + n, keys: { p256dh: b64u(new Uint8Array(await crypto.subtle.exportKey('raw', ua.publicKey))), auth: b64u(crypto.getRandomValues(new Uint8Array(16))) } };
+  };
+  const sub = (subscription, nm, notify) => call(k('/api/pulse/push/subscribe'), { method: 'POST', body: JSON.stringify({ subscription, name: nm, notify }), headers: { 'content-type': 'application/json' } });
+  const mama = await phone('mama'), baba = await phone('baba'), jadda = await phone('jadda');
+  assert.equal((await sub(mama, 'ماما')).status, 200);
+  assert.equal((await sub(baba, 'بابا')).status, 200);
+  assert.equal((await sub(jadda, 'جدتي', 'mine')).status, 200);
+  r = await sub(mama, 'ماما'); // same phone again: replaced, not doubled
+  assert.equal((await r.json()).phones, 3);
+  assert.equal((await sub({ ...mama, endpoint: 'https://evil.example/x' }, 'ماما')).status, 400, 'only real push services');
+  assert.equal((await sub(mama, '')).status, 400, 'name required');
+  r = await call(k('/api/pulse/push'));
+  assert.equal((await r.json()).enabled, true);
+
+  // A moment from ماما: بابا hears about it; ماما (the sender) and جدتي (hearts only) don't.
+  data = await (await pulse({ kind: 'tap', tap: 'miss', from: 'ماما' })).json();
+  await hub.pushing;
+  assert.deepEqual(sent.map((x) => x.url.split('/').pop()), ['baba']);
+  assert.ok(sent[0].headers.authorization.startsWith('vapid t='));
+  assert.deepEqual(hub.message(data.pulse), { id: data.pulse.id, kind: 'tap', from: 'ماما', tag: 'pulse-' + data.pulse.id, url: '/admin#pulse', title: 'نبضة من ماما', body: '«اشتقت إليكم»', heart: true });
+
+  // A heart back from the frame goes to ماما only, urgently.
+  sent.length = 0;
+  const reply = await (await pulse({ to: data.pulse.id }, '/api/pulse/reply')).json();
+  await hub.pushing;
+  assert.deepEqual(sent.map((x) => x.url.split('/').pop()), ['mama']);
+  assert.equal(sent[0].headers.urgency, 'high');
+  assert.equal(hub.message(reply.pulse).title, '❤ قلب من البيت');
+  assert.equal(hub.message(reply.pulse).body, 'ردّاً على «اشتقت إليكم»');
+
+  // A heart from a phone (the notification's ❤ button) carries the phone owner's name.
+  sent.length = 0;
+  const fromPhone = await (await pulse({ to: data.pulse.id, from: 'جدتي' }, '/api/pulse/reply')).json();
+  await hub.pushing;
+  assert.equal(fromPhone.pulse.from, 'جدتي');
+  assert.deepEqual(sent.map((x) => x.url.split('/').pop()), ['mama']);
+  assert.equal((await pulse({ to: fromPhone.pulse.id }, '/api/pulse/reply')).status, 404, 'no hearts for hearts');
+
+  // جدتي asked for her own hearts only, and gets them; a phone that's gone (410) is forgotten.
+  sent.length = 0;
+  status = (url) => (url.endsWith('/baba') ? 410 : 201);
+  const draw = await (await pulse({ kind: 'draw', from: 'جدتي', strokes: [{ c: 1, w: 1, p: [1, 1, 0] }] })).json();
+  await hub.pushing;
+  assert.deepEqual(sent.map((x) => x.url.split('/').pop()).sort(), ['baba', 'mama']);
+  assert.equal(hub.message(draw.pulse).body, 'رسمة جديدة على الإطار');
+  assert.deepEqual((await hub.subs()).map((x) => x.name).sort(), ['جدتي', 'ماما'], 'gone phone removed');
+  status = 201;
+  sent.length = 0;
+  await (await pulse({ to: draw.pulse.id }, '/api/pulse/reply')).json();
+  await hub.pushing;
+  assert.deepEqual(sent.map((x) => x.url.split('/').pop()), ['jadda'], 'hearts-only phone gets its heart');
+
+  // Test button and switching off.
+  r = await call(k('/api/pulse/push/test'), { method: 'POST', body: JSON.stringify({ endpoint: mama.endpoint }), headers: { 'content-type': 'application/json' } });
+  assert.deepEqual(await r.json(), { ok: true, status: 201 });
+  pushDeps.fetch = async () => { throw new Error('offline'); };
+  r = await call(k('/api/pulse/push/test'), { method: 'POST', body: JSON.stringify({ endpoint: mama.endpoint }), headers: { 'content-type': 'application/json' } });
+  assert.equal(r.status, 200, 'an unreachable push service is reported, not a crash');
+  assert.equal((await r.json()).ok, false);
+  data = await (await pulse({ kind: 'tap', tap: 'news', from: 'بابا' })).json();
+  await hub.pushing;
+  assert.ok(data.pulse, 'moments still go through when pushes fail');
+  await call(k('/api/pulse/push/unsubscribe'), { method: 'POST', body: JSON.stringify({ endpoint: mama.endpoint }), headers: { 'content-type': 'application/json' } });
+  assert.deepEqual((await hub.subs()).map((x) => x.name), ['جدتي']);
+  pushDeps.fetch = (...a) => fetch(...a);
+}
 
 // static
 r = await call('/m');

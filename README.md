@@ -166,13 +166,53 @@ a name), then:
 - **Record** a voice note (tap, speak up to 15 seconds, tap, listen, send). The frame shows
   «رسالة صوتية» with your name and plays it. Voice notes also stay in the corner for the day.
 
-Under each moment there is a «ردّ بقلب» button. When someone at home taps it, your app shows
-«البيت ردّ عليك بقلب» with a few hearts, and the list at the bottom of «نبضة» shows it. (The
-app finds out while it is open; there are no phone notifications.)
+Under each moment there is a «ردّ بقلب» button. When someone at home taps it, the sender's
+phone gets a notification «❤ قلب من البيت», and the list at the bottom of «نبضة» shows it.
+
+**Missed moments**: if nobody touched the frame while a moment played (or in the two minutes
+after), a glowing «نبضة جديدة» / «3 نبضات جديدة» badge waits in the bottom-left corner. Tapping
+it plays them again, with the «ردّ بقلب» button. The badge empties at midnight.
 
 At night the moments still arrive, but under the dimmed screen and without sound; a voice note
-waits for someone to tap «▶ استمع». Moments sent while the frame is off play when it comes
-back (if they're less than 12 hours old). Each moment plays once.
+waits for someone to tap «▶ استمع», and the badge is there in the morning. Moments sent while
+the frame is off play when it comes back (if they're less than 12 hours old).
+
+**On the family's phones** (with notifications switched on, below): a moment from someone
+else arrives as a notification («نبضة من ماما — «أفكر فيكم»») even when the app is closed, with
+a «❤ ردّ بقلب» button on Android; a heart back arrives as «❤ قلب من …». Each phone chooses «كل
+النبضات» or «القلوب التي تصلني فقط», and notifications are silent from 23:00 to 06:00 unless
+switched off. With the app open, the same moment shows as a card at the top instead. The list
+«آخر النبضات» is grouped by day (the server keeps the last 60 moments for a week) and has a ❤
+button to answer any moment from the phone too.
+
+#### Setting up the notifications (once)
+
+Notifications use Web Push, which every browser has built in: nothing to sign up for, only a
+key pair that proves the notifications come from your site.
+
+```sh
+node tools/make-vapid.mjs
+```
+
+(Already done for this copy: the public key is in `wrangler.jsonc` and both keys are in `.dev.vars`;
+only the `wrangler secret put` step below is left.) It prints two lines. Put the first in `wrangler.jsonc`:
+
+```jsonc
+"vars": { "VAPID_PUBLIC_KEY": "B…" },
+```
+
+and save the second as a secret (paste it when asked):
+
+```sh
+npx wrangler secret put VAPID_PRIVATE_KEY
+npm run deploy
+```
+
+Then on each phone: «نبضة» → «فعّل الإشعارات» (or the banner at the top). **iPhone**: notifications
+work only after «Add to Home Screen» (Share button → «إضافة إلى الشاشة الرئيسية»), opening the app from
+there, on iOS 16.4 or newer. Android: Chrome, installed or not. They work only on the real site
+(HTTPS), not on `localhost` from a phone. To try them with `wrangler dev` on your computer, put both
+lines in a file named `.dev.vars` (git-ignored).
 
 **Grandparents and family far away**: press «مشاركة الرابط» at the bottom of «نبضة» and send
 the link by WhatsApp. They open it once and add it to the home screen. The link contains the
@@ -212,10 +252,12 @@ against the server every hour.
 ```
 src/worker.js        Cloudflare Worker: API for lists, repeating tasks, photos, adhan audio,
                      settings, dates, message, Quran tracker, previews, time
-src/pulse-hub.js     «نبضة»: the Durable Object that keeps moments and talks live to the frame
+src/pulse-hub.js     «نبضة»: the Durable Object that keeps moments, talks live to the frame and
+                     sends phone notifications (src/webpush.js: VAPID signing + encryption)
 src/settings.js      Validation of settings saved from the control panel
 public/index.html    The frame (display only)
 public/admin.html    The control panel (/admin); public/sw.js receives photos shared from phones
+                     and shows «نبضة» notifications
 public/js/           Frame screens (screens/), frame data (data.js), holidays (holidays.js),
                      Ramadan (ramadan.js, decorations in ramadan-decor.js), adhan (adhan.js), adhkar and verses
                      (adhkar-data.js), weather tip (nudge.js), repeating-task dates
@@ -225,6 +267,7 @@ public/js/           Frame screens (screens/), frame data (data.js), holidays (h
 public/css/          Styles: app.css (frame), admin.css (control panel)
 public/fonts/        Reem Kufi and Readex Pro (SIL Open Font License)
 public/demo/         Sample pictures for ?demo (painted in code, tools/paint-demo-photos.py)
+tools/make-vapid.mjs Makes the key pair for phone notifications
 public/brand/        Icons, splash screens and install screenshots (tools/make-brand.py);
                      favicon.svg, apple-touch-icon.png, icon-*.png at the top of public/
 test/                npm test: API, .ics import and frame logic tests

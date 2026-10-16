@@ -8,7 +8,7 @@ const NAMES = ['ماما', 'بابا', 'جدتي', 'جدي', 'خالتي', 'عم
 const MAX_REC = 15; // seconds
 const MAX_POINTS = 7800; // the server keeps 8000
 
-export function initPulse({ api, send, toast, el, $, key, DEMO }) {
+export function initPulse({ api, send, toast, el, $, key, DEMO, showView }) {
   let me = store.get('pulse-from', '');
   let visible = false;
 
@@ -30,6 +30,7 @@ export function initPulse({ api, send, toast, el, $, key, DEMO }) {
     store.set('pulse-from', me);
     renderWho();
     renderFeed();
+    if (typeof tellServer === 'function') tellServer().catch(() => {});
     toast('ترسل الآن باسم «' + me + '». هكذا يظهر اسمك على الإطار.');
   }
   $('whoForm').addEventListener('submit', (e) => { e.preventDefault(); setMe($('whoInput').value); $('whoInput').value = ''; });
@@ -260,56 +261,91 @@ export function initPulse({ api, send, toast, el, $, key, DEMO }) {
   });
 
   // ================= what happened (and hearts back) =================
-  let feed = [], live = null;
+  let feed = [], live = null, shownCount = 12;
   let replySeen = store.get('pulse-reply-seen', 0);
   if (!replySeen) { replySeen = Date.now(); store.set('pulse-reply-seen', replySeen); }
+  // Moments from the others that this phone has already shown (as a toast or in the list).
+  let feedSeen = store.get('pulse-feed-seen', 0);
+  if (!feedSeen) { feedSeen = Date.now(); store.set('pulse-feed-seen', feedSeen); }
 
   function ago(at) {
     const m = Math.round((Date.now() - at) / 60000);
     if (m < 1) return 'الآن';
     if (m < 60) return 'قبل ' + (m === 1 ? 'دقيقة' : m === 2 ? 'دقيقتين' : m <= 10 ? m + ' دقائق' : m + ' دقيقة');
-    const h = Math.round(m / 60);
-    if (h < 24) return 'قبل ' + (h === 1 ? 'ساعة' : h === 2 ? 'ساعتين' : h <= 10 ? h + ' ساعات' : h + ' ساعة');
-    const d = Math.round(h / 24);
-    return d === 1 ? 'أمس' : 'قبل ' + (d === 2 ? 'يومين' : d + ' أيام');
+    const d = new Date(at);
+    const hm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    return hm;
   }
-  const kindAr = (k, tap) => (k === 'tap' ? '«' + ((tapOf(tap) || {}).title || '') + '»' : k === 'draw' ? 'رسمتك' : 'رسالتك الصوتية');
+  const DAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+  function dayLabel(at) {
+    const d = new Date(at), t = new Date();
+    const day = (x) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+    const diff = Math.round((day(t) - day(d)) / 86400000);
+    return diff === 0 ? 'اليوم' : diff === 1 ? 'أمس' : DAYS[d.getDay()];
+  }
+  const tapTitle = (tap) => (tapOf(tap) || {}).title || '';
+  const kindAr = (k, tap, mine) => (k === 'tap' ? '«' + tapTitle(tap) + '»' : k === 'draw' ? (mine ? 'رسمتك' : 'رسمة') : (mine ? 'رسالتك الصوتية' : 'رسالة صوتية'));
+  const heartFrom = (p) => (p.from === me ? 'قلبك' : 'قلب من ' + p.from);
   function line(p) {
     const mine = p.from === me;
     if (p.kind === 'reply') {
       const toMe = p.toName === me;
       return { icon: HEART_ICON(30), cls: 'is-reply' + (toMe ? ' is-mine' : ''),
-        text: toMe ? 'البيت ردّ عليك بقلب' : 'البيت ردّ على ' + p.toName + ' بقلب',
-        sub: toMe ? 'على ' + kindAr(p.toKind, null) : '' };
+        text: heartFrom(p) + (toMe ? ' إليك' : ' إلى ' + p.toName),
+        sub: toMe ? 'على ' + kindAr(p.toKind, p.toTap, true) : '' };
     }
     // No verbs: they'd need to know if the sender is a man or a woman.
     const who = mine ? 'منك' : 'من ' + p.from;
-    if (p.kind === 'tap') return { icon: tapIcon(p.tap, 30), cls: mine ? 'is-mine' : '', text: '«' + ((tapOf(p.tap) || {}).title || '') + '» ' + who };
+    if (p.kind === 'tap') return { icon: tapIcon(p.tap, 30), cls: mine ? 'is-mine' : '', text: '«' + tapTitle(p.tap) + '» ' + who };
     if (p.kind === 'draw') return { icon: PEN_ICON(30), cls: mine ? 'is-mine' : '', text: 'رسمة ' + who };
     return { icon: MIC(30), cls: mine ? 'is-mine' : '', text: 'رسالة صوتية ' + who + (p.audio && p.audio.dur ? ' (' + Math.round(p.audio.dur) + ' ث)' : '') };
   }
+  const myHeartTo = (id) => feed.some((x) => x.kind === 'reply' && x.to === id && x.from === me);
+
+  // A heart from this phone, to someone else's moment.
+  async function sendHeart(p, btn) {
+    if (needName()) return;
+    if (btn) btn.disabled = true;
+    try {
+      if (DEMO) demo.pulseAdd({ kind: 'reply', from: me, to: p.id, toName: p.from, toKind: p.kind, toTap: p.tap });
+      else await send('/api/pulse/reply', 'POST', { to: p.id, from: me });
+      toast('وصل قلبك إلى ' + p.from + ' ❤');
+      refresh();
+    } catch (e) { toast(e.message); if (btn) btn.disabled = false; }
+  }
+
   function renderFeed() {
     const ul = $('pulseFeed');
     ul.textContent = '';
-    // A reply right under what it answers would be nice, but newest first is easier to read.
-    const items = feed.slice(-14).reverse();
+    const items = feed.slice().reverse();
     if (!items.length) { ul.append(el('li', { class: 'feed-empty' }, 'لا شيء بعد. ابدأ بـ«أفكر فيكم» ❤')); }
-    for (const p of items) {
+    let lastDay = '';
+    for (const p of items.slice(0, shownCount)) {
+      const dl = dayLabel(p.at);
+      if (dl !== lastDay) { ul.append(el('li', { class: 'feed-day' }, dl)); lastDay = dl; }
       const l = line(p);
+      const canHeart = p.kind !== 'reply' && p.from !== me && me;
+      let heart = null;
+      if (canHeart) {
+        const sent = myHeartTo(p.id);
+        heart = el('button', { type: 'button', class: 'feed-heart' + (sent ? ' is-sent' : ''), 'aria-label': sent ? 'أرسلت قلباً' : 'ردّ بقلب إلى ' + p.from, disabled: sent, html: HEART_ICON(24, sent ? '#E8657A' : '#F3EDE2') });
+        heart.addEventListener('click', () => sendHeart(p, heart));
+      }
       ul.append(el('li', { class: l.cls },
         el('span', { class: 'feed-icon', html: l.icon }),
         el('span', { class: 'feed-text' }, l.text, l.sub ? el('small', null, ' ' + l.sub) : null),
-        el('time', null, ago(p.at))));
+        el('time', null, ago(p.at)),
+        heart));
     }
+    $('feedMore').hidden = items.length <= shownCount;
     // Only the good news: "is the frame off?" is the status line at the top.
     $('pulseLive').classList.toggle('is-online', !!live);
     $('pulseLive').hidden = !live;
     $('pulseLiveText').textContent = 'الإطار يستقبل الآن';
   }
+  $('feedMore').addEventListener('click', () => { shownCount += 20; renderFeed(); });
 
-  // Hearts from home addressed to me: a little celebration, once.
-  function celebrate(r) {
-    toast('❤ البيت ردّ عليك بقلب' + (r.toKind ? ' على ' + kindAr(r.toKind, null) : ''));
+  function heartRain() {
     const box = el('div', { class: 'heart-rain', 'aria-hidden': 'true' });
     document.body.append(box);
     for (let i = 0; i < 16; i++) {
@@ -323,6 +359,29 @@ export function initPulse({ api, send, toast, el, $, key, DEMO }) {
     if (navigator.vibrate) try { navigator.vibrate([30, 60, 30]); } catch (e) { /* not allowed */ }
   }
 
+  // A moment arriving while the app is open: a card at the top, like on the frame.
+  let toastBox = null, toastTimer = 0;
+  function pulseToast(icon, title, body) {
+    if (toastBox) toastBox.remove();
+    clearTimeout(toastTimer);
+    toastBox = el('button', { type: 'button', class: 'pulse-toast' }, el('span', { html: icon, style: 'flex:none' }), el('span', null, el('b', null, title), el('small', null, body)));
+    toastBox.addEventListener('click', () => { toastBox.remove(); toastBox = null; showView('pulse'); });
+    document.body.append(toastBox);
+    toastBox.animate([{ transform: 'translate(-50%, -30px)', opacity: 0 }, { transform: 'translate(-50%, 0)', opacity: 1 }], { duration: 380, easing: 'cubic-bezier(.2,.9,.3,1.2)' });
+    toastTimer = setTimeout(() => { if (toastBox) { toastBox.remove(); toastBox = null; } }, 6000);
+  }
+  function announce(p, more) {
+    const extra = more ? ' (+' + more + ')' : '';
+    if (p.kind === 'reply') {
+      pulseToast(HEART_ICON(34), '❤ ' + heartFrom(p) + ' إليك' + extra, 'على ' + kindAr(p.toKind, p.toTap, true));
+      heartRain();
+      return;
+    }
+    const body = p.kind === 'tap' ? '«' + tapTitle(p.tap) + '»' : p.kind === 'draw' ? 'رسمة جديدة على الإطار' : 'رسالة صوتية';
+    pulseToast(p.kind === 'tap' ? tapIcon(p.tap, 34) : p.kind === 'draw' ? PEN_ICON(34) : MIC(34), 'نبضة من ' + p.from + extra, body);
+    if (p.kind === 'tap' && p.tap === 'love') heartRain();
+  }
+
   let loading = false;
   async function refresh() {
     if (loading) return;
@@ -333,11 +392,16 @@ export function initPulse({ api, send, toast, el, $, key, DEMO }) {
         feed = j.pulses;
         live = j.live;
       }
-      const fresh = feed.filter((p) => p.kind === 'reply' && p.toName === me && me && p.at > replySeen);
-      if (fresh.length) {
-        replySeen = Math.max(...fresh.map((p) => p.at));
-        store.set('pulse-reply-seen', replySeen);
-        if (document.visibilityState === 'visible') celebrate(fresh[fresh.length - 1]);
+      if (me) {
+        const replies = feed.filter((p) => p.kind === 'reply' && p.toName === me && p.from !== me && p.at > replySeen);
+        const others = feed.filter((p) => p.kind !== 'reply' && p.from !== me && p.at > feedSeen);
+        if (replies.length) { replySeen = Math.max(...replies.map((p) => p.at)); store.set('pulse-reply-seen', replySeen); }
+        if (others.length) { feedSeen = Math.max(...others.map((p) => p.at)); store.set('pulse-feed-seen', feedSeen); }
+        if (document.visibilityState === 'visible') {
+          // Hearts to me first: they are the reason to look.
+          if (replies.length) announce(replies[replies.length - 1], replies.length - 1);
+          else if (others.length) announce(others[others.length - 1], others.length - 1);
+        }
       }
       renderFeed();
     } catch (e) { /* the status line says it if the server is away */ }
@@ -352,6 +416,110 @@ export function initPulse({ api, send, toast, el, $, key, DEMO }) {
   }, 4000);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refresh(); });
   if (DEMO) window.addEventListener('storage', (e) => { if (e.key === 'fd:demo-pulses') refresh(); });
+  // A notification arrived while the app is in front (the service worker passes it here), or
+  // one was tapped: look now.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', (e) => {
+      if (!e.data) return;
+      if (e.data.type === 'pulse-push') refresh();
+      if (e.data.type === 'pulse-open') { showView('pulse'); refresh(); }
+    });
+  }
+
+  // ================= notifications on this phone =================
+  const pushOK = !DEMO && window.isSecureContext && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  let server = null; // {enabled, publicKey}
+  let mySub = null;
+  let pushPrefs = store.get('pulse-push', { notify: 'all', quietNight: true });
+  const toKey = (s) => { const b = atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)); return Uint8Array.from(b, (c) => c.charCodeAt(0)); };
+
+  // What the service worker needs when the app is closed: the access key and who this is.
+  async function saveWorkerConfig() {
+    if (!('caches' in window)) return;
+    try {
+      const c = await caches.open('fd-cfg');
+      await c.put('/__cfg', new Response(JSON.stringify({ key: key(), me, notify: pushPrefs.notify, quietNight: pushPrefs.quietNight, publicKey: server && server.publicKey })));
+    } catch (e) { /* storage blocked */ }
+  }
+  async function tellServer() {
+    if (!mySub || !me) return;
+    await send('/api/pulse/push/subscribe', 'POST', { subscription: mySub.toJSON(), name: me, notify: pushPrefs.notify });
+    await saveWorkerConfig();
+  }
+
+  function renderNotif(state, text) {
+    $('notifState').textContent = text;
+    $('notifDot').className = 'notif-dot' + (state === 'on' ? ' is-on' : state === 'blocked' ? ' is-off' : '');
+    $('notifOn').hidden = state !== 'on';
+    $('notifEnable').hidden = state !== 'ask';
+    $('notifBanner').hidden = state !== 'ask' || store.get('pulse-banner-hidden', false);
+    $('notifWhat').value = pushPrefs.notify;
+    $('notifQuiet').checked = pushPrefs.quietNight !== false;
+  }
+
+  async function checkNotif() {
+    if (DEMO) return renderNotif('none', 'في النسخة التجريبية لا تُرسل إشعارات. تعمل على الموقع الحقيقي (https).');
+    if (!pushOK) {
+      if (isIOS && !standalone) return renderNotif('none', 'على iPhone: أضف التطبيق إلى الشاشة الرئيسية أولاً (زر المشاركة ← «إضافة إلى الشاشة الرئيسية»)، ثم افتحه من هناك وفعّل الإشعارات.');
+      return renderNotif('none', window.isSecureContext ? 'هذا المتصفح لا يدعم الإشعارات. جرّب Chrome على Android أو Safari على iPhone (iOS 16.4 أو أحدث).' : 'الإشعارات تعمل فقط على رابط https (بعد النشر على Cloudflare).');
+    }
+    try { server = await api('/api/pulse/push'); } catch (e) { server = null; }
+    if (!server || !server.enabled) return renderNotif('none', 'الإشعارات غير مفعّلة على الخادم بعد: يلزم مفتاحا VAPID (انظر README، فقرة «إشعارات نبضة»).');
+    if (Notification.permission === 'denied') return renderNotif('blocked', 'الإشعارات ممنوعة لهذا الموقع. اسمح بها من إعدادات المتصفح (رمز القفل بجانب العنوان، أو إعدادات التطبيق).');
+    const reg = await navigator.serviceWorker.ready;
+    mySub = await reg.pushManager.getSubscription();
+    if (mySub && Notification.permission === 'granted') {
+      // The server may have forgotten this phone (or its name changed): tell it again.
+      tellServer().catch(() => {});
+      return renderNotif('on', 'مفعّلة: تصلك النبضات حتى والتطبيق مغلق.');
+    }
+    renderNotif('ask', 'غير مفعّلة على هذا الهاتف.');
+  }
+
+  async function enableNotif() {
+    if (needName()) return;
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') { checkNotif(); return; }
+      const reg = await navigator.serviceWorker.ready;
+      mySub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: toKey(server.publicKey) });
+      await tellServer();
+      renderNotif('on', 'مفعّلة: تصلك النبضات حتى والتطبيق مغلق.');
+      toast('تم. ستصلك النبضات والقلوب على هذا الهاتف.');
+    } catch (e) { toast('تعذّر تفعيل الإشعارات: ' + e.message); }
+  }
+  $('notifEnable').addEventListener('click', enableNotif);
+  $('notifBannerOn').addEventListener('click', enableNotif);
+  $('notifWhat').addEventListener('change', async () => {
+    pushPrefs.notify = $('notifWhat').value;
+    store.set('pulse-push', pushPrefs);
+    try { await tellServer(); toast('حُفظ.'); } catch (e) { toast(e.message); }
+  });
+  $('notifQuiet').addEventListener('change', () => {
+    pushPrefs.quietNight = $('notifQuiet').checked;
+    store.set('pulse-push', pushPrefs);
+    saveWorkerConfig();
+  });
+  $('notifTest').addEventListener('click', async () => {
+    if (!mySub) return;
+    try {
+      const r = await send('/api/pulse/push/test', 'POST', { endpoint: mySub.endpoint });
+      // A test while the app is open shows as a card here; close the app to see the real thing.
+      toast(r.ok ? 'أُرسل. أغلق التطبيق أو قفل الهاتف لترى الإشعار كما سيصلك.' : r.status ? 'لم يقبله المتصفح (' + r.status + '). فعّل الإشعارات من جديد.' : 'تعذّر الوصول إلى خدمة الإشعارات. حاول بعد قليل.');
+    } catch (e) { toast(e.message); }
+  });
+  $('notifOff').addEventListener('click', async () => {
+    try {
+      if (mySub) {
+        await send('/api/pulse/push/unsubscribe', 'POST', { endpoint: mySub.endpoint });
+        await mySub.unsubscribe();
+      }
+    } catch (e) { /* already gone */ }
+    mySub = null;
+    renderNotif('ask', 'أُوقفت على هذا الهاتف.');
+  });
 
   // ================= invite =================
   $('inviteBtn').addEventListener('click', async () => {
@@ -370,6 +538,7 @@ export function initPulse({ api, send, toast, el, $, key, DEMO }) {
   renderWho();
   renderFeed();
   refresh();
+  checkNotif().catch(() => renderNotif('none', 'تعذّر فحص الإشعارات.'));
 
   return {
     shown(on) {

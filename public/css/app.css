@@ -993,3 +993,29 @@ html.is-ready #boot { opacity: 0; visibility: hidden; }
 .pl-chip { height: 64px; padding: 0 14px 0 12px; border-radius: 32px; display: flex; align-items: center; gap: 8px; background: #3A1426; border: 2px solid rgba(242, 174, 61, 0.6); font-size: 19px; color: var(--plaster); }
 .pl-chip svg { display: block; }
 .pl-chip-name { max-width: 90px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+/* moments nobody was there for */
+.pl-badge {
+  position: absolute;
+  left: 24px;
+  bottom: 14px;
+  z-index: 6;
+  height: 56px;
+  padding: 0 22px 0 16px;
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 21px;
+  font-weight: 500;
+  color: var(--plaster);
+  background: rgba(58, 20, 38, 0.92);
+  border: 2px solid rgba(232, 101, 122, 0.75);
+  box-shadow: 0 0 0 0 rgba(232, 101, 122, 0.5);
+  animation: pl-badge-glow 2.4s ease-in-out infinite;
+}
+.pl-badge[hidden] { display: none; }
+.pl-badge-heart svg { display: block; animation: pl-badge-beat 2.4s ease-in-out infinite; }
+.status.is-on ~ .pl-badge { bottom: 80px; }
+@keyframes pl-badge-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(232, 101, 122, 0.45); } 50% { box-shadow: 0 0 0 12px rgba(232, 101, 122, 0); } }
+@keyframes pl-badge-beat { 0%, 100% { transform: scale(1); } 12% { transform: scale(1.18); } 24% { transform: scale(1); } 36% { transform: scale(1.12); } 48% { transform: scale(1); } }

@@ -68,6 +68,11 @@
         </form>
       </div>
       <p class="who-line" id="whoLine" hidden>ترسل باسم <b id="whoName"></b> · <button type="button" id="whoChange">تغيير</button></p>
+      <div class="notif-banner" id="notifBanner" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span>فعّل الإشعارات لتصلك النبضات والقلوب على هذا الهاتف حتى والتطبيق مغلق.</span>
+        <button type="button" class="primary small" id="notifBannerOn">فعّل</button>
+      </div>
 
       <div class="taps" id="taps"></div>
 
@@ -111,6 +116,26 @@
       <!-- what happened -->
       <h3 class="feed-title">آخر النبضات</h3>
       <ul class="feed" id="pulseFeed"></ul>
+      <button type="button" class="ghost small feed-more" id="feedMore" hidden>عرض المزيد</button>
+
+      <!-- notifications on this phone -->
+      <div class="card notif" id="notifCard">
+        <div class="row-title"><h3>الإشعارات على هذا الهاتف</h3><span class="notif-dot" id="notifDot"></span></div>
+        <p class="hint" id="notifState">…</p>
+        <div id="notifOn" hidden>
+          <label for="notifWhat">ما يصلني</label>
+          <select id="notifWhat">
+            <option value="all">كل النبضات + القلوب التي تصلني</option>
+            <option value="mine">القلوب التي تصلني فقط</option>
+          </select>
+          <label class="switch"><input type="checkbox" id="notifQuiet" checked><span>بدون صوت في الليل (23:00 – 06:00)</span></label>
+          <div class="actions">
+            <button type="button" class="ghost small" id="notifTest">إشعار تجريبي</button>
+            <button type="button" class="ghost small" id="notifOff">إيقاف الإشعارات</button>
+          </div>
+        </div>
+        <button type="button" class="primary" id="notifEnable" hidden>فعّل الإشعارات</button>
+      </div>
 
       <div class="card invite">
         <h3>للأجداد والأقارب</h3>

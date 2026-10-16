@@ -174,7 +174,7 @@ export function pulses(since) {
 export function pulseAdd(p) {
   const list = pulses(0);
   const at = Math.max(Date.now(), list.length ? list[list.length - 1].at + 1 : 0);
-  if (list.some((x) => x.from === p.from && x.kind === p.kind && at - x.at < 2000)) {
+  if (list.some((x) => x.from === p.from && x.kind === p.kind && x.to === p.to && at - x.at < 2000)) {
     const e = new Error('لحظة… أُرسلت للتو.');
     e.status = 429;
     throw e;

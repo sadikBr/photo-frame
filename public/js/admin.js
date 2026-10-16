@@ -56,7 +56,7 @@ async function api(path, opts) {
 const send = (path, method, body) => api(path, { method, body: JSON.stringify(body), headers: { 'content-type': 'application/json' } });
 
 // «نبضة» lives in its own file.
-const pulse = initPulse({ api, send, toast, el, $, key, DEMO });
+const pulse = initPulse({ api, send, toast, el, $, key, DEMO, showView: (v) => showView(v) });
 
 // ================= shared state =================
 let board = { lists: { tasks: [], shopping: [] }, settings: {}, events: [], message: null, frameSeen: null, routines: [], audio: {}, preview: null };

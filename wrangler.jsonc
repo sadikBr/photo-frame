@@ -35,6 +35,12 @@
             "new_sqlite_classes": ["PulseHub"],
         },
     ],
+    // Phone notifications for «نبضة» (Web Push). The public half of the key pair; the private
+    // half is a secret: npx wrangler secret put VAPID_PRIVATE_KEY (its value is in .dev.vars).
+    "vars": {
+        "VAPID_PUBLIC_KEY": "BJV_XfMo9WWRtTEzJaYPktaziuH24fURji0NKC4gWkLDG9yc0JHbx2M7yORw1DieFDU-V44Bfhm25G0ci_WeamM",
+    },
     // Secret (set with `npx wrangler secret put ACCESS_KEY`, never written in this file):
     //   ACCESS_KEY  – a long random password; the frame and phone open the site with ?key=<it>
 }
+

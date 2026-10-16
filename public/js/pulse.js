@@ -6,7 +6,7 @@
 // Delivery: a WebSocket to the pulse hub brings each moment at once; if it is down, the frame
 // asks every 8 seconds. Moments it has already shown are remembered, so nothing plays twice.
 import config from './config.js';
-import { h, now, startOfDay, store, MINUTE, HOUR } from './util.js';
+import { h, now, startOfDay, store, hhmm, MINUTE, HOUR } from './util.js';
 import { accessKey, DEMO } from './data.js';
 import * as demo from './demo.js';
 import { starPoints } from './icons.js';
@@ -22,7 +22,10 @@ const withKey = (path) => { const k = accessKey(); return path + (k ? (path.inde
 export function createPulse({ stage, isNight, hold }) {
   const layer = h('div', { class: 'pl-layer' });
   const tray = h('div', { class: 'pl-tray' });
-  stage.append(layer, tray);
+  // Moments nobody was there for: «3 نبضات جديدة», tap to see them again.
+  const badge = h('button', { class: 'pl-badge', type: 'button', hidden: true },
+    h('span', { class: 'pl-badge-heart', html: HEART_ICON(30, '#E8657A') }), h('span', { class: 'pl-badge-text' }));
+  stage.append(layer, tray, badge);
 
   const seen = new Set(store.get(keyName('pulse-seen'), []));
   // The newest moment this frame knows about (server time). The very first time the frame
@@ -33,6 +36,49 @@ export function createPulse({ stage, isNight, hold }) {
   let showing = false, held = 0;
   let trayItems = []; // today's drawings and voice notes
   let trayDay = new Date(startOfDay(now())).toISOString().slice(0, 10);
+
+  // ---------- missed moments ----------
+  // A moment counts as missed when nobody touched the frame while it played or in the two
+  // minutes after (tapping «ردّ بقلب» is a touch). Missed ones wait behind the badge until
+  // someone taps it, and are forgotten at midnight.
+  const MISSED_KEY = keyName('pulse-missed');
+  let missed = (store.get(MISSED_KEY, []) || []).filter((m) => m.at >= startOfDay(now()));
+  let lastTouch = 0;
+  const saveMissed = () => store.set(MISSED_KEY, missed.map((m) => ({ id: m.id, at: m.at, end: m.end })));
+  function renderBadge() {
+    const n = missed.length;
+    badge.hidden = !n;
+    if (!n) return;
+    badge.lastChild.textContent = n === 1 ? 'نبضة جديدة' : n === 2 ? 'نبضتان جديدتان' : n <= 10 ? n + ' نبضات جديدة' : n + ' نبضة جديدة';
+    badge.setAttribute('aria-label', badge.lastChild.textContent + '، اضغط لرؤيتها');
+  }
+  function acknowledge(id) {
+    const before = missed.length;
+    missed = missed.filter((m) => m.id !== id);
+    if (missed.length !== before) { saveMissed(); renderBadge(); }
+  }
+  stage.addEventListener('pointerdown', (e) => {
+    if (badge.contains(e.target)) return;
+    lastTouch = Date.now();
+    // Someone is here: what just played was seen.
+    const cut = Date.now() - 2 * MINUTE;
+    const before = missed.length;
+    missed = missed.filter((m) => !m.end || m.end < cut);
+    if (missed.length !== before) { saveMissed(); renderBadge(); }
+  }, true);
+  badge.addEventListener('click', () => {
+    if (showing) return;
+    const list = missed.slice();
+    missed = [];
+    saveMissed();
+    renderBadge();
+    for (const m of list) {
+      const p = byId.get(m.id);
+      if (p) queue.push({ p, replay: true });
+    }
+    pump();
+  });
+  const byId = new Map(); // today's moments, for replaying from the badge
 
   function markSeen(p) {
     seen.add(p.id);
@@ -46,7 +92,8 @@ export function createPulse({ stage, isNight, hold }) {
   function receive(p, quiet) {
     if (!p || !p.id || seen.has(p.id)) return;
     markSeen(p);
-    if (p.kind === 'reply') return; // hearts sent from this frame
+    if (p.kind === 'reply') return; // hearts back go to the phones
+    if (p.at >= startOfDay(now())) byId.set(p.id, p);
     const age = now() - p.at;
     const keep = (p.kind === 'draw' || p.kind === 'voice') && p.at >= startOfDay(now());
     // Too old to announce (the frame was off for long), or from before it was set up.
@@ -68,6 +115,7 @@ export function createPulse({ stage, isNight, hold }) {
     }
     for (const p of list) {
       if (seen.has(p.id)) {
+        if (p.kind !== 'reply' && p.at >= startOfDay(now())) byId.set(p.id, p);
         if ((p.kind === 'draw' || p.kind === 'voice') && p.at >= startOfDay(now()) && !trayItems.some((x) => x.id === p.id)) addToTray(p, true);
       } else receive(p, quiet);
     }
@@ -99,6 +147,7 @@ export function createPulse({ stage, isNight, hold }) {
   }
 
   function start() {
+    renderBadge();
     // Today's moments: unseen ones play, seen drawings and voice notes go back in the tray.
     // (The first time, everything already there is only put in the tray.)
     const first = () => catchUp(Math.min(lastAt || Infinity, startOfDay(now())), firstRun).then(() => { ready = true; }, () => setTimeout(first, 5000));
@@ -126,6 +175,7 @@ export function createPulse({ stage, isNight, hold }) {
     if (hold && hold()) { if (!held) held = setTimeout(() => { held = 0; pump(); }, 2000); return; } // not during the adhan
     showing = true;
     const { p, replay } = queue.shift();
+    const started = Date.now();
     try {
       if (!replay && !isNight()) chime();
       if (p.kind === 'tap') await playTap(p);
@@ -133,6 +183,13 @@ export function createPulse({ stage, isNight, hold }) {
       else if (p.kind === 'voice') await playVoice(p, replay);
     } catch (e) { console.error(e); }
     if (!replay && p.kind !== 'tap') renderTray(true);
+    // Nobody touched the frame while it played: keep it for later (a touch in the next two
+    // minutes still counts as seen).
+    if (!replay && lastTouch < started && !missed.some((m) => m.id === p.id)) {
+      missed.push({ id: p.id, at: p.at, end: Date.now() });
+      saveMissed();
+      renderBadge();
+    }
     layer.textContent = '';
     showing = false;
     pump();
@@ -140,7 +197,7 @@ export function createPulse({ stage, isNight, hold }) {
 
   function fromLine(p) {
     const mins = Math.round((now() - p.at) / MINUTE);
-    const when = mins < 1 ? 'الآن' : mins < 60 ? 'قبل ' + (mins === 1 ? 'دقيقة' : mins === 2 ? 'دقيقتين' : mins <= 10 ? mins + ' دقائق' : mins + ' دقيقة') : '';
+    const when = mins < 1 ? 'الآن' : mins < 60 ? 'قبل ' + (mins === 1 ? 'دقيقة' : mins === 2 ? 'دقيقتين' : mins <= 10 ? mins + ' دقائق' : mins + ' دقيقة') : 'على ' + hhmm(p.at);
     return 'من ' + p.from + (when ? ' · ' + when : '');
   }
 
@@ -157,6 +214,7 @@ export function createPulse({ stage, isNight, hold }) {
           const res = await fetch('/api/pulse/reply', { method: 'POST', headers: Object.assign({ 'content-type': 'application/json' }, k ? { 'x-key': k } : {}), body: JSON.stringify({ to: p.id }) });
           if (!res.ok) throw new Error('HTTP ' + res.status);
         }
+        acknowledge(p.id);
         b.textContent = 'وصل قلبكم إلى ' + p.from + ' ❤';
         b.classList.add('is-sent');
         const r = b.getBoundingClientRect(), s = stage.getBoundingClientRect(), k2 = s.width / W;
@@ -444,7 +502,7 @@ export function createPulse({ stage, isNight, hold }) {
   function tick() {
     // A new day empties the tray.
     const day = new Date(startOfDay(now())).toISOString().slice(0, 10);
-    if (day !== trayDay) { trayDay = day; trayItems = []; renderTray(false); }
+    if (day !== trayDay) { trayDay = day; trayItems = []; renderTray(false); missed = []; saveMissed(); renderBadge(); byId.clear(); }
   }
 
   return {
