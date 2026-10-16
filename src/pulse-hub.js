@@ -22,12 +22,19 @@
 // {wheel, from} — the server picks, and the spin is a moment like the others.
 // «وضع الماتش»: GET /api/pulse/match (state, refreshed from ESPN when due) · PUT {on, push} ·
 // POST /api/pulse/match/preview {stop?} · POST /api/pulse/match/cheer {from, cheer}.
+// «مفاجأة مؤجلة»: POST /api/pulse (or /voice?at=…) with "at": kept back until then (an alarm
+// sends it) · GET /api/pulse/later?from=… · POST /api/pulse/later/cancel {id, from}.
+// «نبضة حقيقية»: POST /api/pulse {kind:"beat", bpm, intervals:[ms…], from}.
+// «حالتي»: GET /api/pulse/status · PUT {from, text, emoji, until} · POST /api/pulse/status/clear {from}.
+// «تلوين الزليج»: GET /api/pulse/coloring · POST …/fill {tile, color, from} · …/new {from} ·
+// …/saved {which: "current"|archived page's id} (the frame saves finished pages as photos).
 //
 // Phone notifications (Web Push): a new moment goes to every other phone that asked for all
 // moments; a heart back goes to the phone(s) of the person it answers; a knock from the frame to
 // the phone it's for (or all); goals to everyone who asked for all.
 
 import { sendPush, validSubscription } from './webpush.js';
+import { tileCount, PATTERN_COUNT, weekIndex } from '../public/js/zellige.js';
 import { LEAGUES, scoreboardUrl, parseScoreboard, pickMatch, matchChanges, changeMessage, previewMatch, PREVIEW_MS } from './match.js';
 
 export const pushDeps = { fetch: (...a) => fetch(...a) }; // tests swap this
@@ -45,6 +52,9 @@ const MAX_POINTS = 8000;
 const HOME = 'البيت'; // the frame, when it sends something
 const MAX_WHEELS = 12, MAX_ITEMS = 12;
 export const CHEERS = ['flag', 'ball', 'clap', 'fire', 'horn'];
+const MAX_LATER = 50; // surprises waiting
+const LATER_MAX_MS = 60 * 86400000; // up to two months ahead
+const GLAZES = 10;
 const MIN = 60000, HOUR = 3600000;
 
 const json = (data, status = 200) => new Response(JSON.stringify(data), {
@@ -120,6 +130,14 @@ export function cleanWheels(input) {
   return out;
 }
 
+// A heartbeat from a phone's camera (or taps): beats per minute and the gaps between beats.
+export function cleanBeat(body) {
+  const bpm = Math.round(Number(body.bpm));
+  if (!Number.isFinite(bpm) || bpm < 35 || bpm > 210) return null;
+  const iv = (Array.isArray(body.intervals) ? body.intervals : []).map((x) => Math.round(Number(x))).filter((x) => x >= 280 && x <= 1800).slice(-40);
+  return { bpm, intervals: iv.length >= 3 ? iv : Array(8).fill(Math.round(60000 / bpm)) };
+}
+
 export class PulseHub {
   constructor(ctx, env) {
     this.ctx = ctx;
@@ -150,7 +168,7 @@ export class PulseHub {
     return list.map((x) => (x.kind === 'draw' ? Object.assign({}, x, { strokes: found.get('draw:' + x.id) || [] }) : x));
   }
 
-  async add(p) {
+  async add(p, force) {
     const now = Date.now();
     const all = await this.load();
     const list = [];
@@ -160,8 +178,8 @@ export class PulseHub {
     }
     // Not too fast: the same person and kind within 2 s, or more than 120 an hour.
     // (Hearts back are checked per moment: someone may answer several in a row.)
-    if (list.some((x) => x.from === p.from && x.kind === p.kind && x.to === p.to && now - x.at < 2000)) return fail(429, 'لحظة… أُرسلت للتو.');
-    if (list.filter((x) => now - x.at < 3600000).length >= 120) return fail(429, 'كثير من النبضات في ساعة واحدة. انتظر قليلاً.');
+    if (!force && list.some((x) => x.from === p.from && x.kind === p.kind && x.to === p.to && now - x.at < 2000)) return fail(429, 'لحظة… أُرسلت للتو.');
+    if (!force && list.filter((x) => now - x.at < 3600000).length >= 120) return fail(429, 'كثير من النبضات في ساعة واحدة. انتظر قليلاً.');
     p.id = p.id || newId();
     // Strictly increasing, so "everything after <at>" never misses one sent in the same ms.
     p.at = Math.max(now, list.length ? list[list.length - 1].at + 1 : 0);
@@ -209,12 +227,15 @@ export class PulseHub {
         heart: p.from !== HOME,
       });
     }
+    if (p.kind === 'beat') {
+      return Object.assign(base, { title: (p.sched ? '🎁 ' : '💓 ') + 'نبضة قلب من ' + p.from, body: p.bpm + ' نبضة في الدقيقة · قلبٌ ينبض لكم', heart: true });
+    }
     if (p.kind === 'spin') {
       return Object.assign(base, { title: '🎡 ' + p.wheelName, body: 'النتيجة: ' + p.result + ' · من ' + (p.from === HOME ? 'الإطار' : p.from), url: '/admin#fun', heart: false });
     }
     const body = p.kind === 'tap' ? what('tap', p.tap) : p.kind === 'draw' ? 'رسمة جديدة على الإطار'
       : 'رسالة صوتية' + (p.audio && p.audio.dur ? ' (' + Math.round(p.audio.dur) + ' ث)' : '');
-    return Object.assign(base, { title: 'نبضة من ' + p.from, body, heart: true });
+    return Object.assign(base, { title: (p.sched ? '🎁 مفاجأة من ' : 'نبضة من ') + p.from, body, heart: true });
   }
 
   // Who hears about it: a heart goes to whoever it answers; a moment to everyone else who
@@ -262,6 +283,7 @@ export class PulseHub {
     }
 
     if (path === '/api/pulse' && method === 'GET') {
+      await this.releaseDue();
       const since = Number(url.searchParams.get('since')) || 0;
       const light = url.searchParams.get('light') === '1';
       let list = (await this.load()).filter((x) => x.at > since && Date.now() - x.at < KEEP_MS);
@@ -276,23 +298,32 @@ export class PulseHub {
       let body;
       try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
       const from = name(body.from);
+      // Sent now, or kept for later («مفاجأة مؤجلة»).
+      const due = body.at == null ? 0 : Number(body.at);
+      if (due && (!Number.isFinite(due) || due > Date.now() + LATER_MAX_MS)) return fail(400, 'Choose a time within the next two months.');
+      const go = (p) => (due && due > Date.now() + 20000 ? this.later(p, due) : this.add(p));
       if (body.kind === 'knock') {
         const rhythm = cleanRhythm(body.rhythm);
         if (!rhythm) return fail(400, 'The knock is empty.');
         const p = { kind: 'knock', from: from || HOME, rhythm };
         const to = name(body.to);
         if (p.from === HOME && to) p.toName = to;
-        return this.add(p);
+        return go(p);
       }
       if (!from) return fail(400, 'Who is sending? Choose your name first.');
       if (body.kind === 'tap') {
         if (!TAPS.includes(body.tap)) return fail(400, 'Unknown tap.');
-        return this.add({ kind: 'tap', tap: body.tap, from });
+        return go({ kind: 'tap', tap: body.tap, from });
       }
       if (body.kind === 'draw') {
         const strokes = cleanStrokes(body.strokes);
         if (!strokes) return fail(400, 'The drawing is empty.');
-        return this.add({ kind: 'draw', strokes, from });
+        return go({ kind: 'draw', strokes, from });
+      }
+      if (body.kind === 'beat') {
+        const b = cleanBeat(body);
+        if (!b) return fail(400, 'That is not a heartbeat (35–210 a minute).');
+        return go(Object.assign({ kind: 'beat', from }, b));
       }
       return fail(400, 'Unknown kind.');
     }
@@ -306,9 +337,12 @@ export class PulseHub {
       if (!buf.byteLength) return fail(400, 'The recording is empty.');
       if (buf.byteLength > MAX_AUDIO) return fail(413, 'The recording is too long.');
       const dur = Math.min(30, Math.max(0, Number(url.searchParams.get('dur')) || 0));
+      const due = Number(url.searchParams.get('at')) || 0;
+      if (due && due > Date.now() + LATER_MAX_MS) return fail(400, 'Choose a time within the next two months.');
       const id = newId();
       await this.ctx.storage.put('audio:' + id, { type, data: buf });
-      const res = await this.add({ id, kind: 'voice', from, audio: { type, dur: Math.round(dur * 10) / 10 } });
+      const v = { id, kind: 'voice', from, audio: { type, dur: Math.round(dur * 10) / 10 } };
+      const res = due > Date.now() + 20000 ? await this.later(v, due) : await this.add(v);
       if (res.status !== 200) await this.ctx.storage.delete('audio:' + id);
       return res;
     }
@@ -330,6 +364,95 @@ export class PulseHub {
       const reply = { kind: 'reply', from, to: target.id, toName: target.from, toKind: target.kind };
       if (target.tap) reply.toTap = target.tap;
       return this.add(reply);
+    }
+
+    // ---------- surprises for later ----------
+    if (path === '/api/pulse/later' && method === 'GET') {
+      await this.releaseDue();
+      const who = name(url.searchParams.get('from'));
+      const list = (await this.laterList()).filter((x) => x.from === who).map((x) => {
+        const o = Object.assign({}, x);
+        delete o.strokes;
+        return o;
+      });
+      return json({ later: list });
+    }
+    if (path === '/api/pulse/later/cancel' && method === 'POST') {
+      let body;
+      try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
+      const list = await this.laterList();
+      const x = list.find((y) => y.id === body.id);
+      if (!x) return fail(404, 'It was already sent (or cancelled).');
+      if (x.from !== name(body.from)) return fail(403, 'Only whoever wrote it can cancel it.');
+      await this.drop(x);
+      await this.ctx.storage.put('later', list.filter((y) => y.id !== x.id));
+      await this.setNextAlarm();
+      return json({ ok: true });
+    }
+
+    // ---------- statuses ----------
+    if (path === '/api/pulse/status' && method === 'GET') return json({ statuses: await this.statuses() });
+    if ((path === '/api/pulse/status' && method === 'PUT') || (path === '/api/pulse/status/clear' && method === 'POST')) {
+      let body;
+      try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
+      const who = name(body.from);
+      if (!who) return fail(400, 'Who is this? Choose your name first.');
+      const all = (await this.ctx.storage.get('statuses')) || {};
+      if (path.endsWith('/clear')) delete all[who];
+      else {
+        const text = String(body.text == null ? '' : body.text).replace(/\s+/g, ' ').trim().slice(0, 40);
+        const emoji = String(body.emoji == null ? '' : body.emoji).trim().slice(0, 8);
+        const until = Number(body.until);
+        if (!text) return fail(400, 'Write a status.');
+        if (!Number.isFinite(until) || until < Date.now() + 60000 || until > Date.now() + 7 * 86400000) return fail(400, 'Choose until when (up to a week).');
+        all[who] = { text, emoji, until, at: Date.now() };
+        const names = Object.keys(all);
+        if (names.length > 30) delete all[names.sort((a, b) => all[a].at - all[b].at)[0]];
+      }
+      await this.ctx.storage.put('statuses', all);
+      const list = await this.statuses();
+      this.broadcast({ type: 'status', statuses: list });
+      return json({ statuses: list });
+    }
+
+    // ---------- zellige colouring ----------
+    if (path === '/api/pulse/coloring' && method === 'GET') return json(await this.coloring());
+    if (path.startsWith('/api/pulse/coloring/') && method === 'POST') {
+      let body;
+      try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
+      const action = path.slice('/api/pulse/coloring/'.length);
+      const state = await this.coloring();
+      const c = state.page;
+      if (action === 'fill') {
+        const tile = Number(body.tile), color = Number(body.color);
+        if (!Number.isInteger(tile) || tile < 0 || tile >= tileCount(c.pid)) return fail(400, 'No such tile.');
+        if (!Number.isInteger(color) || color < -1 || color >= GLAZES) return fail(400, 'No such colour.');
+        const who = name(body.from) || HOME;
+        if (color < 0) delete c.fills[tile]; else c.fills[tile] = color;
+        c.who[who] = (c.who[who] || 0) + 1;
+        c.v++;
+        const done = Object.keys(c.fills).length >= tileCount(c.pid);
+        if (done && !c.doneAt) c.doneAt = Date.now();
+        if (!done) c.doneAt = 0;
+        await this.ctx.storage.put('coloring', c);
+        this.broadcast({ type: 'color', tile, color, v: c.v, from: who, done: !!c.doneAt, pid: c.pid });
+        return json({ v: c.v, done: !!c.doneAt });
+      }
+      if (action === 'new') {
+        const next = this.archivePage(state, c);
+        next.pid = (c.pid + 1) % PATTERN_COUNT;
+        await this.ctx.storage.put('coloring', next);
+        await this.ctx.storage.put('coloringArchive', state.archive);
+        const out = await this.coloring();
+        this.broadcast({ type: 'coloring', coloring: out });
+        return json(out);
+      }
+      if (action === 'saved') {
+        if (body.which === 'current') { c.savedAt = Date.now(); await this.ctx.storage.put('coloring', c); }
+        else await this.ctx.storage.put('coloringArchive', state.archive.filter((x) => x.id !== body.which));
+        return json(await this.coloring());
+      }
+      return fail(404, 'Unknown colouring route.');
     }
 
     if (path === '/api/pulse/phones' && method === 'GET') {
@@ -541,21 +664,109 @@ export class PulseHub {
   // Keep watching without anyone asking: every 30 s during a match, else at the next kick-off
   // (or in 3 hours to look for new fixtures).
   async armAlarm(st, now) {
-    const s = this.ctx.storage;
-    if (!s.setAlarm) return;
     const c = st.cur;
     let at = now + 3 * HOUR;
     if (c && c.state !== 'post' && now >= c.kickoff - 20 * MIN && now < c.kickoff + 4 * HOUR) at = now + 30000;
     else if (c && c.state === 'pre' && c.kickoff - 20 * MIN > now) at = Math.min(at, c.kickoff - 20 * MIN);
+    // (Stored only when it changes much, so a frame asking every minute doesn't write each time.)
+    const prev = await this.ctx.storage.get('matchAlarm');
+    if (!prev || prev <= now || prev > at + 5000) await this.ctx.storage.put('matchAlarm', at);
+    await this.setNextAlarm();
+  }
+  // One alarm for both: the match's next look and the next surprise.
+  async setNextAlarm() {
+    const s = this.ctx.storage;
+    if (!s.setAlarm) return;
+    const now = Date.now();
+    const cfg = await this.matchCfg();
+    const times = [];
+    const m = cfg.on ? await s.get('matchAlarm') : null;
+    if (m) times.push(Math.max(m, now + 1000));
+    for (const x of await this.laterList()) times.push(Math.max(x.due, now + 1000));
+    if (!times.length) return;
+    const at = Math.min(...times);
     try {
       const cur = await s.getAlarm();
-      if (!cur || cur <= now || cur > at + 5000) await s.setAlarm(at);
+      if (!cur || cur <= now || cur > at + 1000) await s.setAlarm(at);
     } catch (e) { /* not available */ }
   }
 
   async alarm() {
+    await this.releaseDue();
     const cfg = await this.matchCfg();
     if (cfg.on) await this.matchView(0);
+    await this.setNextAlarm();
+  }
+
+  // ---------- surprises for later ----------
+  async laterList() { return (await this.ctx.storage.get('later')) || []; }
+  async later(p, due) {
+    const list = await this.laterList();
+    if (list.length >= MAX_LATER) return fail(429, 'Too many surprises waiting (50). Cancel some first.');
+    if (list.filter((x) => x.from === p.from).length >= 20) return fail(429, 'You have 20 surprises waiting already.');
+    p.id = p.id || newId();
+    const item = Object.assign({}, p, { due: Math.round(due), sched: true, sentAt: Date.now() });
+    if (p.strokes) {
+      await this.ctx.storage.put('draw:' + p.id, p.strokes);
+      delete item.strokes;
+      item.points = p.strokes.reduce((n, s2) => n + s2.p.length / 3, 0);
+    }
+    list.push(item);
+    list.sort((a, b) => a.due - b.due);
+    await this.ctx.storage.put('later', list);
+    await this.setNextAlarm();
+    return json({ later: item, live: 0 });
+  }
+  // Send the ones whose time has come (by the alarm, or whenever the frame asks).
+  async releaseDue() {
+    const list = await this.laterList();
+    const now = Date.now();
+    if (!list.length || list[0].due > now + 1000) return 0;
+    const due = list.filter((x) => x.due <= now + 1000), rest = list.filter((x) => x.due > now + 1000);
+    await this.ctx.storage.put('later', rest);
+    for (const x of due) {
+      const p = Object.assign({}, x);
+      delete p.due;
+      if (p.kind === 'draw') p.strokes = (await this.ctx.storage.get('draw:' + p.id)) || [];
+      await this.add(p, true);
+    }
+    return due.length;
+  }
+
+  // ---------- statuses ----------
+  async statuses() {
+    const all = (await this.ctx.storage.get('statuses')) || {};
+    const now = Date.now();
+    return Object.keys(all).filter((n) => all[n].until > now).map((n) => Object.assign({ name: n }, all[n])).sort((a, b) => b.at - a.at);
+  }
+
+  // ---------- zellige colouring ----------
+  // A new page every week (Monday); a page at least half coloured and not saved yet waits in the
+  // archive until the frame saves it as a photo.
+  async coloring() {
+    const off = Number(this.env && this.env.UTC_OFFSET_MINUTES) || 0;
+    const week = weekIndex(Date.now(), off);
+    let page = await this.ctx.storage.get('coloring');
+    const archive = (await this.ctx.storage.get('coloringArchive')) || [];
+    const state = { archive };
+    if (!page) page = { pid: week % PATTERN_COUNT, week, fills: {}, who: {}, v: 0, doneAt: 0, savedAt: 0, started: Date.now() };
+    else if (page.week !== week) {
+      page = Object.assign(this.archivePage(state, page), { pid: (page.pid + 1) % PATTERN_COUNT });
+      await this.ctx.storage.put('coloring', page);
+      await this.ctx.storage.put('coloringArchive', state.archive);
+    }
+    state.page = page;
+    state.week = week;
+    state.tiles = tileCount(page.pid);
+    return state;
+  }
+  archivePage(state, c) {
+    const filled = Object.keys(c.fills).length;
+    if (!c.savedAt && filled >= tileCount(c.pid) / 2) {
+      state.archive = state.archive.concat([{ id: newId(), pid: c.pid, fills: c.fills, who: c.who, at: Date.now() }]).slice(-3);
+    }
+    const off = Number(this.env && this.env.UTC_OFFSET_MINUTES) || 0;
+    return { pid: c.pid, week: weekIndex(Date.now(), off), fills: {}, who: {}, v: (c.v || 0) + 1, doneAt: 0, savedAt: 0, started: Date.now() };
   }
 
   // Frames only send keep-alive pings (answered automatically); nothing else to do.

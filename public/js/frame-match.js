@@ -8,7 +8,7 @@ import * as demo from './demo.js';
 import { flagSvg, teamBadge, cheerOf, ballSvg } from './fun-common.js';
 import { roar, sigh, whistle } from './sound.js';
 
-export function createMatch({ stage, held }) {
+export function createMatch({ stage, held, chipBox }) {
   let view = null, known = null, hiddenUntil = 0, cheerSince = 0, timer = 0;
   const shownCheers = new Set();
 
@@ -31,7 +31,8 @@ export function createMatch({ stage, held }) {
     h('div', { class: 'mt-lists' }, goalsA, goalsB),
     count, cheers, fx, hide);
   const chip = h('div', { class: 'match-chip', hidden: true });
-  stage.append(el, chip);
+  stage.append(el);
+  (chipBox || stage).appendChild(chip);
   hide.addEventListener('click', () => { hiddenUntil = Date.now() + 10 * MINUTE; render(); });
 
   const m = () => view && view.match;

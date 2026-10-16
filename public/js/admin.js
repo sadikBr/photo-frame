@@ -58,7 +58,8 @@ const send = (path, method, body) => api(path, { method, body: JSON.stringify(bo
 
 // «نبضة» lives in its own file.
 let fun = null;
-const pulse = initPulse({ api, send, toast, el, $, key, DEMO, showView: (v) => showView(v), playKnock: (p) => fun && fun.playKnock(p) });
+const pulse = initPulse({ api, send, toast, el, $, key, DEMO, showView: (v) => showView(v), playKnock: (p) => fun && fun.playKnock(p),
+  offset: () => { try { return (board && board.utcOffset) || 0; } catch (e) { return 0; } } });
 // «مرح»: match mode, the secret knock, the wheel.
 fun = initFun({ api, send, toast, el, $, DEMO, me: pulse.me, needName: pulse.needName, showView: (v) => showView(v), onSent: () => pulse.refresh() });
 

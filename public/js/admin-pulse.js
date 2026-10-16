@@ -3,12 +3,15 @@
 import { store } from './util.js';
 import * as demo from './demo.js';
 import { PEN, TAPS, tapOf, tapIcon, MIC, PEN_ICON, HEART_ICON, drawStrokes, penWidth, PAD_BG } from './pulse-common.js';
+import { fromWall, wallDate, wallTime, whenAr } from './admin-time.js';
+import { initStatus } from './admin-status.js';
+import { initBeat } from './admin-beat.js';
 
 const NAMES = ['ماما', 'بابا', 'جدتي', 'جدي', 'خالتي', 'عمتي'];
 const MAX_REC = 15; // seconds
 const MAX_POINTS = 7800; // the server keeps 8000
 
-export function initPulse({ api, send, toast, el, $, key, DEMO, showView, playKnock }) {
+export function initPulse({ api, send, toast, el, $, key, DEMO, showView, playKnock, offset }) {
   let me = store.get('pulse-from', '');
   let visible = false;
   let watching = false; // the «مرح» tab is open: knocks from home should arrive quickly too
@@ -31,6 +34,8 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView, playKn
     store.set('pulse-from', me);
     renderWho();
     renderFeed();
+    loadLater();
+    if (status) status.render();
     if (typeof tellServer === 'function') tellServer().catch(() => {});
     toast('ترسل الآن باسم «' + me + '». هكذا يظهر اسمك على الإطار.');
   }
@@ -46,11 +51,74 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView, playKn
   }
 
   // ================= sending =================
+  // ================= now, or a surprise for later =================
+  let laterAt = 0; // 0: now
+  function renderWhen() {
+    $('whenNow').classList.toggle('is-on', !laterAt);
+    $('whenLater').classList.toggle('is-on', !!laterAt);
+    $('whenPick').hidden = !laterAt;
+    $('whenBanner').hidden = !laterAt;
+    if (laterAt) $('whenBanner').textContent = '🎁 ما ترسله الآن يبقى سراً حتى ' + whenAr(laterAt, offset()) + '، ثم يظهر على الإطار.';
+    document.body.classList.toggle('is-later', !!laterAt);
+  }
+  function readPick() {
+    const t = fromWall($('whenDate').value, $('whenTime').value, offset());
+    laterAt = Number.isFinite(t) && t > Date.now() + 60000 ? t : 0;
+    if (!laterAt && $('whenDate').value) toast('اختر وقتاً في المستقبل.');
+    renderWhen();
+  }
+  function setLater(t) {
+    $('whenDate').value = wallDate(t, offset());
+    $('whenTime').value = wallTime(t, offset());
+    laterAt = t;
+    renderWhen();
+  }
+  $('whenNow').addEventListener('click', () => { laterAt = 0; renderWhen(); });
+  $('whenLater').addEventListener('click', () => { if (!laterAt) setLater(fromWall(wallDate(Date.now() + 86400000, offset()), '07:30', offset())); });
+  $('whenDate').addEventListener('change', readPick);
+  $('whenTime').addEventListener('change', readPick);
+  const quick = [
+    ['منتصف الليل', () => fromWall(wallDate(Date.now() + 86400000, offset()), '00:00', offset())],
+    ['غداً 07:30', () => fromWall(wallDate(Date.now() + 86400000, offset()), '07:30', offset())],
+    ['بعد ساعة', () => Math.ceil((Date.now() + 3600000) / 300000) * 300000],
+  ];
+  for (const [label, fn] of quick) $('whenQuick').append(el('button', { type: 'button', class: 'wheel-chip', onclick: () => setLater(fn()) }, label));
+  // After one surprise, back to "now" (so the next tap isn't kept back by mistake).
+  function sentLater(r) {
+    const t = r && r.later ? r.later.due : laterAt;
+    laterAt = 0;
+    renderWhen();
+    loadLater();
+    return '🎁 تبقى سراً وتصل ' + whenAr(t, offset()) + '.';
+  }
+
   async function post(body) {
+    if (laterAt) {
+      if (DEMO) return demo.schedule(Object.assign({}, body, { from: body.from || me }), laterAt);
+      return send('/api/pulse', 'POST', Object.assign({}, body, { at: laterAt }));
+    }
     if (DEMO) return demo.pulseAdd(body);
     return send('/api/pulse', 'POST', body);
   }
-  const sentText = (r) => (r && r.live ? 'وصلت إلى الإطار الآن.' : DEMO ? 'أُرسلت (نسخة تجريبية: تظهر على الإطار التجريبي المفتوح في المتصفح نفسه).' : 'أُرسلت. تظهر على الإطار حين يتصل (خلال ثوانٍ إن كان يعمل).');
+  const sentText = (r) => (r && r.later ? sentLater(r) : r && r.live ? 'وصلت إلى الإطار الآن.' : DEMO ? 'أُرسلت (نسخة تجريبية: تظهر على الإطار التجريبي المفتوح في المتصفح نفسه).' : 'أُرسلت. تظهر على الإطار حين يتصل (خلال ثوانٍ إن كان يعمل).');
+
+  // My surprises waiting to go out.
+  async function loadLater() {
+    if (!me) { $('laterCard').hidden = true; return; }
+    let list = [];
+    try { list = DEMO ? demo.later(me) : (await api('/api/pulse/later?from=' + encodeURIComponent(me))).later; } catch (e) { return; }
+    const ul = $('laterList');
+    ul.textContent = '';
+    for (const x of list) {
+      const what = x.kind === 'tap' ? '«' + tapTitle(x.tap) + '»' : x.kind === 'draw' ? 'رسمة' : x.kind === 'voice' ? 'رسالة صوتية' : x.kind === 'beat' ? 'نبضة قلب (' + x.bpm + ')' : 'دقّة';
+      const cancel = el('button', { type: 'button', class: 'ghost small' }, 'إلغاء');
+      cancel.addEventListener('click', async () => {
+        try { if (DEMO) demo.cancelLater(x.id); else await send('/api/pulse/later/cancel', 'POST', { id: x.id, from: me }); toast('أُلغيت.'); loadLater(); } catch (e) { toast(e.message); }
+      });
+      ul.append(el('li', null, el('span', { class: 'feed-icon' }, '🎁'), el('span', { class: 'feed-text' }, what, el('small', null, ' · ' + whenAr(x.due, offset()))), cancel));
+    }
+    $('laterCard').hidden = !list.length;
+  }
 
   // ----- the six taps -----
   const taps = $('taps');
@@ -248,9 +316,9 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView, playKn
       let r;
       if (DEMO) {
         const audioData = await new Promise((ok, no) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.onerror = no; fr.readAsDataURL(recBlob); });
-        r = demo.pulseAdd({ kind: 'voice', from: me, audio: { type, dur }, audioData });
+        r = laterAt ? demo.schedule({ kind: 'voice', from: me, audio: { type, dur }, audioData }, laterAt) : demo.pulseAdd({ kind: 'voice', from: me, audio: { type, dur }, audioData });
       } else {
-        r = await api('/api/pulse/voice?from=' + encodeURIComponent(me) + '&dur=' + dur, { method: 'POST', body: recBlob, headers: { 'content-type': type } });
+        r = await api('/api/pulse/voice?from=' + encodeURIComponent(me) + '&dur=' + dur + (laterAt ? '&at=' + laterAt : ''), { method: 'POST', body: recBlob, headers: { 'content-type': type } });
       }
       recBlob = null;
       $('recDone').hidden = true;
@@ -287,7 +355,7 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView, playKn
   }
   const tapTitle = (tap) => (tapOf(tap) || {}).title || '';
   const kindAr = (k, tap, mine) => (k === 'tap' ? '«' + tapTitle(tap) + '»' : k === 'draw' ? (mine ? 'رسمتك' : 'رسمة')
-    : k === 'knock' ? (mine ? 'دقّتك' : 'دقّة') : (mine ? 'رسالتك الصوتية' : 'رسالة صوتية'));
+    : k === 'knock' ? (mine ? 'دقّتك' : 'دقّة') : k === 'beat' ? (mine ? 'نبضة قلبك' : 'نبضة قلب') : (mine ? 'رسالتك الصوتية' : 'رسالة صوتية'));
   const DOOR_ICON = (s) => '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22V10a7 7 0 0 1 14 0v12z" fill="#7E3F1D" stroke="#1A6C5E" stroke-width="2"/><circle cx="12" cy="15" r="2.6" fill="none" stroke="#D9A441" stroke-width="1.8"/></svg>';
   const WHEEL_ICON = (s) => '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12L12 2A10 10 0 0 1 22 12z" fill="#F2AE3D"/><path d="M12 12L22 12A10 10 0 0 1 12 22z" fill="#E8657A"/><path d="M12 12L12 22A10 10 0 0 1 2 12z" fill="#7FD3B5"/><path d="M12 12L2 12A10 10 0 0 1 12 2z" fill="#9DB9F5"/><circle cx="12" cy="12" r="2.4" fill="#241707"/></svg>';
   // A knock from home for this phone (or for everyone).
@@ -307,10 +375,12 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView, playKn
       if (p.from === 'البيت') return { icon: DOOR_ICON(30), cls: knockForMe(p) ? 'is-reply is-mine' : '', text: 'دقّة من البيت ' + (!p.toName ? 'إلى الجميع' : p.toName === me ? 'إليك' : 'إلى ' + p.toName), play: true };
       return { icon: DOOR_ICON(30), cls: mine ? 'is-mine' : '', text: 'دقّة ' + who + ' على الباب', play: true };
     }
+    if (p.kind === 'beat') return { icon: HEART_ICON(30, '#D9445E'), cls: mine ? 'is-mine' : '', text: 'نبضة قلب ' + who + ' · ' + p.bpm, sub: p.sched ? '🎁 مفاجأة' : '' };
     if (p.kind === 'spin') return { icon: WHEEL_ICON(30), cls: mine ? 'is-mine' : '', text: p.wheelName + ' ← ' + p.result, sub: p.from === 'البيت' ? '(من الإطار)' : '(' + who + ')' };
-    if (p.kind === 'tap') return { icon: tapIcon(p.tap, 30), cls: mine ? 'is-mine' : '', text: '«' + tapTitle(p.tap) + '» ' + who };
-    if (p.kind === 'draw') return { icon: PEN_ICON(30), cls: mine ? 'is-mine' : '', text: 'رسمة ' + who };
-    return { icon: MIC(30), cls: mine ? 'is-mine' : '', text: 'رسالة صوتية ' + who + (p.audio && p.audio.dur ? ' (' + Math.round(p.audio.dur) + ' ث)' : '') };
+    const gift = p.sched ? '🎁 مفاجأة' : '';
+    if (p.kind === 'tap') return { icon: tapIcon(p.tap, 30), cls: mine ? 'is-mine' : '', text: '«' + tapTitle(p.tap) + '» ' + who, sub: gift };
+    if (p.kind === 'draw') return { icon: PEN_ICON(30), cls: mine ? 'is-mine' : '', text: 'رسمة ' + who, sub: gift };
+    return { icon: MIC(30), cls: mine ? 'is-mine' : '', text: 'رسالة صوتية ' + who + (p.audio && p.audio.dur ? ' (' + Math.round(p.audio.dur) + ' ث)' : ''), sub: gift };
   }
   const myHeartTo = (id) => feed.some((x) => x.kind === 'reply' && x.to === id && x.from === me);
 
@@ -401,8 +471,8 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView, playKn
       return;
     }
     if (p.kind === 'spin') { pulseToast(WHEEL_ICON(34), '🎡 ' + p.wheelName + extra, 'النتيجة: ' + p.result + ' · من ' + (p.from === 'البيت' ? 'الإطار' : p.from)); return; }
-    const body = p.kind === 'tap' ? '«' + tapTitle(p.tap) + '»' : p.kind === 'draw' ? 'رسمة جديدة على الإطار' : 'رسالة صوتية';
-    pulseToast(p.kind === 'tap' ? tapIcon(p.tap, 34) : p.kind === 'draw' ? PEN_ICON(34) : MIC(34), 'نبضة من ' + p.from + extra, body);
+    const body = p.kind === 'tap' ? '«' + tapTitle(p.tap) + '»' : p.kind === 'draw' ? 'رسمة جديدة على الإطار' : p.kind === 'beat' ? p.bpm + ' نبضة في الدقيقة' : 'رسالة صوتية';
+    pulseToast(p.kind === 'tap' ? tapIcon(p.tap, 34) : p.kind === 'draw' ? PEN_ICON(34) : p.kind === 'beat' ? HEART_ICON(34, '#D9445E') : MIC(34), (p.sched ? '🎁 مفاجأة من ' : p.kind === 'beat' ? '💓 نبضة قلب من ' : 'نبضة من ') + p.from + extra, body);
     if (p.kind === 'tap' && p.tap === 'love') heartRain();
   }
 
@@ -576,7 +646,11 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView, playKn
     }
   });
 
+  const status = initStatus({ api, send, toast, el, $, DEMO, me: () => me, needName, offset });
+  initBeat({ toast, $, needName, post: async (body) => { const r = await post(Object.assign({ from: me }, body)); toast('نبضة قلبك — ' + sentText(r)); refresh(); return r; } });
   renderWho();
+  renderWhen();
+  loadLater();
   renderFeed();
   refresh();
   checkNotif().catch(() => renderNotif('none', 'تعذّر فحص الإشعارات.'));

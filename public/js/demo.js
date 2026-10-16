@@ -2,6 +2,7 @@
 import { startOfDay, now, parts, dayKey, DAY, MINUTE, HOUR, store } from './util.js';
 import { dueFrom, addDays } from './routines.js';
 import { previewMatch, PREVIEW_MS } from './match-common.js';
+import { tileCount, PATTERN_COUNT, weekIndex } from './zellige.js';
 
 const today = () => startOfDay(now());
 const at = (dayOffset, h, m) => today() + dayOffset * DAY + (h * 60 + m) * MINUTE;
@@ -169,6 +170,7 @@ export function clearMessage() { store.set('demo-message', null); return null; }
 // Voice notes are kept as data: URLs (a 15-second note is about 60 KB).
 const PULSE_KEEP = 40;
 export function pulses(since) {
+  releaseLater();
   const week = Date.now() - 7 * DAY;
   return store.get('demo-pulses', []).filter((p) => p.at > (since || 0) && p.at > week);
 }
@@ -257,4 +259,62 @@ export function cheer(from, key) {
   list.push(c);
   store.set('demo-cheers', list.slice(-30));
   return { cheer: c, live: Date.now() - store.get('demo-frame-alive', 0) < 12000 ? 1 : 0 };
+}
+
+// ---------- surprises, statuses and colouring in demo mode ----------
+export function later(from) { return store.get('demo-later', []).filter((x) => !from || x.from === from); }
+export function schedule(p, due) {
+  const list = later();
+  const item = Object.assign({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6) }, p, { due, sched: true, sentAt: Date.now() });
+  list.push(item);
+  list.sort((a, b) => a.due - b.due);
+  store.set('demo-later', list);
+  return { later: item, live: 0 };
+}
+export function cancelLater(id) { store.set('demo-later', later().filter((x) => x.id !== id)); }
+function releaseLater() {
+  const list = store.get('demo-later', []);
+  const due = list.filter((x) => x.due <= Date.now());
+  if (!due.length) return;
+  store.set('demo-later', list.filter((x) => x.due > Date.now()));
+  for (const x of due) { const p = Object.assign({}, x); delete p.due; delete p.id; try { pulseAdd(p); } catch (e) { /* skip */ } }
+}
+
+export function statuses() {
+  const all = store.get('demo-statuses', null) || { 'سلمى': { text: 'في الامتحان', emoji: '📚', until: today() + 12 * HOUR, at: Date.now() - HOUR } };
+  return Object.keys(all).filter((n) => all[n].until > Date.now()).map((n) => Object.assign({ name: n }, all[n])).sort((a, b) => b.at - a.at);
+}
+export function setStatus(from, text, emoji, until) {
+  const all = {};
+  for (const x of statuses()) all[x.name] = { text: x.text, emoji: x.emoji, until: x.until, at: x.at };
+  if (text) all[from] = { text, emoji, until, at: Date.now() }; else delete all[from];
+  store.set('demo-statuses', all);
+  return { statuses: statuses() };
+}
+
+export function coloring() {
+  const week = weekIndex(Date.now());
+  let page = store.get('demo-coloring', null);
+  if (!page || page.week !== week) {
+    page = { pid: week % PATTERN_COUNT, week, fills: {}, who: {}, v: 0, doneAt: 0, savedAt: 0 };
+    // A few tiles already coloured, so the preview isn't blank.
+    [0, 1, 3, 5, 9, 10, 14, 18].forEach((t, i) => { page.fills[t] = [0, 2, 1, 7, 0, 2, 6, 3][i]; });
+    page.who = { 'سلمى': 5, 'جدتي': 3 };
+    store.set('demo-coloring', page);
+  }
+  return { page, archive: [], tiles: tileCount(page.pid), week };
+}
+export function colorFill(tile, color, from) {
+  const page = coloring().page;
+  if (color < 0) delete page.fills[tile]; else page.fills[tile] = color;
+  page.who[from] = (page.who[from] || 0) + 1;
+  page.v++;
+  page.doneAt = Object.keys(page.fills).length >= tileCount(page.pid) ? Date.now() : 0;
+  store.set('demo-coloring', page);
+  return { v: page.v, done: !!page.doneAt };
+}
+export function colorNew() {
+  const old = coloring().page;
+  store.set('demo-coloring', { pid: (old.pid + 1) % PATTERN_COUNT, week: old.week, fills: {}, who: {}, v: old.v + 1, doneAt: 0, savedAt: 0 });
+  return coloring();
 }

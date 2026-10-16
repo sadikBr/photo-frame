@@ -24,6 +24,7 @@ The **control panel** (`/admin`) has six sections:
 | Section | What you can do |
 | --- | --- |
 | **نبضة** | Send a moment to the frame from wherever you are: a tap (أفكر فيكم, اشتقت إليكم, صباح الخير, تصبحون على خير, في الطريق, خبر سعيد), a finger drawing, or a voice note of up to 15 seconds. It appears on the frame within a second or two with its own animation; the family at home can tap «ردّ بقلب» and you see it in the app. See [نبضة](#نبضة-moments-from-your-phone) |
+| **نبضة**, more | **🎁 مفاجأة لاحقاً**: write a moment now and choose when it appears (midnight for a birthday, 7:30 before an exam); nobody sees it before. **نبضك الحقيقي**: your fingertip on the phone's camera for 15 seconds, and the frame shows a heart beating in your own rhythm. **حالتي**: «📚 في الامتحان حتى 12:00» on the clock screen, gone when the time is up |
 | **مرح** | **وضع الماتش**: when Morocco plays, the frame becomes a stadium screen (score, minute, goals, a roar and fireworks for each Moroccan goal) and phones can send cheers that fly across it. **الدقّة السرية**: tap a rhythm, the frame knocks it on a Moroccan door; knocks from the frame make phones buzz in that rhythm. **عجلة الحظ**: who washes the dishes, where to go on Sunday… spin it on the phone or on the frame. See [مرح](#مرح-match-mode-the-secret-knock-the-wheel) |
 | **الرسالة** | Put a note on the clock screen, for an hour, a day, a week or until you remove it |
 | **القوائم** | Add, tick and remove shopping items and tasks, with quick-add buttons. **Repeating tasks** (every N days, every week on a day, or every month on a date) come back on the to-do list by themselves when due |
@@ -258,12 +259,39 @@ notification «🚪 دقّة من البيت» and, on Android, vibrates in the 
 open it also knocks out loud). iPhones can't play a custom vibration, so they get the
 notification and hear the knock when it's opened.
 
+**تلوين الزليج.** A zellige page (8-pointed stars, a rosette, a terrace) to colour together:
+on the frame (the «مرح» button → «تلوين») and from every phone in «مرح», each tile with a tap,
+everyone seeing the others' colours appear. A new page every Monday. When a page is finished,
+the frame saves it into the slideshow's photos («لوحة العائلة»); a page left at least half done
+at the end of the week is saved too. «لوحة جديدة» starts the next one early.
+
 **عجلة الحظ.** In «مرح», start from a ready wheel (من يغسل الصحون؟، أين نخرج يوم الأحد؟،
 ماذا نأكل الليلة؟…) or make your own: a question and 2 to 12 choices. «أدِر العجلة» spins it on
 the phone, and the frame spins it too, live, then shows the result with confetti. On the frame
 the «العجلة» button (it appears once there is a wheel) spins it there. The server draws the
 result, so it's the same everywhere and nobody can cheat; the result is in the list of moments
 and a notification goes to the phones that get everything.
+
+### More ways to send a moment
+
+**🎁 مفاجأة لاحقاً.** Above the taps in «نبضة», choose «مفاجأة لاحقاً…» and a day and time
+(quick choices: midnight tonight, tomorrow 7:30, in an hour). The next tap, drawing, voice note or
+heartbeat you send is kept on the server, invisible to everyone, and appears on the frame at that
+minute (a Durable Object alarm wakes up for it, even if no one is looking), marked «🎁 مفاجأة ·
+كُتبت أمس». Phones with notifications get «🎁 مفاجأة من …». «مفاجآتي المؤجلة» lists yours, with
+«إلغاء». Up to two months ahead. Times are Morocco's, whatever the phone's clock thinks.
+
+**نبضك الحقيقي.** In «نبضة», «ابدأ القياس»: put a fingertip gently on the back camera; the
+phone turns the camera's light on and reads the pulse from the tiny changes in the red of your
+skin (15 seconds, keep still). The frame then shows a big heart beating at your real rhythm with
+a monitor line and soft heartbeat sounds («قلب ماما ينبض لكم · 72»), and home can send a heart
+back. The camera light needs an Android phone; on an iPhone (or if the camera can't read it),
+«أو انقر مع نبضك»: feel the pulse at the wrist and tap along 10 times. It's for love, not
+medicine.
+
+**حالتي.** In «نبضة», pick a status (في الامتحان، في الخدمة، نايم، مسافر…) or write one, and
+until when (an hour, 3 hours, 20:00, tomorrow 8:00, 3 days). It shows as a small card at the top
+of the frame's clock screen and on the other phones, and disappears by itself.
 
 ## About the time zone
 
@@ -302,8 +330,9 @@ public/js/           Frame screens (screens/), frame data (data.js), holidays (h
                      (adhkar-data.js), weather tip (nudge.js), repeating-task dates
                      (routines.js), «نبضة» on the frame (pulse.js) and on the phone
                      (admin-pulse.js, shared parts in pulse-common.js), «مرح» on the frame
-                     (frame-knock.js, frame-wheel.js, frame-match.js) and on the phone (admin-fun.js;
-                     shared: fun-common.js, sound.js, match-common.js), control panel (admin.js), .ics import (ics.js,
+                     (frame-knock.js, frame-wheel.js, frame-match.js, frame-color.js, frame-status.js) and on
+                     the phone (admin-fun.js, admin-beat.js, admin-status.js, admin-time.js; shared:
+                     fun-common.js, sound.js, match-common.js, zellige.js, heart.js), control panel (admin.js), .ics import (ics.js,
                      ics-import.js), defaults (config.js)
 public/css/          Styles: app.css (frame), admin.css (control panel)
 public/fonts/        Reem Kufi and Readex Pro (SIL Open Font License)
@@ -311,5 +340,6 @@ public/demo/         Sample pictures for ?demo (painted in code, tools/paint-dem
 tools/make-vapid.mjs Makes the key pair for phone notifications
 public/brand/        Icons, splash screens and install screenshots (tools/make-brand.py);
                      favicon.svg, apple-touch-icon.png, icon-*.png at the top of public/
-test/                npm test: API, notifications, knocks/wheel/match, .ics import and frame logic tests
+test/                npm test: API, notifications, knocks/wheel/match, surprises/statuses/colouring,
+                     heartbeat detection, .ics import and frame logic tests
 ```

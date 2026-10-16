@@ -15,6 +15,8 @@ import { createPulse } from './pulse.js';
 import { createWheel } from './frame-wheel.js';
 import { createKnock } from './frame-knock.js';
 import { createMatch } from './frame-match.js';
+import { createStatus } from './frame-status.js';
+import { createColoring } from './frame-color.js';
 import * as demo from './demo.js';
 
 const SCREEN_W = 1280;
@@ -44,22 +46,37 @@ stage.append(track, nav, status, adhanBar, night);
 // The door and the wheel open from two buttons at the end of the screen tabs.
 const knockTab = h('button', { class: 'tab tab-fun', type: 'button', 'aria-label': 'الدقّة السرية', html: '<svg width="24" height="28" viewBox="0 0 24 28" aria-hidden="true"><path d="M3 28V11a9 9 0 0 1 18 0v17z" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="12" cy="17" r="3.4" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>' }, 'دقّة');
 const wheelTab = h('button', { class: 'tab tab-fun', type: 'button', hidden: true, 'aria-label': 'عجلة الحظ', html: '<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M13 2v22M2 13h22M5.2 5.2l15.6 15.6M20.8 5.2L5.2 20.8" stroke="currentColor" stroke-width="1.6"/><circle cx="13" cy="13" r="3" fill="currentColor"/></svg>' }, 'العجلة');
-knockTab.addEventListener('click', () => { touched(); knock.open(); });
-wheelTab.addEventListener('click', () => { touched(); wheel.open(); });
-nav.append(h('span', { class: 'tab-gap' }), knockTab, wheelTab);
+const colorTab = h('button', { class: 'tab tab-fun', type: 'button', 'aria-label': 'تلوين الزليج', html: '<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><polygon points="13,1 16.2,7.3 23.4,6.6 19.6,12.6 23.4,18.8 16.2,18.1 13,24.6 9.8,18.1 2.6,18.8 6.4,12.6 2.6,6.6 9.8,7.3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><circle cx="13" cy="12.8" r="3.4" fill="currentColor"/></svg>' }, 'تلوين');
+// One «مرح» button in the tabs; it opens the three above it (the row stays short, clear of the
+// corners where the moments' badge and the tray sit).
+const funTab = h('button', { class: 'tab tab-fun', type: 'button', 'aria-expanded': 'false', html: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.2 5.6L20 9l-5.8 1.5L12 16l-2.2-5.5L4 9l5.8-1.4z" fill="currentColor"/><path d="M19 15l.9 2.1 2.1.9-2.1.9L19 21l-.9-2.1-2.1-.9 2.1-.9z" fill="currentColor"/></svg>' }, 'مرح');
+const funMenu = h('div', { class: 'fun-menu', hidden: true }, knockTab, wheelTab, colorTab);
+const closeMenu = () => { funMenu.hidden = true; funTab.setAttribute('aria-expanded', 'false'); };
+funTab.addEventListener('click', (e) => { e.stopPropagation(); touched(); funMenu.hidden = !funMenu.hidden; funTab.setAttribute('aria-expanded', String(!funMenu.hidden)); clearTimeout(funTab.t); if (!funMenu.hidden) funTab.t = setTimeout(closeMenu, 12000); });
+knockTab.addEventListener('click', () => { closeMenu(); touched(); knock.open(); });
+wheelTab.addEventListener('click', () => { closeMenu(); touched(); wheel.open(); });
+colorTab.addEventListener('click', () => { closeMenu(); touched(); coloring.open(); });
+stage.addEventListener('pointerdown', (e) => { if (!funMenu.hidden && !funMenu.contains(e.target) && !funTab.contains(e.target)) closeMenu(); });
+nav.append(h('span', { class: 'tab-gap' }), funTab);
+stage.appendChild(funMenu);
+// Small cards at the top of the clock screen: the next match, and what everyone is up to.
+const chipBox = h('div', { class: 'top-chips' });
+stage.appendChild(chipBox);
 
 // «وضع الماتش»: over the screens while Morocco plays (not during the adhan).
-const match = createMatch({ stage, held: () => !!adhan.adhanPlaying() });
+const match = createMatch({ stage, held: () => !!adhan.adhanPlaying(), chipBox });
+const statuses = createStatus({ chipBox });
 // «نبضة»: moments from the family's phones play over whatever screen is up. At night they play
 // under the dimmed layer and without sound.
 const knock = createKnock({ stage });
 const wheel = createWheel({ stage, onChange: (n) => { wheelTab.hidden = !n; } });
+const coloring = createColoring({ stage });
 const pulse = createPulse({
   stage,
   isNight: () => isNight(now()) && Date.now() > awakeUntil && !match.active(),
-  hold: () => !!adhan.adhanPlaying() || knock.busy() || wheel.busy(),
+  hold: () => !!adhan.adhanPlaying() || knock.busy() || wheel.busy() || coloring.busy(),
   fun: { knock, wheel },
-  onSocket: (m) => { match.socket(m); wheel.socket(m); },
+  onSocket: (m) => { match.socket(m); wheel.socket(m); statuses.socket(m); coloring.socket(m); },
 });
 
 stage.insertBefore(night, null); // keep the night layer last
@@ -199,7 +216,7 @@ function schedule(t) {
   // The adhan brings the prayer screen forward, even while someone is using the frame.
   if (adhan.adhanPlaying()) { if (screens[index].name !== 'prayer') go('prayer'); shownAt = real; return; }
   // A moment from a phone is playing, the door or the wheel is open, or the match is on: stay.
-  if (pulse.busy() || knock.busy() || wheel.busy() || match.active()) { shownAt = real; return; }
+  if (pulse.busy() || knock.busy() || wheel.busy() || coloring.busy() || match.active()) { shownAt = real; return; }
   if (idle < config.resumeAfterSeconds * 1000) return; // someone is using it
   if (!resumed) { resumed = true; rotIndex = 0; go('home'); return; }
   if (ramadanPreviewing()) { if (screens[index].name !== 'prayer') go('prayer'); shownAt = real; return; }
@@ -286,6 +303,8 @@ if (DEMO) {
     knock() { try { demo.pulseAdd({ kind: 'knock', from: 'سلمى', rhythm: [0, 160, 320, 900, 1060] }); } catch (e) { return; } pulse.poke(); },
     spin() { const w = demo.wheels()[0]; try { demo.spin(w.id, 'يوسف'); } catch (e) { return; } pulse.poke(); },
     match(on) { demo.matchPreview(!on); match.poke(); },
+    beat() { try { demo.pulseAdd({ kind: 'beat', from: 'ماما', bpm: 74, intervals: [800, 820, 812, 790, 805, 818, 800, 810] }); } catch (e) { return; } pulse.poke(); },
+    surprise() { try { demo.pulseAdd({ kind: 'tap', tap: 'news', from: 'بابا', sched: true, sentAt: Date.now() - 20 * 3600000 }); } catch (e) { return; } pulse.poke(); },
   };
 }
 
@@ -308,6 +327,7 @@ function loop() {
   try { adhan.tick(t); } catch (e) { console.error(e); }
   try { pulse.tick(t); } catch (e) { console.error(e); }
   try { match.tick(screens[index].name); } catch (e) { console.error(e); }
+  try { statuses.tick(screens[index].name); } catch (e) { console.error(e); }
   try { schedule(t); } catch (e) { console.error(e); }
   setTimeout(loop, 1000 - (Date.now() % 1000) + 5);
 }

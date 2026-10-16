@@ -11,7 +11,8 @@ import { accessKey, DEMO } from './data.js';
 import * as demo from './demo.js';
 import { starPoints } from './icons.js';
 import { HEART, tapOf, tapIcon, MIC, PEN_ICON, HEART_ICON, drawStrokes } from './pulse-common.js';
-import { audio, unlockAudio } from './sound.js';
+import { audio, unlockAudio, heartbeat } from './sound.js';
+import { ecgPath } from './heart.js';
 
 const W = 1280, H = 800;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -184,8 +185,9 @@ export function createPulse({ stage, isNight, hold, fun, onSocket }) {
     const { p, replay } = queue.shift();
     const started = Date.now();
     try {
-      if (!replay && !isNight() && p.kind !== 'knock' && p.kind !== 'spin') chime();
+      if (!replay && !isNight() && p.kind !== 'knock' && p.kind !== 'spin' && p.kind !== 'beat') chime();
       if (p.kind === 'tap') await playTap(p);
+      else if (p.kind === 'beat') await playBeat(p, replay);
       else if (p.kind === 'knock' && fun) await fun.knock.play(p, replyButton(p));
       else if (p.kind === 'spin' && fun) await fun.wheel.play(p);
       else if (p.kind === 'draw') await playDraw(p, replay);
@@ -207,8 +209,15 @@ export function createPulse({ stage, isNight, hold, fun, onSocket }) {
   function fromLine(p) {
     const mins = Math.round((now() - p.at) / MINUTE);
     const when = mins < 1 ? 'الآن' : mins < 60 ? 'قبل ' + (mins === 1 ? 'دقيقة' : mins === 2 ? 'دقيقتين' : mins <= 10 ? mins + ' دقائق' : mins + ' دقيقة') : 'على ' + hhmm(p.at);
-    return 'من ' + p.from + (when ? ' · ' + when : '');
+    let line = 'من ' + p.from + (when ? ' · ' + when : '');
+    // A surprise: when it was written.
+    if (p.sched && p.sentAt) {
+      const days = Math.round((startOfDay(p.at) - startOfDay(p.sentAt)) / 86400000);
+      line += ' · كُتبت ' + (days <= 0 ? 'على ' + hhmm(p.sentAt) : days === 1 ? 'أمس' : days === 2 ? 'قبل يومين' : 'قبل ' + days + ' أيام');
+    }
+    return line;
   }
+  const gift = (p) => (p.sched ? h('div', { class: 'pl-gift' }, '🎁 مفاجأة') : null);
 
   // A heart back to whoever sent it.
   function replyButton(p) {
@@ -239,7 +248,7 @@ export function createPulse({ stage, isNight, hold, fun, onSocket }) {
   function banner(p, icon, title, extra) {
     const el = h('div', { class: 'pl-banner k-' + (p.tap || p.kind) },
       h('div', { class: 'pl-icon', html: icon }),
-      h('div', { class: 'pl-text' }, h('div', { class: 'pl-title' }, title), h('div', { class: 'pl-from' }, fromLine(p)), extra || null),
+      h('div', { class: 'pl-text' }, gift(p), h('div', { class: 'pl-title' }, title), h('div', { class: 'pl-from' }, fromLine(p)), extra || null),
       replyButton(p));
     layer.appendChild(el);
     el.animate([{ opacity: 0, transform: 'translate(-50%, -24px) scale(.94)' }, { opacity: 1, transform: 'translate(-50%, 0) scale(1)' }],
@@ -406,7 +415,7 @@ export function createPulse({ stage, isNight, hold, fun, onSocket }) {
     const canvas = h('canvas', { width: 720, height: 540, class: 'pl-canvas' });
     const card = h('div', { class: 'pl-card' },
       h('div', { class: 'pl-card-head' }, h('span', { class: 'pl-icon-sm', html: PEN_ICON(40) }),
-        h('div', null, h('div', { class: 'pl-card-title' }, 'رسم من ' + p.from), h('div', { class: 'pl-from' }, fromLine(p).replace('من ' + p.from + ' · ', ''))),
+        h('div', null, gift(p), h('div', { class: 'pl-card-title' }, 'رسم من ' + p.from), h('div', { class: 'pl-from' }, fromLine(p).replace('من ' + p.from + ' · ', ''))),
         replyButton(p)),
       canvas);
     layer.append(scrim, card);
@@ -433,6 +442,49 @@ export function createPulse({ stage, isNight, hold, fun, onSocket }) {
     scrim.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 700, fill: 'forwards' });
     await card.animate([{ transform: 'translate(-50%,-50%) scale(1)', opacity: 1 }, { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) scale(.12)', opacity: 0.2 }],
       { duration: 800, easing: 'cubic-bezier(.5,0,.7,1)', fill: 'forwards' }).finished;
+  }
+
+  // ----- a real heartbeat: a big heart beating in the sender's own rhythm, a monitor line -----
+  async function playBeat(p, replay) {
+    const iv0 = Array.isArray(p.intervals) && p.intervals.length ? p.intervals : [Math.round(60000 / (p.bpm || 72))];
+    const SECS = replay ? 9000 : 13000;
+    const iv = [];
+    for (let t = 0, i = 0; t < SECS; i++) { const x = iv0[i % iv0.length]; iv.push(x); t += x; }
+    const total = iv.reduce((a, b) => a + b, 0);
+    const scrim = h('div', { class: 'pl-scrim is-strong' });
+    const big = h('div', { class: 'pl-beat-heart', html: heartSvg('#E8657A') });
+    const ecg = h('div', { class: 'pl-ecg', html: '<svg width="1100" height="150" viewBox="0 0 1100 150"><path d="' + ecgPath(iv, 1100, 150) + '" fill="none" stroke="#7FD3B5" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/></svg>' });
+    const card = h('div', { class: 'pl-beat' },
+      big,
+      h('div', { class: 'pl-beat-side' }, gift(p),
+        h('div', { class: 'pl-beat-title' }, 'قلب ' + p.from + ' ينبض لكم'),
+        h('div', { class: 'pl-beat-num' }, h('b', null, String(p.bpm)), h('span', null, 'نبضة في الدقيقة')),
+        h('div', { class: 'pl-from' }, fromLine(p)),
+        replyButton(p)));
+    layer.append(scrim, card, ecg);
+    scrim.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, fill: 'both' });
+    card.animate([{ opacity: 0, transform: 'translate(-50%,-50%) scale(.9)' }, { opacity: 1, transform: 'translate(-50%,-50%) scale(1)' }], { duration: 600, easing: 'cubic-bezier(.2,.9,.3,1.15)', fill: 'both' });
+    await wait(700);
+    // The line draws itself; each spike comes with a beat of the heart.
+    const path = ecg.querySelector('path');
+    let len = 2400;
+    try { len = path.getTotalLength(); } catch (e) { /* old WebView */ }
+    path.style.strokeDasharray = String(len);
+    path.animate([{ strokeDashoffset: len }, { strokeDashoffset: 0 }], { duration: total, easing: 'linear', fill: 'both' });
+    const sound = !isNight();
+    let t = 0;
+    const timers = [];
+    for (const x of iv) {
+      const at = t + x * 0.55;
+      if (sound) heartbeat(at / 1000, 0.8);
+      timers.push(setTimeout(() => big.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.16)', offset: 0.14 }, { transform: 'scale(1.02)', offset: 0.32 }, { transform: 'scale(1.09)', offset: 0.46 }, { transform: 'scale(1)' }], { duration: 620, easing: 'ease-out' }), at));
+      t += x;
+    }
+    await wait(total + 800);
+    timers.forEach(clearTimeout);
+    scrim.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 600, fill: 'forwards' });
+    ecg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 600, fill: 'forwards' });
+    await card.animate([{ opacity: 1 }, { opacity: 0, transform: 'translate(-50%,-50%) scale(.95)' }], { duration: 600, fill: 'forwards' }).finished;
   }
 
   // ----- voice notes -----

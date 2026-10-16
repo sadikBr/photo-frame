@@ -4,7 +4,8 @@
 import { store } from './util.js';
 import * as demo from './demo.js';
 import { wheelSvg, landingAngle, choiceAt, WHEEL_TEMPLATES, doorSvg, flagSvg, teamBadge, CHEERS, cheerOf, rhythmRecorder, playRhythm, rhythmVibration, rhythmDots } from './fun-common.js';
-import { unlockAudio, tick, fanfare, roar, whistle } from './sound.js';
+import { unlockAudio, tick, fanfare, roar, whistle, plip } from './sound.js';
+import { zelligeSvg, GLAZE, GLAZE_NAMES, EMPTY, pattern } from './zellige.js';
 
 const words = (r) => r.map((t, i) => (i ? (t - r[i - 1] > 450 ? ' … ' : ' ') : '') + 'طق').join('');
 
@@ -263,7 +264,64 @@ export function initFun({ api, send, toast, el, $, DEMO, me, needName, showView,
     try { await saveWheels(wheels.filter((x) => x.id !== editing)); $('wheelForm').hidden = true; cur = null; renderWheels(); } catch (err) { toast(err.message); }
   });
   renderTemplates();
-  if (DEMO) window.addEventListener('storage', (e) => { if (e.key === 'fd:demo-wheels') loadWheels(); if (e.key === 'fd:demo-match-start') loadMatch(); });
+  if (DEMO) window.addEventListener('storage', (e) => { if (e.key === 'fd:demo-wheels') loadWheels(); if (e.key === 'fd:demo-match-start') loadMatch(); if (e.key === 'fd:demo-coloring') loadColor(); });
+
+  // ================= zellige colouring =================
+  let cstate = null, ccolor = 0, cTimer = 0, cpid = null;
+  const cpal = $('colorPalette');
+  GLAZE.forEach((c, i) => cpal.append(el('button', { type: 'button', class: 'zc-sw', 'aria-label': GLAZE_NAMES[i], style: 'background:' + c, onclick: () => { ccolor = i; renderPal(); } })));
+  cpal.append(el('button', { type: 'button', class: 'zc-sw zc-er', 'aria-label': 'ممحاة', onclick: () => { ccolor = -1; renderPal(); } }, '⌫'));
+  function renderPal() { [...cpal.children].forEach((b, i) => b.classList.toggle('is-on', (i === GLAZE.length ? -1 : i) === ccolor)); }
+  renderPal();
+  function renderColorInfo() {
+    if (!cstate) return;
+    const n = Object.keys(cstate.page.fills).length;
+    const names = Object.keys(cstate.page.who || {}).filter((x) => x !== 'البيت');
+    $('colorInfo').textContent = pattern(cstate.page.pid).name + ' · لُوّن ' + n + ' من ' + cstate.tiles + (cstate.page.doneAt ? ' ✨ اكتملت!' : '') + (names.length ? ' · مع: ' + names.slice(0, 4).join('، ') : '');
+  }
+  function renderColor(full) {
+    if (!cstate) return;
+    const art = $('colorArt');
+    if (full || cpid !== cstate.page.pid || !art.firstChild) {
+      art.innerHTML = zelligeSvg(cstate.page.pid, cstate.page.fills, 300, 'zl-svg');
+      cpid = cstate.page.pid;
+    } else {
+      for (const pth of art.querySelectorAll('path[data-t]')) {
+        const f = cstate.page.fills[pth.getAttribute('data-t')];
+        const c = f != null && f >= 0 ? GLAZE[f] : EMPTY;
+        if (pth.getAttribute('fill') !== c) pth.setAttribute('fill', c);
+      }
+    }
+    renderColorInfo();
+  }
+  let lastTap = 0;
+  async function loadColor() {
+    if (Date.now() - lastTap < 2500) return; // (don't undo a tap the server hasn't counted yet)
+    try { cstate = DEMO ? demo.coloring() : await api('/api/pulse/coloring'); renderColor(); } catch (e) { /* later */ }
+  }
+  $('colorArt').addEventListener('click', async (e) => {
+    const pth = e.target.closest && e.target.closest('path[data-t]');
+    if (!pth || !cstate || needName()) return;
+    unlockAudio();
+    const tile = Number(pth.getAttribute('data-t'));
+    lastTap = Date.now();
+    if (ccolor < 0) delete cstate.page.fills[tile]; else cstate.page.fills[tile] = ccolor;
+    pth.setAttribute('fill', ccolor >= 0 ? GLAZE[ccolor] : EMPTY);
+    plip(0.12);
+    renderColorInfo();
+    try {
+      const r = DEMO ? demo.colorFill(tile, ccolor, me()) : await send('/api/pulse/coloring/fill', 'POST', { tile, color: ccolor, from: me() });
+      if (r.done && !cstate.page.doneAt) { cstate.page.doneAt = Date.now(); fanfare(0.12); toast('اكتملت اللوحة! ✨ تُحفظ في صور الإطار.'); renderColorInfo(); }
+    } catch (err) { toast(err.message); loadColor(); }
+  });
+  $('colorNew').addEventListener('click', async () => {
+    const b = $('colorNew');
+    if (!b.classList.contains('is-confirm')) { b.classList.add('is-confirm'); b.textContent = 'اضغط مرة أخرى: لوحة جديدة للجميع'; setTimeout(() => { b.classList.remove('is-confirm'); b.textContent = 'لوحة جديدة'; }, 3000); return; }
+    b.classList.remove('is-confirm');
+    b.textContent = 'لوحة جديدة';
+    try { cstate = DEMO ? demo.colorNew() : await send('/api/pulse/coloring/new', 'POST', { from: me() || '' }); renderColor(true); } catch (e) { toast(e.message); }
+  });
+  function colorLoop() { clearTimeout(cTimer); if (visible && document.visibilityState === 'visible') { loadColor(); cTimer = setTimeout(colorLoop, 4000); } }
 
   loadMatch();
   loadWheels();
@@ -271,7 +329,7 @@ export function initFun({ api, send, toast, el, $, DEMO, me, needName, showView,
     playKnock,
     shown(on) {
       visible = on;
-      if (on) { loadMatch(); loadWheels(); }
+      if (on) { loadMatch(); loadWheels(); colorLoop(); }
       renderMatch();
     },
   };

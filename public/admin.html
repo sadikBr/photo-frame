@@ -76,7 +76,39 @@
         <button type="button" class="primary small" id="notifBannerOn">فعّل</button>
       </div>
 
+      <!-- now, or a surprise for later -->
+      <div class="when-row" role="radiogroup" aria-label="متى تصل؟">
+        <button type="button" class="when-btn is-on" id="whenNow">الآن</button>
+        <button type="button" class="when-btn" id="whenLater">🎁 مفاجأة لاحقاً…</button>
+      </div>
+      <div class="when-pick" id="whenPick" hidden>
+        <div class="when-inputs"><input type="date" id="whenDate" aria-label="اليوم"><input type="time" id="whenTime" aria-label="الساعة"></div>
+        <div class="wheel-chips" id="whenQuick"></div>
+      </div>
+      <p class="when-banner" id="whenBanner" hidden></p>
+
       <div class="taps" id="taps"></div>
+
+      <!-- a real heartbeat -->
+      <div class="card beat-card" id="beatCard">
+        <div class="row-title"><h3>نبضك الحقيقي</h3><span class="hint">قلبك ينبض على الإطار</span></div>
+        <div class="beat-stage">
+          <video id="beatVideo" class="beat-cam" playsinline muted></video>
+          <span class="beat-heart" id="beatHeart"></span>
+          <canvas id="beatWave" width="520" height="110"></canvas>
+          <div class="beat-readout"><b id="beatBpm">–</b><span>نبضة/د</span></div>
+        </div>
+        <div class="beat-prog"><i id="beatProg"></i></div>
+        <button type="button" class="beat-tap-pad" id="beatTapPad" hidden aria-label="انقر مع نبضك"></button>
+        <p class="hint" id="beatHint"></p>
+        <div class="actions">
+          <button type="button" class="primary" id="beatStart">ابدأ القياس</button>
+          <button type="button" class="ghost" id="beatStop" hidden>إيقاف</button>
+          <button type="button" class="ghost" id="beatTap">أو انقر مع نبضك</button>
+          <button type="button" class="primary" id="beatSend" hidden>أرسل نبضي</button>
+        </div>
+        <p class="hint">للمحبة فقط، ليس قياساً طبياً.</p>
+      </div>
 
       <!-- drawing -->
       <div class="card pad-card">
@@ -113,6 +145,27 @@
             <button type="button" class="ghost" id="recAgain">سجّل من جديد</button>
           </div>
         </div>
+      </div>
+
+      <!-- «حالتي» -->
+      <div class="card status-card" id="statusCard">
+        <div class="row-title"><h3>حالتي</h3><span class="hint">تظهر على شاشة الساعة في البيت</span></div>
+        <div class="status-now" id="statusNow" hidden></div>
+        <div class="chips-row" id="statusPresets"></div>
+        <div class="status-custom">
+          <input id="statusEmoji" type="text" maxlength="4" placeholder="🙂" aria-label="رمز">
+          <input id="statusText" type="text" maxlength="40" placeholder="أو اكتب حالتك" aria-label="حالتك">
+        </div>
+        <p class="hint">إلى متى؟</p>
+        <div class="wheel-chips" id="statusUntil"></div>
+        <button type="button" class="primary wide" id="statusSave">انشر حالتي</button>
+        <ul class="status-family" id="statusFamily" hidden></ul>
+      </div>
+
+      <!-- my surprises waiting -->
+      <div class="card later-card" id="laterCard" hidden>
+        <div class="row-title"><h3>مفاجآتي المؤجلة</h3><span class="hint">لا يراها أحد قبل وقتها</span></div>
+        <ul class="feed" id="laterList"></ul>
       </div>
 
       <!-- what happened -->
@@ -174,6 +227,15 @@
           <span id="myKnockDots"></span>
         </div>
         <p class="hint">ومن البيت يستطيعون الدقّ عليك من الإطار (زر «دقّة»): يهتزّ هاتفك بالإيقاع نفسه (على Android).</p>
+      </div>
+
+      <div class="card color-card">
+        <div class="row-title"><h3>تلوين الزليج</h3><span class="hint">لوحة العائلة لهذا الأسبوع</span></div>
+        <div class="zc-phone" id="colorArt"></div>
+        <div class="zc-palette-phone" id="colorPalette"></div>
+        <p class="hint" id="colorInfo"></p>
+        <div class="actions"><button type="button" class="ghost small" id="colorNew">لوحة جديدة</button></div>
+        <p class="hint">تلوّنون اللوحة نفسها: من الهواتف ومن الإطار (زر «تلوين»). حين تكتمل تُحفظ في صور الإطار، وكل أسبوع لوحة جديدة.</p>
       </div>
 
       <div class="card wheel-card">

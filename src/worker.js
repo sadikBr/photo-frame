@@ -384,7 +384,7 @@ async function board(env, url) {
   const build = (env.CF_VERSION_METADATA && env.CF_VERSION_METADATA.id) || null;
   return json({
     lists, settings: settings || {}, events, message, routines, quran: quran || null, audio, preview,
-    frameSeen: frameSeen || null, frameAudio, now: Date.now(), today: localToday(env), build,
+    frameSeen: frameSeen || null, frameAudio, now: Date.now(), today: localToday(env), utcOffset: Number(env.UTC_OFFSET_MINUTES) || 0, build,
   });
 }
 

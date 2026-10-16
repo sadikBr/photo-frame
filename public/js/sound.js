@@ -160,3 +160,33 @@ export function whistle(times = 1, vol = 0.12) {
     o.stop(t + d + 0.05); trem.stop(t + d + 0.05);
   }
 }
+
+// One heartbeat: "lub-dub", two low thumps. `at`: seconds from now.
+export function heartbeat(at = 0, vol = 0.9) {
+  const c = audio();
+  if (!soundOn()) return;
+  const t = c.currentTime + at;
+  [[0, 62, 1], [0.16, 52, 0.7]].forEach(([d, f, k]) => {
+    const o = c.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f * 1.6, t + d);
+    o.frequency.exponentialRampToValueAtTime(f, t + d + 0.05);
+    o.connect(env(c, t + d, vol * k, 0.012, 0.13)).connect(c.destination);
+    o.start(t + d);
+    o.stop(t + d + 0.2);
+  });
+}
+
+// A paint drop: a soft "plip" when a tile is coloured.
+export function plip(vol = 0.18) {
+  const c = audio();
+  if (!soundOn()) return;
+  const t = c.currentTime;
+  const o = c.createOscillator();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(900, t);
+  o.frequency.exponentialRampToValueAtTime(1500, t + 0.06);
+  o.connect(env(c, t, vol, 0.005, 0.12)).connect(c.destination);
+  o.start(t);
+  o.stop(t + 0.15);
+}
