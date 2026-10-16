@@ -14,13 +14,24 @@
 //   GET  /api/pulse/push       {enabled, publicKey} for phone notifications
 //   POST /api/pulse/push/subscribe {subscription, name, notify: "all"|"mine"}
 //   POST /api/pulse/push/unsubscribe {endpoint} · POST /api/pulse/push/test {endpoint}
+//   GET  /api/pulse/phones     names of the phones that get notifications (the frame's knock)
+//
+// «الدقّة السرية»: POST /api/pulse {kind:"knock", rhythm:[ms…], from} — from a phone, the frame
+// plays the knocks; from the frame (no from, optional to: a name), the phones vibrate it.
+// «عجلة الحظ»: GET/PUT /api/pulse/wheels {wheels:[{id,name,items}]} · POST /api/pulse/spin
+// {wheel, from} — the server picks, and the spin is a moment like the others.
+// «وضع الماتش»: GET /api/pulse/match (state, refreshed from ESPN when due) · PUT {on, push} ·
+// POST /api/pulse/match/preview {stop?} · POST /api/pulse/match/cheer {from, cheer}.
 //
 // Phone notifications (Web Push): a new moment goes to every other phone that asked for all
-// moments; a heart back goes to the phone(s) of the person it answers.
+// moments; a heart back goes to the phone(s) of the person it answers; a knock from the frame to
+// the phone it's for (or all); goals to everyone who asked for all.
 
 import { sendPush, validSubscription } from './webpush.js';
+import { LEAGUES, scoreboardUrl, parseScoreboard, pickMatch, matchChanges, changeMessage, previewMatch, PREVIEW_MS } from './match.js';
 
 export const pushDeps = { fetch: (...a) => fetch(...a) }; // tests swap this
+export const matchDeps = { fetch: (...a) => fetch(...a), now: () => Date.now() }; // and this
 
 export const TAPS = ['love', 'miss', 'morning', 'night', 'way', 'news'];
 const KEEP = 60; // moments kept
@@ -31,6 +42,10 @@ const MAX_AUDIO = 600 * 1024; // a stored value may be up to 2 MB
 // The list of moments is one stored value; drawings and recordings are kept apart under their
 // own keys ('draw:<id>', 'audio:<id>') so the list stays small.
 const MAX_POINTS = 8000;
+const HOME = 'البيت'; // the frame, when it sends something
+const MAX_WHEELS = 12, MAX_ITEMS = 12;
+export const CHEERS = ['flag', 'ball', 'clap', 'fire', 'horn'];
+const MIN = 60000, HOUR = 3600000;
 
 const json = (data, status = 200) => new Response(JSON.stringify(data), {
   status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
@@ -58,6 +73,51 @@ export function cleanStrokes(input) {
     if (points > MAX_POINTS) break;
   }
   return out.length ? out : null;
+}
+
+// A knock: tap times in ms from the first tap. Up to 16 taps within 8 s; taps closer than 70 ms
+// count as one.
+export function cleanRhythm(input) {
+  if (!Array.isArray(input)) return null;
+  const t = input.map(Number).filter(Number.isFinite).map(Math.round).sort((a, b) => a - b);
+  if (!t.length) return null;
+  const out = [];
+  for (const x of t) {
+    const v = x - t[0];
+    if (v > 8000) break;
+    if (out.length && v - out[out.length - 1] < 70) continue;
+    out.push(v);
+    if (out.length >= 16) break;
+  }
+  return out;
+}
+// "طق طق … طق": the taps, with a pause where the rhythm pauses.
+export function knockWords(r) {
+  let s = '';
+  r.forEach((t, i) => { s += i ? (t - r[i - 1] > 450 ? ' … ' : ' ') : ''; s += 'طق'; });
+  return s;
+}
+// The same rhythm as a vibration: buzz, pause, buzz…
+export function knockVibration(r) {
+  const out = [];
+  r.forEach((t, i) => {
+    if (i) out.push(Math.max(40, t - r[i - 1] - 70));
+    out.push(70);
+  });
+  return out;
+}
+
+export function cleanWheels(input) {
+  if (!Array.isArray(input)) return null;
+  const out = [];
+  for (const w of input.slice(0, MAX_WHEELS)) {
+    if (!w || typeof w !== 'object') continue;
+    const nm = String(w.name == null ? '' : w.name).replace(/\s+/g, ' ').trim().slice(0, 40);
+    const items = [...new Set((Array.isArray(w.items) ? w.items : []).map(name).filter(Boolean))].slice(0, MAX_ITEMS);
+    if (!nm || items.length < 2) continue;
+    out.push({ id: typeof w.id === 'string' && /^[a-z0-9]{4,24}$/.test(w.id) ? w.id : newId(), name: nm, items });
+  }
+  return out;
 }
 
 export class PulseHub {
@@ -134,10 +194,23 @@ export class PulseHub {
   async subs() { return (await this.ctx.storage.get('subs')) || []; }
 
   message(p) {
-    const what = (kind, tap, mine) => (kind === 'tap' ? '«' + (TAP_TITLES[tap] || '') + '»' : kind === 'draw' ? (mine ? 'رسمتك' : 'رسمة') : (mine ? 'رسالتك الصوتية' : 'رسالة صوتية'));
+    const what = (kind, tap, mine) => (kind === 'tap' ? '«' + (TAP_TITLES[tap] || '') + '»' : kind === 'draw' ? (mine ? 'رسمتك' : 'رسمة')
+      : kind === 'knock' ? (mine ? 'دقّتك' : 'دقّة') : (mine ? 'رسالتك الصوتية' : 'رسالة صوتية'));
     const base = { id: p.id, kind: p.kind, from: p.from, tag: 'pulse-' + p.id, url: '/admin#pulse' };
     if (p.kind === 'reply') {
       return Object.assign(base, { title: '❤ قلب من ' + p.from, body: 'ردّاً على ' + what(p.toKind, p.toTap, true), heart: false });
+    }
+    if (p.kind === 'knock') {
+      return Object.assign(base, {
+        title: '🚪 دقّة من ' + p.from,
+        body: (p.from === HOME ? '' : 'على باب البيت · ') + knockWords(p.rhythm),
+        url: '/admin?play=' + p.id + '#fun',
+        vibrate: knockVibration(p.rhythm),
+        heart: p.from !== HOME,
+      });
+    }
+    if (p.kind === 'spin') {
+      return Object.assign(base, { title: '🎡 ' + p.wheelName, body: 'النتيجة: ' + p.result + ' · من ' + (p.from === HOME ? 'الإطار' : p.from), url: '/admin#fun', heart: false });
     }
     const body = p.kind === 'tap' ? what('tap', p.tap) : p.kind === 'draw' ? 'رسمة جديدة على الإطار'
       : 'رسالة صوتية' + (p.audio && p.audio.dur ? ' (' + Math.round(p.audio.dur) + ' ث)' : '');
@@ -152,14 +225,20 @@ export class PulseHub {
     const subs = await this.subs();
     const to = p.kind === 'reply'
       ? subs.filter((s) => s.name === p.toName && s.notify !== 'off')
-      : subs.filter((s) => s.name !== p.from && s.notify === 'all');
-    if (!to.length) return 0;
-    const message = this.message(p);
+      : p.kind === 'knock' && p.from === HOME
+        ? subs.filter((s) => s.notify !== 'off' && (!p.toName || s.name === p.toName))
+        : subs.filter((s) => s.name !== p.from && s.notify === 'all');
+    return this.pushTo(to, this.message(p), p.kind === 'reply' || p.kind === 'knock' ? 'high' : 'normal');
+  }
+
+  async pushTo(to, message, urgency) {
+    const vapid = this.vapid();
+    if (!vapid || !to.length) return 0;
     const gone = [];
     let sent = 0;
     await Promise.all(to.map(async (s) => {
       try {
-        const status = await sendPush(s, message, vapid, { fetch: pushDeps.fetch, urgency: p.kind === 'reply' ? 'high' : 'normal' });
+        const status = await sendPush(s, message, vapid, { fetch: pushDeps.fetch, urgency });
         if (status === 404 || status === 410) gone.push(s.endpoint);
         else if (status >= 200 && status < 300) sent++;
       } catch (e) { console.error('push to', new URL(s.endpoint).host, e.message); }
@@ -197,6 +276,14 @@ export class PulseHub {
       let body;
       try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
       const from = name(body.from);
+      if (body.kind === 'knock') {
+        const rhythm = cleanRhythm(body.rhythm);
+        if (!rhythm) return fail(400, 'The knock is empty.');
+        const p = { kind: 'knock', from: from || HOME, rhythm };
+        const to = name(body.to);
+        if (p.from === HOME && to) p.toName = to;
+        return this.add(p);
+      }
       if (!from) return fail(400, 'Who is sending? Choose your name first.');
       if (body.kind === 'tap') {
         if (!TAPS.includes(body.tap)) return fail(400, 'Unknown tap.');
@@ -245,6 +332,74 @@ export class PulseHub {
       return this.add(reply);
     }
 
+    if (path === '/api/pulse/phones' && method === 'GET') {
+      const names = [...new Set((await this.subs()).filter((s) => s.notify !== 'off').map((s) => s.name))];
+      return json({ names });
+    }
+
+    // ---------- the wheel ----------
+    if (path === '/api/pulse/wheels') {
+      if (method === 'GET') return json({ wheels: await this.wheels() });
+      if (method === 'PUT') {
+        let body;
+        try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
+        const wheels = cleanWheels(body.wheels);
+        if (!wheels) return fail(400, 'Send {wheels: [...]}.');
+        await this.ctx.storage.put('wheels', wheels);
+        this.broadcast({ type: 'wheels', wheels });
+        return json({ wheels });
+      }
+    }
+    if (path === '/api/pulse/spin' && method === 'POST') {
+      let body;
+      try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
+      const w = (await this.wheels()).find((x) => x.id === body.wheel);
+      if (!w) return fail(404, 'That wheel is gone.');
+      const idx = crypto.getRandomValues(new Uint32Array(1))[0] % w.items.length;
+      return this.add({ kind: 'spin', from: name(body.from) || HOME, wheel: w.id, wheelName: w.name, items: w.items, idx, result: w.items[idx] });
+    }
+
+    // ---------- match mode ----------
+    if (path === '/api/pulse/match') {
+      if (method === 'GET') return json(await this.matchView(Number(url.searchParams.get('since')) || 0));
+      if (method === 'PUT') {
+        let body;
+        try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
+        const cfg = await this.matchCfg();
+        if (typeof body.on === 'boolean') cfg.on = body.on;
+        if (typeof body.push === 'boolean') cfg.push = body.push;
+        await this.ctx.storage.put('matchCfg', cfg);
+        const v = await this.matchView(0);
+        this.broadcast({ type: 'match', view: v });
+        return json(v);
+      }
+    }
+    if (path === '/api/pulse/match/preview' && method === 'POST') {
+      let body = {};
+      try { body = await request.json(); } catch (e) { /* none */ }
+      const st = (await this.ctx.storage.get('match')) || {};
+      if (body.stop) delete st.preview; else st.preview = matchDeps.now();
+      await this.ctx.storage.put('match', st);
+      const v = await this.matchView(0);
+      this.broadcast({ type: 'match', view: v });
+      return json(v);
+    }
+    if (path === '/api/pulse/match/cheer' && method === 'POST') {
+      let body;
+      try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
+      const from = name(body.from);
+      if (!from) return fail(400, 'Who is cheering? Choose your name first.');
+      if (!CHEERS.includes(body.cheer)) return fail(400, 'Unknown cheer.');
+      const now = Date.now();
+      this.cheers = (this.cheers || []).filter((c) => now - c.at < 2 * MIN);
+      if (this.cheers.some((c) => c.from === from && now - c.at < 600)) return fail(429, 'لحظة…');
+      const c = { id: newId(), from, cheer: body.cheer, at: Math.max(now, this.cheers.length ? this.cheers[this.cheers.length - 1].at + 1 : 0) };
+      this.cheers.push(c);
+      if (this.cheers.length > 60) this.cheers.shift();
+      this.broadcast({ type: 'cheer', cheer: c });
+      return json({ cheer: c, live: this.live() });
+    }
+
     if (path === '/api/pulse/push' && method === 'GET') {
       const v = this.vapid();
       // Names only (never values), so the control panel can say exactly what is missing.
@@ -288,6 +443,119 @@ export class PulseHub {
     }
 
     return fail(404, 'Unknown pulse route.');
+  }
+
+  broadcast(msg) {
+    const s = JSON.stringify(msg);
+    for (const ws of this.sockets()) { try { ws.send(s); } catch (e) { /* closed */ } }
+  }
+
+  async wheels() { return (await this.ctx.storage.get('wheels')) || []; }
+
+  // ---------- match mode ----------
+  async matchCfg() { return Object.assign({ on: true, push: true }, await this.ctx.storage.get('matchCfg')); }
+
+  // One look at a time (the frame, the phones and the alarm may all ask at once).
+  matchView(since) {
+    if (!this.matchBusy) {
+      this.matchBusy = this.matchRefresh()
+        .catch((e) => { console.error('match', e); return { on: true, mode: 'none', match: null, now: Date.now(), error: 'match data unavailable' }; })
+        .finally(() => { this.matchBusy = null; });
+    }
+    return this.matchBusy.then((v) => Object.assign({}, v, { cheers: (this.cheers || []).filter((c) => c.at > since && Date.now() - c.at < 2 * MIN) }));
+  }
+
+  async matchRefresh() {
+    const now = matchDeps.now();
+    const cfg = await this.matchCfg();
+    const st = (await this.ctx.storage.get('match')) || {};
+    if (st.preview && now - st.preview < PREVIEW_MS + 15 * 1000) {
+      const m = previewMatch(st.preview, now);
+      return { on: true, cfg, mode: 'live', match: m, now };
+    }
+    if (!cfg.on) return { on: false, cfg, mode: 'none', match: null, now };
+    let dirty = false;
+    const changes = [];
+    const before = st.cur || null;
+    // Look for Morocco's matches every 3 hours; every 30 minutes on a match day.
+    const soon = before && before.state !== 'post' && before.kickoff - now < 6 * HOUR;
+    if (!st.scannedAt || now - st.scannedAt > (soon ? 30 * MIN : 3 * HOUR)) {
+      const lists = await Promise.all(LEAGUES.map(async (slug) => {
+        try {
+          const r = await matchDeps.fetch(scoreboardUrl(slug, now - 86400000, now + 2 * 86400000), { headers: { accept: 'application/json' } });
+          if (!r.ok) return null;
+          return parseScoreboard(await r.json(), slug);
+        } catch (e) { return null; }
+      }));
+      // ESPN didn't answer at all: try again in 10 minutes.
+      st.scannedAt = lists.some(Boolean) ? now : now - (soon ? 20 * MIN : 3 * HOUR - 10 * MIN);
+      if (lists.some(Boolean)) {
+        const picked = pickMatch(lists.flat().filter(Boolean), now);
+        if (picked && before && picked.id === before.id) changes.push(...matchChanges(before, picked));
+        st.cur = picked;
+      }
+      dirty = true;
+    }
+    // During the match: the score every 15 seconds.
+    const c = st.cur;
+    if (!dirty && c && c.state !== 'post' && now >= c.kickoff - 20 * MIN && now < c.kickoff + 4 * HOUR && now - (st.liveAt || 0) >= 15000) {
+      try {
+        const r = await matchDeps.fetch(scoreboardUrl(c.slug, c.kickoff - 86400000, c.kickoff + 86400000), { headers: { accept: 'application/json' } });
+        if (r.ok) {
+          const found = parseScoreboard(await r.json(), c.slug).find((x) => x.id === c.id);
+          if (found) { changes.push(...matchChanges(c, found)); st.cur = found; }
+        }
+      } catch (e) { /* next time */ }
+      st.liveAt = now;
+      dirty = true;
+    }
+    if (st.cur && st.cur.state === 'post' && st.endId !== st.cur.id && changes.some((x) => x.type === 'end')) { st.endId = st.cur.id; st.endedAt = now; }
+    if (dirty) await this.ctx.storage.put('match', st);
+    const view = { on: true, cfg, mode: this.matchMode(st, now), match: st.cur || null, now };
+    if (dirty) this.broadcast({ type: 'match', view });
+    if (changes.length && cfg.push && st.cur) {
+      const subs = (await this.subs()).filter((s) => s.notify === 'all');
+      const sending = Promise.all(changes.map((ch) => this.pushTo(subs, changeMessage(st.cur, ch), ch.type === 'goal' ? 'high' : 'normal'))).catch((e) => console.error('match push', e));
+      this.pushing = sending;
+      if (this.ctx.waitUntil) this.ctx.waitUntil(sending);
+    }
+    await this.armAlarm(st, now);
+    return view;
+  }
+
+  // live: the frame shows the match (from 15 min before kick-off to 15 min after the end);
+  // today: later today (Morocco time); next: within two days; done: just finished.
+  matchMode(st, now) {
+    const m = st.cur;
+    if (!m) return 'none';
+    if (m.state === 'in') return 'live';
+    if (m.state === 'pre') {
+      if (m.kickoff - now <= 15 * MIN && now - m.kickoff < 3 * HOUR) return 'live';
+      const off = (Number(this.env && this.env.UTC_OFFSET_MINUTES) || 0) * MIN;
+      const day = (t) => Math.floor((t + off) / 86400000);
+      return day(m.kickoff) === day(now) ? 'today' : 'next';
+    }
+    return st.endId === m.id && now - st.endedAt < 15 * MIN ? 'live' : 'done';
+  }
+
+  // Keep watching without anyone asking: every 30 s during a match, else at the next kick-off
+  // (or in 3 hours to look for new fixtures).
+  async armAlarm(st, now) {
+    const s = this.ctx.storage;
+    if (!s.setAlarm) return;
+    const c = st.cur;
+    let at = now + 3 * HOUR;
+    if (c && c.state !== 'post' && now >= c.kickoff - 20 * MIN && now < c.kickoff + 4 * HOUR) at = now + 30000;
+    else if (c && c.state === 'pre' && c.kickoff - 20 * MIN > now) at = Math.min(at, c.kickoff - 20 * MIN);
+    try {
+      const cur = await s.getAlarm();
+      if (!cur || cur <= now || cur > at + 5000) await s.setAlarm(at);
+    } catch (e) { /* not available */ }
+  }
+
+  async alarm() {
+    const cfg = await this.matchCfg();
+    if (cfg.on) await this.matchView(0);
   }
 
   // Frames only send keep-alive pings (answered automatically); nothing else to do.

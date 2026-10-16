@@ -66,9 +66,9 @@ self.addEventListener('push', (e) => {
       lang: 'ar',
       dir: 'rtl',
       silent: quiet,
-      vibrate: quiet ? undefined : [80, 60, 80],
+      vibrate: quiet ? undefined : (Array.isArray(m.vibrate) ? m.vibrate.slice(0, 40) : [80, 60, 80]),
       timestamp: Date.now(),
-      data: { url: m.url || '/admin#pulse', id: m.id, from: m.from },
+      data: { url: m.url || '/admin#pulse', id: m.id, from: m.from, kind: m.kind },
       actions: canAct && m.heart && m.id && cfg.me ? [{ action: 'heart', title: '❤ ردّ بقلب' }] : [],
     });
   })());
@@ -105,7 +105,7 @@ self.addEventListener('notificationclick', (e) => {
     const w = wins.find((x) => new URL(x.url).pathname === '/admin');
     if (w) {
       try { await w.focus(); } catch (err) { /* not allowed */ }
-      w.postMessage({ type: 'pulse-open' });
+      w.postMessage({ type: 'pulse-open', id: d.id, kind: d.kind, url: d.url });
       return;
     }
     await self.clients.openWindow(url);

@@ -5,6 +5,7 @@ import * as demo from './demo.js';
 import { importICS } from './ics-import.js';
 import { dueFrom } from './routines.js';
 import { initPulse } from './admin-pulse.js';
+import { initFun } from './admin-fun.js';
 
 const DEMO = !!(window.FRAME_DEMO || /[?&]demo\b/.test(location.search));
 (function captureKey() {
@@ -56,7 +57,10 @@ async function api(path, opts) {
 const send = (path, method, body) => api(path, { method, body: JSON.stringify(body), headers: { 'content-type': 'application/json' } });
 
 // «نبضة» lives in its own file.
-const pulse = initPulse({ api, send, toast, el, $, key, DEMO, showView: (v) => showView(v) });
+let fun = null;
+const pulse = initPulse({ api, send, toast, el, $, key, DEMO, showView: (v) => showView(v), playKnock: (p) => fun && fun.playKnock(p) });
+// «مرح»: match mode, the secret knock, the wheel.
+fun = initFun({ api, send, toast, el, $, DEMO, me: pulse.me, needName: pulse.needName, showView: (v) => showView(v), onSent: () => pulse.refresh() });
 
 // ================= shared state =================
 let board = { lists: { tasks: [], shopping: [] }, settings: {}, events: [], message: null, frameSeen: null, routines: [], audio: {}, preview: null };
@@ -72,7 +76,7 @@ async function loadBoard() {
 }
 
 // ================= tabs =================
-const VIEWS = ['pulse', 'message', 'lists', 'photos', 'dates', 'settings'];
+const VIEWS = ['pulse', 'fun', 'message', 'lists', 'photos', 'dates', 'settings'];
 function showView(v) {
   if (!VIEWS.includes(v)) v = 'pulse';
   for (const b of document.querySelectorAll('#tabs button')) {
@@ -84,6 +88,8 @@ function showView(v) {
   store.set('admin-view', v);
   if (v === 'photos') loadPhotos();
   pulse.shown(v === 'pulse');
+  fun.shown(v === 'fun');
+  pulse.watch(v === 'fun');
   window.scrollTo(0, 0);
 }
 for (const b of document.querySelectorAll('#tabs button')) b.addEventListener('click', () => showView(b.dataset.view));

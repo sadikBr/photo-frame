@@ -11,6 +11,7 @@ import { accessKey, DEMO } from './data.js';
 import * as demo from './demo.js';
 import { starPoints } from './icons.js';
 import { HEART, tapOf, tapIcon, MIC, PEN_ICON, HEART_ICON, drawStrokes } from './pulse-common.js';
+import { audio, unlockAudio } from './sound.js';
 
 const W = 1280, H = 800;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -19,7 +20,9 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const keyName = (k) => (DEMO ? 'demo-' : '') + k;
 const withKey = (path) => { const k = accessKey(); return path + (k ? (path.indexOf('?') < 0 ? '?' : '&') + 'key=' + encodeURIComponent(k) : ''); };
 
-export function createPulse({ stage, isNight, hold }) {
+// fun: { knock, wheel } play knocks and spins from the phones; onSocket gets the live
+// connection's other messages (match, cheers, wheels).
+export function createPulse({ stage, isNight, hold, fun, onSocket }) {
   const layer = h('div', { class: 'pl-layer' });
   const tray = h('div', { class: 'pl-tray' });
   // Moments nobody was there for: «3 نبضات جديدة», tap to see them again.
@@ -93,6 +96,9 @@ export function createPulse({ stage, isNight, hold }) {
     if (!p || !p.id || seen.has(p.id)) return;
     markSeen(p);
     if (p.kind === 'reply') return; // hearts back go to the phones
+    // Knocks from here go to the phones; spins from here are already turning.
+    if (p.kind === 'knock' && p.from === 'البيت') return;
+    if (p.kind === 'spin' && fun && fun.wheel.claim(p)) return;
     if (p.at >= startOfDay(now())) byId.set(p.id, p);
     const age = now() - p.at;
     const keep = (p.kind === 'draw' || p.kind === 'voice') && p.at >= startOfDay(now());
@@ -137,6 +143,7 @@ export function createPulse({ stage, isNight, hold }) {
       let m;
       try { m = JSON.parse(e.data); } catch (err) { return; }
       if (m && m.type === 'pulse') receive(m.pulse);
+      else if (m && onSocket) onSocket(m);
     };
     ws.onclose = () => {
       wsOpen = false;
@@ -177,8 +184,10 @@ export function createPulse({ stage, isNight, hold }) {
     const { p, replay } = queue.shift();
     const started = Date.now();
     try {
-      if (!replay && !isNight()) chime();
+      if (!replay && !isNight() && p.kind !== 'knock' && p.kind !== 'spin') chime();
       if (p.kind === 'tap') await playTap(p);
+      else if (p.kind === 'knock' && fun) await fun.knock.play(p, replyButton(p));
+      else if (p.kind === 'spin' && fun) await fun.wheel.play(p);
       else if (p.kind === 'draw') await playDraw(p, replay);
       else if (p.kind === 'voice') await playVoice(p, replay);
     } catch (e) { console.error(e); }
@@ -479,9 +488,8 @@ export function createPulse({ stage, isNight, hold }) {
   }
 
   // ---------- a soft two-note chime (no sound file; only once the browser allows sound) ----------
-  let actx = null;
-  try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { actx = null; }
-  function unlockSound() { if (actx && actx.state === 'suspended') actx.resume().catch(() => {}); }
+  const actx = audio();
+  const unlockSound = unlockAudio;
   function chime() {
     if (!actx || actx.state !== 'running' || config.pulseSound === false) return;
     const t0 = actx.currentTime;

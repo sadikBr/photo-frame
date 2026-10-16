@@ -22,6 +22,20 @@ export const DEMO = !!(window.FRAME_DEMO || /[?&]demo\b/.test(location.search));
   } catch (e) { /* ignore */ }
 })();
 export const accessKey = () => store.get('key', '');
+// GET (no body) or send JSON, with the access key; resolves to the JSON answer.
+export async function frameFetch(path, method, body) {
+  const headers = {};
+  const k = accessKey();
+  if (k) headers['x-key'] = k;
+  if (body !== undefined) headers['content-type'] = 'application/json';
+  const res = await fetch(path, { method: method || 'GET', headers, cache: 'no-store', body: body === undefined ? undefined : JSON.stringify(body) });
+  if (!res.ok) {
+    let msg = 'HTTP ' + res.status;
+    try { msg = (await res.json()).error || msg; } catch (e) { /* not json */ }
+    throw new Error(msg);
+  }
+  return res.json();
+}
 // The demo keeps its own cache, so it and the real frame (same address, same browser) never
 // show each other's lists or weather while starting up.
 const ck = (name) => (DEMO ? 'demo-cache-' : '') + name;

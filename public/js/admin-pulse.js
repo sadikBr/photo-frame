@@ -8,9 +8,10 @@ const NAMES = ['ماما', 'بابا', 'جدتي', 'جدي', 'خالتي', 'عم
 const MAX_REC = 15; // seconds
 const MAX_POINTS = 7800; // the server keeps 8000
 
-export function initPulse({ api, send, toast, el, $, key, DEMO, showView }) {
+export function initPulse({ api, send, toast, el, $, key, DEMO, showView, playKnock }) {
   let me = store.get('pulse-from', '');
   let visible = false;
+  let watching = false; // the «مرح» tab is open: knocks from home should arrive quickly too
 
   // ================= who is sending =================
   function renderWho() {
@@ -37,6 +38,7 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView }) {
   $('whoChange').addEventListener('click', () => { $('whoCard').hidden = false; $('whoLine').hidden = true; $('whoInput').focus(); });
   function needName() {
     if (me) return false;
+    if ($('v-pulse').hidden) showView('pulse'); // (asked from «مرح»)
     $('whoCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
     $('whoCard').animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-8px)' }, { transform: 'translateX(8px)' }, { transform: 'translateX(0)' }], { duration: 320 });
     toast('اختر اسمك أولاً، ليعرف من في البيت من أرسل.');
@@ -284,7 +286,12 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView }) {
     return diff === 0 ? 'اليوم' : diff === 1 ? 'أمس' : DAYS[d.getDay()];
   }
   const tapTitle = (tap) => (tapOf(tap) || {}).title || '';
-  const kindAr = (k, tap, mine) => (k === 'tap' ? '«' + tapTitle(tap) + '»' : k === 'draw' ? (mine ? 'رسمتك' : 'رسمة') : (mine ? 'رسالتك الصوتية' : 'رسالة صوتية'));
+  const kindAr = (k, tap, mine) => (k === 'tap' ? '«' + tapTitle(tap) + '»' : k === 'draw' ? (mine ? 'رسمتك' : 'رسمة')
+    : k === 'knock' ? (mine ? 'دقّتك' : 'دقّة') : (mine ? 'رسالتك الصوتية' : 'رسالة صوتية'));
+  const DOOR_ICON = (s) => '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22V10a7 7 0 0 1 14 0v12z" fill="#7E3F1D" stroke="#1A6C5E" stroke-width="2"/><circle cx="12" cy="15" r="2.6" fill="none" stroke="#D9A441" stroke-width="1.8"/></svg>';
+  const WHEEL_ICON = (s) => '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12L12 2A10 10 0 0 1 22 12z" fill="#F2AE3D"/><path d="M12 12L22 12A10 10 0 0 1 12 22z" fill="#E8657A"/><path d="M12 12L12 22A10 10 0 0 1 2 12z" fill="#7FD3B5"/><path d="M12 12L2 12A10 10 0 0 1 12 2z" fill="#9DB9F5"/><circle cx="12" cy="12" r="2.4" fill="#241707"/></svg>';
+  // A knock from home for this phone (or for everyone).
+  const knockForMe = (p) => p.kind === 'knock' && p.from === 'البيت' && (!p.toName || p.toName === me);
   const heartFrom = (p) => (p.from === me ? 'قلبك' : 'قلب من ' + p.from);
   function line(p) {
     const mine = p.from === me;
@@ -296,6 +303,11 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView }) {
     }
     // No verbs: they'd need to know if the sender is a man or a woman.
     const who = mine ? 'منك' : 'من ' + p.from;
+    if (p.kind === 'knock') {
+      if (p.from === 'البيت') return { icon: DOOR_ICON(30), cls: knockForMe(p) ? 'is-reply is-mine' : '', text: 'دقّة من البيت ' + (!p.toName ? 'إلى الجميع' : p.toName === me ? 'إليك' : 'إلى ' + p.toName), play: true };
+      return { icon: DOOR_ICON(30), cls: mine ? 'is-mine' : '', text: 'دقّة ' + who + ' على الباب', play: true };
+    }
+    if (p.kind === 'spin') return { icon: WHEEL_ICON(30), cls: mine ? 'is-mine' : '', text: p.wheelName + ' ← ' + p.result, sub: p.from === 'البيت' ? '(من الإطار)' : '(' + who + ')' };
     if (p.kind === 'tap') return { icon: tapIcon(p.tap, 30), cls: mine ? 'is-mine' : '', text: '«' + tapTitle(p.tap) + '» ' + who };
     if (p.kind === 'draw') return { icon: PEN_ICON(30), cls: mine ? 'is-mine' : '', text: 'رسمة ' + who };
     return { icon: MIC(30), cls: mine ? 'is-mine' : '', text: 'رسالة صوتية ' + who + (p.audio && p.audio.dur ? ' (' + Math.round(p.audio.dur) + ' ث)' : '') };
@@ -324,15 +336,20 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView }) {
       const dl = dayLabel(p.at);
       if (dl !== lastDay) { ul.append(el('li', { class: 'feed-day' }, dl)); lastDay = dl; }
       const l = line(p);
-      const canHeart = p.kind !== 'reply' && p.from !== me && me;
+      const canHeart = p.kind !== 'reply' && p.kind !== 'spin' && p.from !== 'البيت' && p.from !== me && me;
       let heart = null;
       if (canHeart) {
         const sent = myHeartTo(p.id);
         heart = el('button', { type: 'button', class: 'feed-heart' + (sent ? ' is-sent' : ''), 'aria-label': sent ? 'أرسلت قلباً' : 'ردّ بقلب إلى ' + p.from, disabled: sent, html: HEART_ICON(24, sent ? '#E8657A' : '#F3EDE2') });
         heart.addEventListener('click', () => sendHeart(p, heart));
       }
+      let icon = el('span', { class: 'feed-icon', html: l.icon });
+      if (l.play && playKnock) {
+        icon = el('button', { type: 'button', class: 'feed-icon feed-play', 'aria-label': 'اسمع الدقّة', html: l.icon });
+        icon.addEventListener('click', () => playKnock(p));
+      }
       ul.append(el('li', { class: l.cls },
-        el('span', { class: 'feed-icon', html: l.icon }),
+        icon,
         el('span', { class: 'feed-text' }, l.text, l.sub ? el('small', null, ' ' + l.sub) : null),
         el('time', null, ago(p.at)),
         heart));
@@ -377,11 +394,21 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView }) {
       heartRain();
       return;
     }
+    if (p.kind === 'knock') {
+      if (p.from === 'البيت' && !knockForMe(p)) return;
+      pulseToast(DOOR_ICON(34), '🚪 دقّة من ' + p.from + extra, p.from === 'البيت' ? 'اضغط على الباب في القائمة لتسمعها مرة أخرى' : 'على باب البيت');
+      if (knockForMe(p) && playKnock) playKnock(p);
+      return;
+    }
+    if (p.kind === 'spin') { pulseToast(WHEEL_ICON(34), '🎡 ' + p.wheelName + extra, 'النتيجة: ' + p.result + ' · من ' + (p.from === 'البيت' ? 'الإطار' : p.from)); return; }
     const body = p.kind === 'tap' ? '«' + tapTitle(p.tap) + '»' : p.kind === 'draw' ? 'رسمة جديدة على الإطار' : 'رسالة صوتية';
     pulseToast(p.kind === 'tap' ? tapIcon(p.tap, 34) : p.kind === 'draw' ? PEN_ICON(34) : MIC(34), 'نبضة من ' + p.from + extra, body);
     if (p.kind === 'tap' && p.tap === 'love') heartRain();
   }
 
+  // Opened from a knock's notification: play it once the list is in.
+  let playId = null;
+  try { const u = new URL(location.href); playId = u.searchParams.get('play'); if (playId) { u.searchParams.delete('play'); history.replaceState(null, '', u.pathname + u.search + u.hash); } } catch (e) { /* ignore */ }
   let loading = false;
   async function refresh() {
     if (loading) return;
@@ -393,8 +420,8 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView }) {
         live = j.live;
       }
       if (me) {
-        const replies = feed.filter((p) => p.kind === 'reply' && p.toName === me && p.from !== me && p.at > replySeen);
-        const others = feed.filter((p) => p.kind !== 'reply' && p.from !== me && p.at > feedSeen);
+        const replies = feed.filter((p) => ((p.kind === 'reply' && p.toName === me) || knockForMe(p)) && p.from !== me && p.at > replySeen);
+        const others = feed.filter((p) => p.kind !== 'reply' && !(p.kind === 'knock' && p.from === 'البيت') && p.from !== me && p.at > feedSeen);
         if (replies.length) { replySeen = Math.max(...replies.map((p) => p.at)); store.set('pulse-reply-seen', replySeen); }
         if (others.length) { feedSeen = Math.max(...others.map((p) => p.at)); store.set('pulse-feed-seen', feedSeen); }
         if (document.visibilityState === 'visible') {
@@ -404,6 +431,7 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView }) {
         }
       }
       renderFeed();
+      if (playId) { const k = feed.find((x) => x.id === playId && x.kind === 'knock'); playId = null; if (k && playKnock) playKnock(k); }
     } catch (e) { /* the status line says it if the server is away */ }
     loading = false;
   }
@@ -412,7 +440,7 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView }) {
   setInterval(() => {
     ticks++;
     if (document.visibilityState !== 'visible') return;
-    if (visible || ticks % 5 === 0) refresh();
+    if (visible || watching || ticks % 5 === 0) refresh();
   }, 4000);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refresh(); });
   if (DEMO) window.addEventListener('storage', (e) => { if (e.key === 'fd:demo-pulses') refresh(); });
@@ -422,7 +450,10 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView }) {
     navigator.serviceWorker.addEventListener('message', (e) => {
       if (!e.data) return;
       if (e.data.type === 'pulse-push') refresh();
-      if (e.data.type === 'pulse-open') { showView('pulse'); refresh(); }
+      if (e.data.type === 'pulse-open') {
+        if (e.data.kind === 'knock') { playId = e.data.id; showView('fun'); } else if (e.data.kind === 'match' || /#fun/.test(e.data.url || '')) showView('fun'); else showView('pulse');
+        refresh();
+      }
     });
   }
 
@@ -551,6 +582,10 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView }) {
   checkNotif().catch(() => renderNotif('none', 'تعذّر فحص الإشعارات.'));
 
   return {
+    me: () => me,
+    needName,
+    refresh: () => refresh(),
+    watch(on) { watching = on; if (on) refresh(); },
     shown(on) {
       visible = on;
       if (on) { requestAnimationFrame(() => { sizePad(); redraw(); }); refresh(); }

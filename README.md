@@ -24,6 +24,7 @@ The **control panel** (`/admin`) has six sections:
 | Section | What you can do |
 | --- | --- |
 | **نبضة** | Send a moment to the frame from wherever you are: a tap (أفكر فيكم, اشتقت إليكم, صباح الخير, تصبحون على خير, في الطريق, خبر سعيد), a finger drawing, or a voice note of up to 15 seconds. It appears on the frame within a second or two with its own animation; the family at home can tap «ردّ بقلب» and you see it in the app. See [نبضة](#نبضة-moments-from-your-phone) |
+| **مرح** | **وضع الماتش**: when Morocco plays, the frame becomes a stadium screen (score, minute, goals, a roar and fireworks for each Moroccan goal) and phones can send cheers that fly across it. **الدقّة السرية**: tap a rhythm, the frame knocks it on a Moroccan door; knocks from the frame make phones buzz in that rhythm. **عجلة الحظ**: who washes the dishes, where to go on Sunday… spin it on the phone or on the frame. See [مرح](#مرح-match-mode-the-secret-knock-the-wheel) |
 | **الرسالة** | Put a note on the clock screen, for an hour, a day, a week or until you remove it |
 | **القوائم** | Add, tick and remove shopping items and tasks, with quick-add buttons. **Repeating tasks** (every N days, every week on a day, or every month on a date) come back on the to-do list by themselves when due |
 | **الصور** | Upload photos (resized on your phone first) and delete them |
@@ -228,6 +229,42 @@ a live WebSocket to the frame so each moment is pushed the instant it's sent. If
 connection drops, the frame asks every 8 seconds instead. It's included in the free plan
 (SQLite-backed Durable Objects); `npm run deploy` creates it the first time.
 
+### مرح: match mode, the secret knock, the wheel
+
+**وضع الماتش.** The frame follows the Moroccan national team by itself: friendlies, AFCON and
+its qualifiers, the World Cup and its qualifiers. On match day the clock screen
+shows «⚽ الليلة 20:00 · المغرب × مالي». From 15 minutes before kick-off until 15 minutes after
+the end the frame is a stadium screen: the flags, the score, the minute and who scored. A goal
+for Morocco brings a crowd's roar, fireworks and «هدااااف!»; it stays awake even in night hours.
+«إخفاء 10 دقائق» puts the normal screens back for a while (a goal brings it back). The adhan
+still comes first. Phones that get all notifications are told about the kick-off, every goal
+and the result («⚽ هدف للمغرب! المغرب 1 – 0 مالي · د 34»); in «مرح» you can switch these off,
+or switch match mode off altogether. During the match «مرح» shows the score and five cheers
+(ديما مغرب, سير سير, هيا!, برافو, نار!) that fly across the frame with your name.
+«معاينة على الإطار» plays a 3-minute practice match (Morocco scores after 20 seconds) so you can
+see it without waiting for a real one.
+
+The scores come from ESPN's public scoreboard (`site.api.espn.com`, free, no account): the
+server looks for matches every 3 hours (every 30 minutes on match day) and, during a match,
+reads the score every 15–30 seconds, also when no one is looking (a Durable Object alarm), so
+the goal notifications arrive even if the frame is off. ESPN doesn't promise this feed will
+stay the same; if it changes, match mode simply shows nothing and the rest works as before.
+
+**الدقّة السرية.** In «مرح», tap the door with your own rhythm (طق طق … طق) and send it: the
+frame shows its door and knocks your rhythm on it twice, with the sound of a wooden door, and
+only then says who it was. Save a rhythm as «دقّتي» to send it with one press. From the frame,
+the «دقّة» button opens the door: knock, then choose everyone or one person; that phone gets a
+notification «🚪 دقّة من البيت» and, on Android, vibrates in the same rhythm (when the app is
+open it also knocks out loud). iPhones can't play a custom vibration, so they get the
+notification and hear the knock when it's opened.
+
+**عجلة الحظ.** In «مرح», start from a ready wheel (من يغسل الصحون؟، أين نخرج يوم الأحد؟،
+ماذا نأكل الليلة؟…) or make your own: a question and 2 to 12 choices. «أدِر العجلة» spins it on
+the phone, and the frame spins it too, live, then shows the result with confetti. On the frame
+the «العجلة» button (it appears once there is a wheel) spins it there. The server draws the
+result, so it's the same everywhere and nobody can cheat; the result is in the list of moments
+and a notification goes to the phones that get everything.
+
 ## About the time zone
 
 Morocco returned to permanent GMT on 20 September 2026. Older Android versions, including the
@@ -241,7 +278,8 @@ against the server every hour.
 - Cloudflare's free plan allows 1,000 storage writes a day. Each change in the control panel
   is one or two writes, and the frame's check-in about 150 a day, far below the limit.
 - «نبضة» uses Durable Object requests: a frame with the live connection uses about 5,000 a day,
-  one without it about 11,000; the free plan allows 100,000.
+  one without it about 11,000; the free plan allows 100,000. Match mode adds about 1,500 a day
+  (the frame asks once a minute, every 8 seconds during a match).
 - Up to 300 photos are kept. Delete old ones from the control panel to add more.
 - If the internet drops, the frame keeps showing the last weather, prayer times, lists, message
   and settings it received. The calendar and holidays need no internet. A small notice appears in the corner
@@ -253,7 +291,8 @@ against the server every hour.
 src/worker.js        Cloudflare Worker: API for lists, repeating tasks, photos, adhan audio,
                      settings, dates, message, Quran tracker, previews, time
 src/pulse-hub.js     «نبضة»: the Durable Object that keeps moments, talks live to the frame and
-                     sends phone notifications (src/webpush.js: VAPID signing + encryption)
+                     sends phone notifications (src/webpush.js: VAPID signing + encryption);
+                     also knocks, wheels and match mode (src/match.js reads ESPN's scoreboard)
 src/settings.js      Validation of settings saved from the control panel
 public/index.html    The frame (display only)
 public/admin.html    The control panel (/admin); public/sw.js receives photos shared from phones
@@ -262,7 +301,9 @@ public/js/           Frame screens (screens/), frame data (data.js), holidays (h
                      Ramadan (ramadan.js, decorations in ramadan-decor.js), adhan (adhan.js), adhkar and verses
                      (adhkar-data.js), weather tip (nudge.js), repeating-task dates
                      (routines.js), «نبضة» on the frame (pulse.js) and on the phone
-                     (admin-pulse.js, shared parts in pulse-common.js), control panel (admin.js), .ics import (ics.js,
+                     (admin-pulse.js, shared parts in pulse-common.js), «مرح» on the frame
+                     (frame-knock.js, frame-wheel.js, frame-match.js) and on the phone (admin-fun.js;
+                     shared: fun-common.js, sound.js, match-common.js), control panel (admin.js), .ics import (ics.js,
                      ics-import.js), defaults (config.js)
 public/css/          Styles: app.css (frame), admin.css (control panel)
 public/fonts/        Reem Kufi and Readex Pro (SIL Open Font License)
@@ -270,5 +311,5 @@ public/demo/         Sample pictures for ?demo (painted in code, tools/paint-dem
 tools/make-vapid.mjs Makes the key pair for phone notifications
 public/brand/        Icons, splash screens and install screenshots (tools/make-brand.py);
                      favicon.svg, apple-touch-icon.png, icon-*.png at the top of public/
-test/                npm test: API, .ics import and frame logic tests
+test/                npm test: API, notifications, knocks/wheel/match, .ics import and frame logic tests
 ```

@@ -12,6 +12,9 @@ import { createPhotos } from './screens/photos.js';
 import * as adhan from './adhan.js';
 import { setRamadanPreview, ramadanPreviewing } from './ramadan.js';
 import { createPulse } from './pulse.js';
+import { createWheel } from './frame-wheel.js';
+import { createKnock } from './frame-knock.js';
+import { createMatch } from './frame-match.js';
 import * as demo from './demo.js';
 
 const SCREEN_W = 1280;
@@ -38,9 +41,27 @@ for (const sc of screens) {
 }
 stage.append(track, nav, status, adhanBar, night);
 
+// The door and the wheel open from two buttons at the end of the screen tabs.
+const knockTab = h('button', { class: 'tab tab-fun', type: 'button', 'aria-label': 'الدقّة السرية', html: '<svg width="24" height="28" viewBox="0 0 24 28" aria-hidden="true"><path d="M3 28V11a9 9 0 0 1 18 0v17z" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="12" cy="17" r="3.4" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>' }, 'دقّة');
+const wheelTab = h('button', { class: 'tab tab-fun', type: 'button', hidden: true, 'aria-label': 'عجلة الحظ', html: '<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M13 2v22M2 13h22M5.2 5.2l15.6 15.6M20.8 5.2L5.2 20.8" stroke="currentColor" stroke-width="1.6"/><circle cx="13" cy="13" r="3" fill="currentColor"/></svg>' }, 'العجلة');
+knockTab.addEventListener('click', () => { touched(); knock.open(); });
+wheelTab.addEventListener('click', () => { touched(); wheel.open(); });
+nav.append(h('span', { class: 'tab-gap' }), knockTab, wheelTab);
+
+// «وضع الماتش»: over the screens while Morocco plays (not during the adhan).
+const match = createMatch({ stage, held: () => !!adhan.adhanPlaying() });
 // «نبضة»: moments from the family's phones play over whatever screen is up. At night they play
 // under the dimmed layer and without sound.
-const pulse = createPulse({ stage, isNight: () => isNight(now()) && Date.now() > awakeUntil, hold: () => !!adhan.adhanPlaying() });
+const knock = createKnock({ stage });
+const wheel = createWheel({ stage, onChange: (n) => { wheelTab.hidden = !n; } });
+const pulse = createPulse({
+  stage,
+  isNight: () => isNight(now()) && Date.now() > awakeUntil && !match.active(),
+  hold: () => !!adhan.adhanPlaying() || knock.busy() || wheel.busy(),
+  fun: { knock, wheel },
+  onSocket: (m) => { match.socket(m); wheel.socket(m); },
+});
+
 stage.insertBefore(night, null); // keep the night layer last
 
 // Screens are stacked; only the one shown and the one sliding in are visible. The order loops:
@@ -171,14 +192,14 @@ function schedule(t) {
   const idle = real - lastTouch;
   // A preview asked for in the control panel shows even at night, with the screen undimmed.
   const previewing = ramadanPreviewing() || adhkarScreen.forced();
-  const nightNow = isNight(t) && real > awakeUntil && !previewing;
+  const nightNow = isNight(t) && real > awakeUntil && !previewing && !match.active();
   night.style.opacity = nightNow ? String(config.night.dim) : '0';
   document.documentElement.classList.toggle('is-night', nightNow);
 
   // The adhan brings the prayer screen forward, even while someone is using the frame.
   if (adhan.adhanPlaying()) { if (screens[index].name !== 'prayer') go('prayer'); shownAt = real; return; }
-  // A moment from a phone is playing: stay on this screen until it's done.
-  if (pulse.busy()) { shownAt = real; return; }
+  // A moment from a phone is playing, the door or the wheel is open, or the match is on: stay.
+  if (pulse.busy() || knock.busy() || wheel.busy() || match.active()) { shownAt = real; return; }
   if (idle < config.resumeAfterSeconds * 1000) return; // someone is using it
   if (!resumed) { resumed = true; rotIndex = 0; go('home'); return; }
   if (ramadanPreviewing()) { if (screens[index].name !== 'prayer') go('prayer'); shownAt = real; return; }
@@ -262,6 +283,9 @@ if (DEMO) {
       } catch (e) { return; } // the same one twice in two seconds
       pulse.poke();
     },
+    knock() { try { demo.pulseAdd({ kind: 'knock', from: 'سلمى', rhythm: [0, 160, 320, 900, 1060] }); } catch (e) { return; } pulse.poke(); },
+    spin() { const w = demo.wheels()[0]; try { demo.spin(w.id, 'يوسف'); } catch (e) { return; } pulse.poke(); },
+    match(on) { demo.matchPreview(!on); match.poke(); },
   };
 }
 
@@ -283,6 +307,7 @@ function loop() {
   try { sc.tick(t); } catch (e) { console.error(e); }
   try { adhan.tick(t); } catch (e) { console.error(e); }
   try { pulse.tick(t); } catch (e) { console.error(e); }
+  try { match.tick(screens[index].name); } catch (e) { console.error(e); }
   try { schedule(t); } catch (e) { console.error(e); }
   setTimeout(loop, 1000 - (Date.now() % 1000) + 5);
 }

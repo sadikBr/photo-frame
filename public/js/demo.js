@@ -1,6 +1,7 @@
 // Sample data for previewing the dashboard without a backend (open with ?demo).
 import { startOfDay, now, parts, dayKey, DAY, MINUTE, HOUR, store } from './util.js';
 import { dueFrom, addDays } from './routines.js';
+import { previewMatch, PREVIEW_MS } from './match-common.js';
 
 const today = () => startOfDay(now());
 const at = (dayOffset, h, m) => today() + dayOffset * DAY + (h * 60 + m) * MINUTE;
@@ -217,4 +218,43 @@ export function sampleDrawing() {
   for (let i = 0; i < 30; i++) grass.push([70 + i * 30, 890 - (i % 2) * 60]);
   stroke(3, 1, grass);
   return strokes;
+}
+
+// ---------- «عجلة الحظ», «الدقّة السرية», «وضع الماتش» in demo mode ----------
+const DEMO_WHEELS = [
+  { id: 'demowheel1', name: 'من يغسل الصحون؟', items: ['ماما', 'بابا', 'سلمى', 'يوسف'] },
+  { id: 'demowheel2', name: 'أين نخرج يوم الأحد؟', items: ['البحر', 'الغابة', 'عند الجدة', 'المدينة القديمة', 'السينما', 'الحديقة'] },
+];
+export function wheels() { return store.get('demo-wheels', DEMO_WHEELS); }
+export function saveWheels(list) { store.set('demo-wheels', list); return list; }
+export function spin(wheelId, from) {
+  const w = wheels().find((x) => x.id === wheelId);
+  if (!w) throw new Error('That wheel is gone.');
+  const idx = Math.floor(Math.random() * w.items.length);
+  return pulseAdd({ kind: 'spin', from: from || 'البيت', wheel: w.id, wheelName: w.name, items: w.items, idx, result: w.items[idx] });
+}
+export const phones = () => ['ماما', 'بابا', 'جدتي'];
+
+// The demo's match: the 3-minute practice match when started, otherwise one tonight at 21:00.
+export function match() {
+  const cfg = Object.assign({ on: true, push: true }, store.get('demo-match-cfg', {}));
+  const start = store.get('demo-match-start', 0);
+  const t = Date.now();
+  if (start && t - start < PREVIEW_MS + 15000) return { on: true, cfg, mode: 'live', match: previewMatch(start, t), now: t, cheers: store.get('demo-cheers', []).filter((c) => t - c.at < 120000) };
+  if (!cfg.on) return { on: false, cfg, mode: 'none', match: null, now: t, cheers: [] };
+  const kick = today() + 21 * HOUR;
+  const m = previewMatch(kick + 10 * MINUTE, kick + 10 * MINUTE);
+  Object.assign(m, { id: 'demo-tonight', comp: 'مباراة ودية', kickoff: kick, state: 'pre', status: 'STATUS_SCHEDULED', clock: '', period: 0, goals: [], preview: false, phase: '' });
+  m.mar.score = 0;
+  m.opp = { name: 'مالي', abbr: 'MLI', logo: '', score: 0, home: false };
+  return { on: true, cfg, mode: t < kick - 15 * MINUTE ? 'today' : 'none', match: m, now: t, cheers: [] };
+}
+export function matchPreview(stop) { store.set('demo-match-start', stop ? 0 : Date.now()); return match(); }
+export function matchCfg(c) { store.set('demo-match-cfg', Object.assign(store.get('demo-match-cfg', {}), c)); return match(); }
+export function cheer(from, key) {
+  const list = store.get('demo-cheers', []).filter((c) => Date.now() - c.at < 120000);
+  const c = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5), from, cheer: key, at: Date.now() };
+  list.push(c);
+  store.set('demo-cheers', list.slice(-30));
+  return { cheer: c, live: Date.now() - store.get('demo-frame-alive', 0) < 12000 ? 1 : 0 };
 }
