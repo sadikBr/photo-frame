@@ -465,8 +465,19 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView }) {
       if (isIOS && !standalone) return renderNotif('none', 'على iPhone: أضف التطبيق إلى الشاشة الرئيسية أولاً (زر المشاركة ← «إضافة إلى الشاشة الرئيسية»)، ثم افتحه من هناك وفعّل الإشعارات.');
       return renderNotif('none', window.isSecureContext ? 'هذا المتصفح لا يدعم الإشعارات. جرّب Chrome على Android أو Safari على iPhone (iOS 16.4 أو أحدث).' : 'الإشعارات تعمل فقط على رابط https (بعد النشر على Cloudflare).');
     }
-    try { server = await api('/api/pulse/push'); } catch (e) { server = null; }
-    if (!server || !server.enabled) return renderNotif('none', 'الإشعارات غير مفعّلة على الخادم بعد: يلزم مفتاحا VAPID (انظر README، فقرة «إشعارات نبضة»).');
+    let askErr = '';
+    try { server = await api('/api/pulse/push'); } catch (e) { server = null; askErr = e.message || String(e); }
+    if (!server) return renderNotif('none', 'تعذّر سؤال الخادم عن الإشعارات (' + askErr + '). أعد تحميل الصفحة؛ وإن تكرّر فتأكّد أن آخر نسخة منشورة (npm run deploy).');
+    if (!server.enabled) {
+      const miss = server.missing || [];
+      if (miss.includes('VAPID_PRIVATE_KEY') && !miss.includes('VAPID_PUBLIC_KEY')) {
+        return renderNotif('none', 'ينقص المفتاح السري VAPID_PRIVATE_KEY على Cloudflare. في مجلد المشروع: npx wrangler secret put VAPID_PRIVATE_KEY (القيمة من ملف .dev.vars، بدون «VAPID_PRIVATE_KEY=»)، ثم أعد تحميل هذه الصفحة.');
+      }
+      if (miss.includes('VAPID_PUBLIC_KEY') && !miss.includes('VAPID_PRIVATE_KEY')) {
+        return renderNotif('none', 'ينقص VAPID_PUBLIC_KEY: تأكّد أنه في "vars" داخل wrangler.jsonc، ثم npm run deploy.');
+      }
+      return renderNotif('none', 'ينقص مفتاحا الإشعارات على الخادم: VAPID_PUBLIC_KEY في wrangler.jsonc ثم npm run deploy، و npx wrangler secret put VAPID_PRIVATE_KEY (انظر README).');
+    }
     if (Notification.permission === 'denied') return renderNotif('blocked', 'الإشعارات ممنوعة لهذا الموقع. اسمح بها من إعدادات المتصفح (رمز القفل بجانب العنوان، أو إعدادات التطبيق).');
     const reg = await navigator.serviceWorker.ready;
     mySub = await reg.pushManager.getSubscription();
@@ -506,8 +517,7 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView }) {
     if (!mySub) return;
     try {
       const r = await send('/api/pulse/push/test', 'POST', { endpoint: mySub.endpoint });
-      // A test while the app is open shows as a card here; close the app to see the real thing.
-      toast(r.ok ? 'أُرسل. أغلق التطبيق أو قفل الهاتف لترى الإشعار كما سيصلك.' : r.status ? 'لم يقبله المتصفح (' + r.status + '). فعّل الإشعارات من جديد.' : 'تعذّر الوصول إلى خدمة الإشعارات. حاول بعد قليل.');
+      toast(r.ok ? 'أُرسل. يجب أن يظهر الإشعار خلال ثوانٍ؛ إن لم يظهر فانظر إعدادات الإشعارات لهذا التطبيق في الهاتف.' : r.status ? 'لم يقبله المتصفح (' + r.status + '). فعّل الإشعارات من جديد.' : 'تعذّر الوصول إلى خدمة الإشعارات. حاول بعد قليل.');
     } catch (e) { toast(e.message); }
   });
   $('notifOff').addEventListener('click', async () => {

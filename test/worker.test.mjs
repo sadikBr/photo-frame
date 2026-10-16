@@ -296,9 +296,12 @@ assert.equal(data.live, 1, 'it will pick it up within seconds');
 // «نبضة» on the family's phones (Web Push)
 {
   r = await call(k('/api/pulse/push'));
-  assert.deepEqual(await r.json(), { enabled: false, publicKey: null }, 'no keys: notifications off');
+  assert.deepEqual(await r.json(), { enabled: false, publicKey: null, missing: ['VAPID_PUBLIC_KEY', 'VAPID_PRIVATE_KEY'] }, 'no keys: notifications off');
   const kp = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign']);
   const pushEnv = { VAPID_PUBLIC_KEY: b64u(new Uint8Array(await crypto.subtle.exportKey('raw', kp.publicKey))), VAPID_PRIVATE_KEY: (await crypto.subtle.exportKey('jwk', kp.privateKey)).d };
+  env.PULSE = fakeNamespace(PulseHub, { VAPID_PUBLIC_KEY: pushEnv.VAPID_PUBLIC_KEY });
+  r = await call(k('/api/pulse/push'));
+  assert.deepEqual((await r.json()).missing, ['VAPID_PRIVATE_KEY'], 'says which key is missing (by name only)');
   env.PULSE = fakeNamespace(PulseHub, pushEnv);
   const hub = env.PULSE.obj;
   const sent = [];
@@ -318,7 +321,9 @@ assert.equal(data.live, 1, 'it will pick it up within seconds');
   assert.equal((await sub({ ...mama, endpoint: 'https://evil.example/x' }, 'ماما')).status, 400, 'only real push services');
   assert.equal((await sub(mama, '')).status, 400, 'name required');
   r = await call(k('/api/pulse/push'));
-  assert.equal((await r.json()).enabled, true);
+  data = await r.json();
+  assert.equal(data.enabled, true);
+  assert.deepEqual(data.missing, []);
 
   // A moment from ماما: بابا hears about it; ماما (the sender) and جدتي (hearts only) don't.
   data = await (await pulse({ kind: 'tap', tap: 'miss', from: 'ماما' })).json();

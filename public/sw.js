@@ -48,11 +48,14 @@ self.addEventListener('push', (e) => {
   let m = {};
   try { m = e.data ? e.data.json() : {}; } catch (err) { m = { title: 'نبضة', body: e.data ? e.data.text() : '' }; }
   e.waitUntil((async () => {
+    // The test button always shows the real notification, at once and with sound.
+    const test = m.tag === 'pulse-test';
     // The app is open and in front: it shows the moment itself (no notification needed).
     const wins = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     const front = wins.find((w) => w.visibilityState === 'visible' && w.focused);
-    if (front) { front.postMessage({ type: 'pulse-push', message: m }); return; }
+    if (front && !test) { front.postMessage({ type: 'pulse-push', message: m }); return; }
     const cfg = await config();
+    const quiet = !test && quietNow(cfg);
     const canAct = 'actions' in Notification.prototype;
     await self.registration.showNotification(m.title || 'نبضة', {
       body: m.body || '',
@@ -62,8 +65,8 @@ self.addEventListener('push', (e) => {
       renotify: true,
       lang: 'ar',
       dir: 'rtl',
-      silent: quietNow(cfg),
-      vibrate: quietNow(cfg) ? undefined : [80, 60, 80],
+      silent: quiet,
+      vibrate: quiet ? undefined : [80, 60, 80],
       timestamp: Date.now(),
       data: { url: m.url || '/admin#pulse', id: m.id, from: m.from },
       actions: canAct && m.heart && m.id && cfg.me ? [{ action: 'heart', title: '❤ ردّ بقلب' }] : [],

@@ -247,7 +247,9 @@ export class PulseHub {
 
     if (path === '/api/pulse/push' && method === 'GET') {
       const v = this.vapid();
-      return json({ enabled: !!v, publicKey: v ? v.publicKey : null });
+      // Names only (never values), so the control panel can say exactly what is missing.
+      const missing = ['VAPID_PUBLIC_KEY', 'VAPID_PRIVATE_KEY'].filter((k) => !(this.env || {})[k]);
+      return json({ enabled: !!v, publicKey: v ? v.publicKey : null, missing });
     }
     if (path.startsWith('/api/pulse/push/') && method === 'POST') {
       let body;
