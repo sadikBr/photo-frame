@@ -1,7 +1,7 @@
-// «القرآن» in the control panel: choose what the frame recites (Sheikh Ahmad Al-Nufais), pause
-// or stop it from anywhere, set times (al-Kahf on Friday…), or listen on this phone.
+// «القرآن» in the control panel: choose the reciter and what the frame recites, pause or stop it
+// from anywhere, set times (al-Kahf on Friday…), or listen on this phone.
 import * as demo from './demo.js';
-import { SURAHS, surahName, surahUrl, RECITERS, DEFAULT_RECITER, SCHEDULE_SUGGESTIONS, DAYS_AR, daysLabel, mmss, BOOK } from './quran-common.js';
+import { SURAHS, surahName, surahUrl, RECITERS, reciterOf, reciterName, SCHEDULE_SUGGESTIONS, DAYS_AR, daysLabel, mmss, BOOK } from './quran-common.js';
 
 const PLAY = '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>';
 const PAUSE = '<svg viewBox="0 0 24 24" width="22" height="22"><rect x="6" y="5" width="4" height="14" rx="1.2" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1.2" fill="currentColor"/></svg>';
@@ -43,7 +43,7 @@ export function initQuran({ api, send, toast, el, $, DEMO, me }) {
     const st = q.status && q.status.id === p.id ? q.status.state : 'loading';
     const t = pos();
     const where = p.paused ? 'متوقفة مؤقتاً' : st === 'error' ? 'تعذّر تحميلها على الإطار' : st === 'loading' ? 'تُحمَّل على الإطار…' : 'تُتلى الآن على الإطار';
-    $('qnSub').textContent = where + (t.dur ? ' · ' + mmss(t.pos) + ' / ' + mmss(t.dur) : '') + (p.list.length > 1 ? ' · ' + (p.idx + 1) + ' من ' + p.list.length : '') + (p.by && p.by !== 'البيت' ? ' · من ' + p.by : '');
+    $('qnSub').textContent = where + (t.dur ? ' · ' + mmss(t.pos) + ' / ' + mmss(t.dur) : '') + ' · ' + reciterName(p.reciter) + (p.list.length > 1 ? ' · ' + (p.idx + 1) + ' من ' + p.list.length : '') + (p.by && p.by !== 'البيت' ? ' · من ' + p.by : '');
     $('qnBar').style.width = t.dur ? Math.min(100, (100 * t.pos) / t.dur).toFixed(1) + '%' : '0';
     $('qnPlay').innerHTML = p.paused ? PLAY : PAUSE;
   }
@@ -57,6 +57,26 @@ export function initQuran({ api, send, toast, el, $, DEMO, me }) {
     clearTimeout(volTimer);
     volTimer = setTimeout(() => cmd('volume', { volume: Number($('qnVol').value) / 100 }), 250);
   });
+
+  // ---------- the reciter ----------
+  function renderRecs() {
+    const box = $('qnRecs');
+    box.textContent = '';
+    const rc = reciterOf(q.cfg.reciter);
+    for (const r of Object.keys(RECITERS)) {
+      box.append(el('button', { type: 'button', class: 'qn-rec' + (r === rc ? ' is-on' : ''), 'aria-pressed': r === rc ? 'true' : 'false', onclick: () => setReciter(r) },
+        RECITERS[r].name, RECITERS[r].riwaya !== 'حفص' ? el('small', null, 'ورش') : null));
+    }
+    $('qnReciter').textContent = 'بصوت الشيخ ' + reciterName(rc) + (RECITERS[rc].riwaya !== 'حفص' ? ' (رواية ورش عن نافع)' : '') + '، على سمّاعة الإطار.';
+  }
+  async function setReciter(r) {
+    if (reciterOf(q.cfg.reciter) === r && (!q.play || reciterOf(q.play.reciter) === r)) return;
+    if (!(await saveCfg({ reciter: r }))) return;
+    const p = q.play;
+    if (p && reciterOf(p.reciter) !== r) {
+      if (await cmd('play', { list: p.list, idx: p.idx, mode: p.mode, reciter: r })) toast('سورة ' + surahName(p.list[p.idx]) + ' من بدايتها بصوت الشيخ ' + reciterName(r) + '.');
+    } else toast('القارئ الآن: الشيخ ' + reciterName(r) + '.');
+  }
 
   // ---------- favourites ----------
   const here = $('qnHere');
@@ -88,9 +108,9 @@ export function initQuran({ api, send, toast, el, $, DEMO, me }) {
   function listenHere(n) {
     if (hereN === n && !here.paused) { here.pause(); renderFavs(); return; }
     hereN = n;
-    here.src = surahUrl(n);
+    here.src = surahUrl(n, q.cfg.reciter);
     here.hidden = false;
-    $('qnHereName').textContent = 'سورة ' + surahName(n) + ' · على هذا الهاتف';
+    $('qnHereName').textContent = 'سورة ' + surahName(n) + ' · ' + reciterName(q.cfg.reciter) + ' · على هذا الهاتف';
     $('qnHereBox').hidden = false;
     here.play().catch(() => {});
     renderFavs();
@@ -141,6 +161,7 @@ export function initQuran({ api, send, toast, el, $, DEMO, me }) {
   function render() {
     if (!q) return;
     renderNow();
+    renderRecs();
     renderFavs();
     renderSched();
     if (document.activeElement !== $('qnVol')) {
@@ -148,7 +169,6 @@ export function initQuran({ api, send, toast, el, $, DEMO, me }) {
       $('qnVolText').textContent = $('qnVol').value + '%';
     }
   }
-  $('qnReciter').textContent = 'بصوت الشيخ ' + (RECITERS[DEFAULT_RECITER] || {}).name + '، على سمّاعة الإطار.';
   $('qnIcon').innerHTML = BOOK(26);
   function loop() { clearTimeout(timer); if (visible && document.visibilityState === 'visible') { load(); timer = setTimeout(loop, 4000); } }
   setInterval(() => { if (visible && q) renderNow(); }, 1000);

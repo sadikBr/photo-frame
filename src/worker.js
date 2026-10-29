@@ -43,8 +43,11 @@ const KEEP_PAST_DAYS = 40; // one-off dates older than this are dropped
 const SEEN_EVERY = 10 * 60 * 1000; // write the frame's check-in at most every 10 minutes
 const MAX_ROUTINES = 60;
 const AUDIO_NAMES = ['adhan', 'adhan-fajr', 'adhkar-morning', 'adhkar-evening'];
-// The adhan is short; an adhkar recording can be 20 minutes. KV holds up to 25 MiB per value.
-const maxAudioBytes = (name) => (name.startsWith('adhkar') ? 24 : 10) * 1024 * 1024;
+// The adhan is short; an adhkar recording can run 40 minutes or more. KV holds up to 25 MiB per
+// value, so a bigger file is kept in parts of AUDIO_PART bytes (audio:<name>, audio:<name>:1, …)
+// and joined again when it is played.
+const maxAudioBytes = (name) => (name.startsWith('adhkar') ? 50 : 10) * 1024 * 1024;
+const AUDIO_PART = 20 * 1024 * 1024;
 
 const json = (data, status = 200, extra = {}) =>
   new Response(JSON.stringify(data), {
@@ -173,25 +176,52 @@ async function putAudio(request, env, name) {
   const buf = await request.arrayBuffer();
   if (!buf.byteLength) return fail(400, 'The file is empty.');
   if (buf.byteLength > maxAudioBytes(name)) return fail(413, 'The audio file is larger than ' + maxAudioBytes(name) / 1048576 + ' MB.');
-  await needStore(env).put('audio:' + name, buf, { metadata: { type } });
+  const store = needStore(env);
   const index = await audioIndex(env);
-  index[name] = { at: Date.now(), size: buf.byteLength, type };
-  await needStore(env).put('audio:index', JSON.stringify(index));
+  const oldParts = (index[name] && index[name].parts) || 1;
+  const bytes = new Uint8Array(buf);
+  const parts = Math.ceil(bytes.byteLength / AUDIO_PART);
+  for (let i = 1; i < parts; i++) await store.put('audio:' + name + ':' + i, bytes.subarray(i * AUDIO_PART, (i + 1) * AUDIO_PART));
+  for (let i = parts; i < oldParts; i++) await store.delete('audio:' + name + ':' + i);
+  await store.put('audio:' + name, parts > 1 ? bytes.subarray(0, AUDIO_PART) : buf, { metadata: { type, parts, size: bytes.byteLength } });
+  index[name] = { at: Date.now(), size: bytes.byteLength, type, parts };
+  await store.put('audio:index', JSON.stringify(index));
   return json(index);
 }
 
 async function getAudio(env, name) {
-  const { value, metadata } = await needStore(env).getWithMetadata('audio:' + name, 'arrayBuffer');
+  const store = needStore(env);
+  const { value, metadata } = await store.getWithMetadata('audio:' + name, 'arrayBuffer');
   if (!value) return fail(404, 'No such audio.');
   // The frame asks for ?v=<upload time>, so a new upload is a new URL and this can be cached.
-  return new Response(value, {
-    headers: { 'content-type': (metadata && metadata.type) || 'audio/mpeg', 'cache-control': 'private, max-age=31536000, immutable' },
-  });
+  const headers = { 'content-type': (metadata && metadata.type) || 'audio/mpeg', 'cache-control': 'private, max-age=31536000, immutable' };
+  const parts = (metadata && metadata.parts) || 1;
+  if (parts === 1) return new Response(value, { headers });
+  // In parts: send them one after the other, reading one part at a time.
+  const size = metadata.size;
+  // eslint-disable-next-line no-undef
+  const { readable, writable } = typeof FixedLengthStream === 'function' ? new FixedLengthStream(size) : new TransformStream();
+  const out = writable.getWriter();
+  (async () => {
+    try {
+      await out.write(new Uint8Array(value));
+      for (let i = 1; i < parts; i++) {
+        const part = await store.get('audio:' + name + ':' + i, 'arrayBuffer');
+        if (!part) throw new Error('missing part ' + i);
+        await out.write(new Uint8Array(part));
+      }
+      await out.close();
+    } catch (e) { await out.abort(e).catch(() => {}); }
+  })();
+  headers['content-length'] = String(size);
+  return new Response(readable, { headers });
 }
 
 async function deleteAudio(env, name) {
-  await needStore(env).delete('audio:' + name);
   const index = await audioIndex(env);
+  const parts = (index[name] && index[name].parts) || 1;
+  for (let i = 1; i < parts; i++) await needStore(env).delete('audio:' + name + ':' + i);
+  await needStore(env).delete('audio:' + name);
   delete index[name];
   await needStore(env).put('audio:index', JSON.stringify(index));
   return json(index);

@@ -26,7 +26,7 @@ The **control panel** (`/admin`) has these sections:
 | --- | --- |
 | **نبضة** | Send a moment to the frame from wherever you are: a tap (أفكر فيكم, اشتقت إليكم, صباح الخير, تصبحون على خير, في الطريق, خبر سعيد), a finger drawing, or a voice note of up to 15 seconds. It appears on the frame within a second or two with its own animation; the family at home can tap «ردّ بقلب» and you see it in the app. See [نبضة](#نبضة-moments-from-your-phone) |
 | **نبضة**, more | **🎁 مفاجأة لاحقاً**: write a moment now and choose when it appears (midnight for a birthday, 7:30 before an exam); nobody sees it before. **نبضك الحقيقي**: your fingertip on the phone's camera for 15 seconds, and the frame shows a heart beating in your own rhythm. **حالتي**: «📚 في الامتحان حتى 12:00» on the clock screen, gone when the time is up |
-| **القرآن** | Have the frame recite any surah in the voice of **Sheikh Ahmad Al-Nufais** (أحمد النفيس): your list (البقرة، الكهف، الحجر، الشعراء، يوسف، الملك، السجدة to start), one surah or the whole list in a row, pause, next, stop and volume from the phone, set times (al-Kahf on Friday morning, al-Mulk every night), or listen on the phone itself. See [القرآن](#القرآن-recitation-on-the-frame) |
+| **القرآن** | Have the frame recite any surah, choosing the reciter: **Ahmad Al-Nufais, Khalid Al-Jaleel, Badr Al-Turki, Hicham El Harraz** (Warsh) or **Mishary Alafasy**: your list (البقرة، الكهف، الحجر، الشعراء، يوسف، الملك، السجدة to start), one surah or the whole list in a row, pause, next, stop and volume from the phone, set times (al-Kahf on Friday morning, al-Mulk every night), or listen on the phone itself. See [القرآن](#القرآن-recitation-on-the-frame) |
 | **مرح** | **وضع الماتش**: when Morocco plays, the frame becomes a stadium screen (score, minute, goals, a roar and fireworks for each Moroccan goal) and phones can send cheers that fly across it. **الدقّة السرية**: tap a rhythm, the frame knocks it on a Moroccan door; knocks from the frame make phones buzz in that rhythm. **عجلة الحظ**: who washes the dishes, where to go on Sunday… spin it on the phone or on the frame. See [مرح](#مرح-match-mode-the-secret-knock-the-wheel) |
 | **الرسالة** | Put a note on the clock screen, for an hour, a day, a week or until you remove it |
 | **القوائم** | Add, tick and remove shopping items and tasks, with quick-add buttons. **Repeating tasks** (every N days, every week on a day, or every month on a date) come back on the to-do list by themselves when due |
@@ -145,8 +145,10 @@ touch altogether.
 ### Adhkar recordings
 
 In **الإعدادات › الأذكار**, upload one recording for the morning adhkar and one for the evening
-(MP3, M4A, OGG or WAV, up to 24 MB each, about 20 minutes at normal quality). They are kept in
-your Cloudflare storage like the adhan, so they don't depend on another website.
+(MP3, M4A, OGG or WAV, up to 50 MB each, about 50 minutes at normal quality). They are kept in
+your Cloudflare storage like the adhan, so they don't depend on another website (a file over 20 MB
+is stored in parts, because Cloudflare's storage takes at most 25 MB per item, and joined again
+when it plays).
 
 - On the frame, the adhkar screen shows a play button with the time beside the close button
   whenever a recording exists for that time of day.
@@ -314,9 +316,23 @@ of the frame's clock screen and on the other phones, and disappears by itself.
 
 ### القرآن: recitation on the frame
 
-The frame recites in the voice of Sheikh **Ahmad Al-Nufais** (Hafs ʿan ʿĀṣim). The recordings are
-streamed from [mp3quran.net](https://mp3quran.net), which hosts all 114 surahs in his voice, so
-nothing has to be uploaded and the frame needs the internet while it recites.
+The recordings are streamed from [mp3quran.net](https://mp3quran.net), which hosts all 114 surahs
+for each reciter, so nothing has to be uploaded and the frame needs the internet while it recites.
+Five reciters to choose from:
+
+| Reciter | Reading |
+| --- | --- |
+| أحمد النفيس (Ahmad Al-Nufais), the default | Hafs ʿan ʿĀṣim |
+| خالد الجليل (Khalid Al-Jaleel) | Hafs ʿan ʿĀṣim |
+| بدر التركي (Badr Al-Turki) | Hafs ʿan ʿĀṣim |
+| هشام الهراز (Hicham El Harraz) | **Warsh ʿan Nāfiʿ**, the Moroccan reading |
+| مشاري العفاسي (Mishary Alafasy) | Hafs ʿan ʿĀṣim |
+
+- **The reciter** is chosen on the phone («القارئ» card) or on the frame (the row of names in the
+  Quran player). The choice is shared: it is used for everything the frame recites next, for set
+  times and for 🎧. If a surah is playing when you change it, that surah starts again from the
+  beginning in the new voice. To add another reciter, add a line to `RECITERS` in
+  `public/js/quran-common.js` (its mp3quran.net folder).
 
 - **From the phone**, «القرآن» tab: your list of surahs. «الإطار ▶» recites one on the frame;
   «تشغيل القائمة كلها على الإطار» recites them all in order, then stops («ثم تتوقف») or starts again

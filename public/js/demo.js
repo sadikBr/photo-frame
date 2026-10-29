@@ -333,7 +333,7 @@ export function quranCmd(b) {
   const a = b.action;
   if (a === 'play') {
     const list = b.list ? b.list.slice() : [b.surah];
-    q.play = { id: Date.now().toString(36), list, idx: Math.min(list.length - 1, b.idx || 0), mode: b.mode || (list.length > 1 ? (q.cfg.mode === 'one' ? 'list' : q.cfg.mode) : 'one'), by: b.from || 'البيت', at: Date.now(), paused: false, rev: 0 };
+    q.play = { id: Date.now().toString(36), list, idx: Math.min(list.length - 1, b.idx || 0), mode: b.mode || (list.length > 1 ? (q.cfg.mode === 'one' ? 'list' : q.cfg.mode) : 'one'), reciter: b.reciter || q.cfg.reciter || 'nufais', by: b.from || 'البيت', at: Date.now(), paused: false, rev: 0 };
     q.status = null;
   } else if (a === 'volume') q.cfg.volume = Math.min(1, Math.max(0, b.volume));
   else if (q.play) {

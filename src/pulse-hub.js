@@ -28,8 +28,8 @@
 // «حالتي»: GET /api/pulse/status · PUT {from, text, emoji, until} · POST /api/pulse/status/clear {from}.
 // «تلوين الزليج»: GET /api/pulse/coloring · POST …/fill {tile, color, from} · …/new {from} ·
 // …/saved {which: "current"|archived page's id} (the frame saves finished pages as photos).
-// «القرآن»: GET /api/pulse/quran · PUT {favs, schedules, volume, mode} · POST …/cmd {action:
-// play|pause|resume|next|prev|stop|volume, surah|list, idx, mode, volume, from} (the frame hears at
+// «القرآن»: GET /api/pulse/quran · PUT {favs, schedules, volume, mode, reciter} · POST …/cmd {action:
+// play|pause|resume|next|prev|stop|volume, surah|list, idx, mode, reciter, volume, from} (the frame hears at
 // once) · POST …/status {id, idx, state, pos, dur} (the frame says what it is playing).
 //
 // Phone notifications (Web Push): a new moment goes to every other phone that asked for all
@@ -38,7 +38,7 @@
 
 import { sendPush, validSubscription } from './webpush.js';
 import { tileCount, PATTERN_COUNT, weekIndex } from '../public/js/zellige.js';
-import { validSurah, DEFAULT_FAVS } from '../public/js/quran-common.js';
+import { validSurah, validReciter, DEFAULT_FAVS } from '../public/js/quran-common.js';
 import { LEAGUES, scoreboardUrl, parseScoreboard, pickMatch, matchChanges, changeMessage, previewMatch, PREVIEW_MS } from './match.js';
 
 export const pushDeps = { fetch: (...a) => fetch(...a) }; // tests swap this
@@ -467,6 +467,10 @@ export class PulseHub {
       const cfg = (await this.quran()).cfg;
       if (Array.isArray(body.favs)) cfg.favs = [...new Set(body.favs.map(Number).filter(validSurah))].slice(0, 30);
       if (['one', 'list', 'repeat'].includes(body.mode)) cfg.mode = body.mode;
+      if (body.reciter !== undefined) {
+        if (!validReciter(body.reciter)) return fail(400, 'Unknown reciter.');
+        cfg.reciter = body.reciter;
+      }
       if (body.volume != null && Number.isFinite(Number(body.volume))) cfg.volume = Math.min(1, Math.max(0, Number(body.volume)));
       if (Array.isArray(body.schedules)) {
         cfg.schedules = body.schedules.slice(0, 20).map((x) => ({
@@ -494,7 +498,9 @@ export class PulseHub {
         if (!list.length) return fail(400, 'Which surah?');
         const idx = Math.min(list.length - 1, Math.max(0, Number(body.idx) || 0));
         const mode = ['one', 'list', 'repeat'].includes(body.mode) ? body.mode : list.length > 1 ? q.cfg.mode === 'one' ? 'list' : q.cfg.mode : 'one';
-        play = { id: newId(), list, idx, mode, by, at: Date.now(), paused: false, rev: 0 };
+        if (body.reciter !== undefined && !validReciter(body.reciter)) return fail(400, 'Unknown reciter.');
+        const reciter = validReciter(body.reciter) ? body.reciter : validReciter(q.cfg.reciter) ? q.cfg.reciter : 'nufais';
+        play = { id: newId(), list, idx, mode, reciter, by, at: Date.now(), paused: false, rev: 0 };
         q.status = null;
       } else if (a === 'volume') {
         const v = Number(body.volume);

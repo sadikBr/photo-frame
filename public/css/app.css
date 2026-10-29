@@ -1202,6 +1202,11 @@ html.is-ready #boot { opacity: 0; visibility: hidden; }
 .qr-panel { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 22px; padding: 46px 110px 40px 110px; }
 .qr-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
 .qr-head-btns { display: flex; gap: 12px; }
+.qr-recs { display: flex; gap: 12px; flex-wrap: wrap; }
+.qr-rec { height: 54px; padding: 0 22px; border-radius: 27px; font-size: 21px; color: var(--plaster-2); background: rgba(243, 237, 226, 0.06); border: 1px solid rgba(243, 237, 226, 0.16); display: flex; align-items: center; gap: 8px; }
+.qr-rec small { font-size: 14px; padding: 1px 8px; border-radius: 9px; background: rgba(157, 185, 245, 0.18); color: #BFD7FF; }
+.qr-rec.is-on { color: var(--saffron-ink); background: var(--saffron); border-color: var(--saffron); }
+.qr-rec.is-on small { background: rgba(36, 23, 7, 0.15); color: var(--saffron-ink); }
 .qr-favs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-content: start; flex: 1; }
 .qr-favs[hidden], .qr-all[hidden] { display: none; }
 .qr-fav { position: relative; height: 104px; border-radius: 22px; font-family: var(--kufi); font-size: 40px; color: var(--plaster);

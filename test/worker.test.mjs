@@ -198,8 +198,29 @@ assert.equal(r.status, 200, '12 MB is fine for adhkar');
 assert.equal((await r.json())['adhkar-morning'].size, 12 * 1024 * 1024);
 r = await call(k('/api/audio/adhan-fajr'), { method: 'PUT', body: new Uint8Array(12 * 1024 * 1024), headers: { 'content-type': 'audio/mpeg' } });
 assert.equal(r.status, 413, 'but not for the adhan');
-r = await call(k('/api/audio/adhkar-evening'), { method: 'PUT', body: new Uint8Array(25 * 1024 * 1024), headers: { 'content-type': 'audio/mpeg' } });
-assert.equal(r.status, 413, 'nor over 24 MB');
+r = await call(k('/api/audio/adhkar-evening'), { method: 'PUT', body: new Uint8Array(51 * 1024 * 1024), headers: { 'content-type': 'audio/mpeg' } });
+assert.equal(r.status, 413, 'nor over 50 MB');
+// Over 20 MB it is kept in parts (KV takes 25 MiB per value) and comes back whole.
+{
+  const big = new Uint8Array(45 * 1024 * 1024 + 123);
+  for (let i = 0; i < big.length; i += 4093) big[i] = (i / 4093) & 255;
+  r = await call(k('/api/audio/adhkar-evening'), { method: 'PUT', body: big, headers: { 'content-type': 'audio/mpeg' } });
+  assert.equal(r.status, 200);
+  assert.equal((await r.json())['adhkar-evening'].parts, 3);
+  assert.ok(await env.STORE.get('audio:adhkar-evening:2'), 'third part stored');
+  r = await call(k('/api/audio/adhkar-evening'));
+  assert.equal(r.headers.get('content-length'), String(big.length));
+  const back = new Uint8Array(await r.arrayBuffer());
+  assert.equal(back.length, big.length);
+  assert.ok(Buffer.compare(Buffer.from(back), Buffer.from(big)) === 0, 'same bytes, in order');
+  // A smaller file afterwards leaves no stale parts behind.
+  r = await call(k('/api/audio/adhkar-evening'), { method: 'PUT', body: mp3, headers: { 'content-type': 'audio/mpeg' } });
+  assert.equal((await r.json())['adhkar-evening'].parts, 1);
+  assert.equal(await env.STORE.get('audio:adhkar-evening:1'), null);
+  assert.deepEqual(new Uint8Array(await (await call(k('/api/audio/adhkar-evening'))).arrayBuffer()), mp3);
+  r = await call(k('/api/audio/adhkar-evening'), { method: 'DELETE' });
+  assert.equal(await env.STORE.get('audio:adhkar-evening'), null);
+}
 r = await call(k('/api/audio/adhkar-morning'), { method: 'DELETE' });
 assert.equal((await r.json())['adhkar-morning'], undefined);
 

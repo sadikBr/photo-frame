@@ -1,7 +1,7 @@
 // «القرآن» (server side): favourites, schedules, playing from a phone or the frame.
 import assert from 'node:assert/strict';
 import { PulseHub } from '../src/pulse-hub.js';
-import { SURAHS, surahName, surahUrl, DEFAULT_FAVS, daysLabel, mmss } from '../public/js/quran-common.js';
+import { SURAHS, surahName, surahUrl, DEFAULT_FAVS, daysLabel, mmss, RECITERS, reciterName } from '../public/js/quran-common.js';
 import { fakeNamespace } from './fake-do.mjs';
 
 assert.equal(SURAHS.length, 114);
@@ -10,6 +10,13 @@ assert.equal(surahName(18), 'الكهف');
 assert.equal(surahName(67), 'الملك');
 assert.equal(surahName(114), 'الناس');
 assert.equal(surahUrl(18), 'https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/018.mp3');
+assert.deepEqual(Object.keys(RECITERS), ['nufais', 'jaleel', 'bader', 'harraz', 'afasy'], 'his five, in his order');
+assert.equal(surahUrl(2, 'afasy'), 'https://server8.mp3quran.net/afs/002.mp3');
+assert.equal(surahUrl(26, 'harraz'), 'https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/026.mp3');
+assert.equal(surahUrl(50, 'bader'), 'https://server10.mp3quran.net/bader/Rewayat-Hafs-A-n-Assem/050.mp3');
+assert.equal(surahUrl(3, 'jaleel'), 'https://server10.mp3quran.net/jleel/003.mp3');
+assert.equal(surahUrl(18, 'nobody'), surahUrl(18), 'unknown reciter: the default');
+assert.equal(reciterName('harraz'), 'هشام الهراز');
 assert.deepEqual(DEFAULT_FAVS.map(surahName), ['البقرة', 'الكهف', 'الحجر', 'الشعراء', 'يوسف', 'الملك', 'السجدة']);
 assert.equal(daysLabel([5]), 'كل الجمعة');
 assert.equal(daysLabel([0, 1, 2, 3, 4, 5, 6]), 'كل يوم');
@@ -78,6 +85,20 @@ assert.equal((await (await call('/api/pulse/quran')).json()).play, null);
 assert.equal((await cmd({ action: 'pause' })).status, 409);
 assert.equal((await cmd({ action: 'play', surah: 115 })).status, 400);
 assert.equal((await cmd({ action: 'dance' })).status, 409);
+
+// Reciters: the choice is kept; a play takes the choice unless it names one.
+assert.equal(q.cfg.reciter, 'nufais');
+r = await call('/api/pulse/quran', 'PUT', { reciter: 'afasy' });
+assert.equal((await r.json()).cfg.reciter, 'afasy');
+assert.equal((await call('/api/pulse/quran', 'PUT', { reciter: 'x' })).status, 400);
+r = await cmd({ action: 'play', surah: 67 });
+assert.equal(r.j.play.reciter, 'afasy');
+r = await cmd({ action: 'play', list: [67, 32], idx: 1, reciter: 'harraz' });
+assert.equal(r.j.play.reciter, 'harraz');
+assert.equal(r.j.play.idx, 1);
+assert.equal(r.j.cfg.reciter, 'afasy', 'a one-off voice does not change the choice');
+assert.equal((await cmd({ action: 'play', surah: 1, reciter: 'x' })).status, 400);
+await cmd({ action: 'stop' });
 
 // Favourites and times.
 r = await call('/api/pulse/quran', 'PUT', {

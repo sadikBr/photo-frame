@@ -1,4 +1,5 @@
-// «القرآن» on the frame: recitations by Sheikh Ahmad Al-Nufais, streamed from mp3quran.net.
+// «القرآن» on the frame: recitations streamed from mp3quran.net, by the reciter chosen on the frame
+// or a phone (Ahmad Al-Nufais, Khalid Al-Jaleel, Badr Al-Turki, Hicham El Harraz, Mishary Alafasy).
 // Started from a phone (the control panel's «القرآن»), from the frame («القرآن» button), or at a
 // set time (al-Kahf on Friday…). A small card at the top shows what is playing, with pause and
 // stop. The adhan pauses it and it carries on afterwards; a moment from a phone turns it down
@@ -6,7 +7,7 @@
 import { h, now, parts, dayKey, store } from './util.js';
 import { frameFetch, DEMO } from './data.js';
 import * as demo from './demo.js';
-import { SURAHS, surahName, surahUrl, RECITERS, DEFAULT_RECITER, BOOK, mmss } from './quran-common.js';
+import { SURAHS, surahName, surahUrl, RECITERS, reciterOf, reciterName, BOOK, mmss } from './quran-common.js';
 
 const PAUSE = '<svg width="22" height="22" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1.2" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1.2" fill="currentColor"/></svg>';
 const PLAY = '<svg width="22" height="22" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>';
@@ -53,12 +54,23 @@ export function createQuran({ stage, chipBox, held, duck, onStart }) {
   const np = h('div', { class: 'qr-np' }, h('div', { class: 'qr-np-text' }, mName, mTime, mBar),
     h('div', { class: 'qr-np-btns' }, mPrev, mPlay, mNext, mStop), h('div', { class: 'qr-np-vol' }, vDown, vText, vUp));
   const closeBtn = h('button', { class: 'fun-close', type: 'button', 'aria-label': 'إغلاق' }, '×');
+  const subEl = h('div', { class: 'fun-sub' });
+  // The reciters: tapping one makes it the choice for everyone, and what is playing carries on
+  // in that voice (from the start of the surah).
+  const recBox = h('div', { class: 'qr-recs' });
+  const recBtns = {};
+  for (const r of Object.keys(RECITERS)) {
+    const b = h('button', { class: 'qr-rec', type: 'button' }, RECITERS[r].name, RECITERS[r].riwaya !== 'حفص' ? h('small', null, RECITERS[r].riwaya) : null);
+    b.addEventListener('click', () => { armClose(); setReciter(r); });
+    recBtns[r] = b;
+    recBox.appendChild(b);
+  }
   const modal = h('div', { class: 'fun-modal qr', hidden: true },
     h('div', { class: 'fun-scrim' }),
     h('div', { class: 'qr-panel' },
-      h('div', { class: 'qr-head' }, h('div', null, h('div', { class: 'fun-title' }, 'القرآن الكريم'), h('div', { class: 'fun-sub' }, 'بصوت الشيخ ' + (RECITERS[DEFAULT_RECITER] || {}).name)),
+      h('div', { class: 'qr-head' }, h('div', null, h('div', { class: 'fun-title' }, 'القرآن الكريم'), subEl),
         h('div', { class: 'qr-head-btns' }, listBtn, allBtn)),
-      favBox, allBox, np),
+      recBox, favBox, allBox, np),
     closeBtn);
   stage.append(modal);
   for (let n = 1; n <= 114; n++) {
@@ -101,6 +113,13 @@ export function createQuran({ stage, chipBox, held, duck, onStart }) {
   function close() { modalOpen = false; modal.hidden = true; clearTimeout(closeTimer); }
   function armClose() { clearTimeout(closeTimer); closeTimer = setTimeout(close, 90000); }
 
+  async function setReciter(r) {
+    if (reciterOf(q.cfg.reciter) === r && (!q.play || reciterOf(q.play.reciter) === r)) return;
+    try { apply(DEMO ? demo.quranCfg({ reciter: r }) : await frameFetch('/api/pulse/quran', 'PUT', { reciter: r })); } catch (e) { return; }
+    const p = q.play;
+    if (p && reciterOf(p.reciter) !== r) cmd('play', { list: p.list, idx: cur ? cur.idx : p.idx, mode: p.mode, reciter: r });
+  }
+
   // ---------- commands (the server keeps the truth, so phones see the same) ----------
   async function cmd(action, extra) {
     const body = Object.assign({ action }, extra || {});
@@ -117,7 +136,7 @@ export function createQuran({ stage, chipBox, held, duck, onStart }) {
   function load(n, idx) {
     cur = { key: q.play.id + ':' + idx, id: q.play.id, idx };
     retries = 0;
-    audio.src = surahUrl(n);
+    audio.src = surahUrl(n, q.play.reciter);
     try { audio.load(); } catch (e) { /* old WebView */ }
     report('loading');
   }
@@ -184,6 +203,9 @@ export function createQuran({ stage, chipBox, held, duck, onStart }) {
       chip.classList.toggle('is-paused', !!p.paused);
     }
     if (!modalOpen) return;
+    const rc = reciterOf(q.cfg.reciter);
+    subEl.textContent = 'بصوت الشيخ ' + reciterName(rc) + (RECITERS[rc].riwaya !== 'حفص' ? ' · رواية ' + RECITERS[rc].riwaya + ' عن نافع' : '');
+    for (const r in recBtns) recBtns[r].classList.toggle('is-on', r === rc);
     np.classList.toggle('is-idle', !p);
     if (!p) {
       mName.textContent = 'اختر سورة';
@@ -193,6 +215,7 @@ export function createQuran({ stage, chipBox, held, duck, onStart }) {
       const idx = cur ? cur.idx : p.idx;
       mName.textContent = 'سورة ' + surahName(p.list[idx]);
       if (p.list.length > 1) mName.append(h('span', { class: 'qr-np-pos' }, (idx + 1) + ' من ' + p.list.length));
+      mName.append(h('span', { class: 'qr-np-pos' }, reciterName(p.reciter)));
       const d = isFinite(audio.duration) ? audio.duration : 0;
       mTime.textContent = blocked ? 'المس الشاشة للتشغيل' : audio.readyState < 2 && !audio.currentTime ? 'جاري التحميل…' : mmss(audio.currentTime) + (d ? ' / ' + mmss(d) : '');
       mBar.firstChild.style.width = d ? Math.min(100, (100 * audio.currentTime) / d).toFixed(1) + '%' : '0';

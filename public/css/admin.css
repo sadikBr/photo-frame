@@ -616,3 +616,10 @@ body.is-later #padSend, body.is-later #recSend, body.is-later #beatSend { backgr
 
 /* a smaller heading inside a settings card (الأذكار › التسجيل الصوتي) */
 .card h3.sub-legend { margin-top: 10px; padding-top: 14px; border-top: 1px solid var(--line, rgba(243, 237, 226, 0.12)); font-size: 16px; }
+
+/* «القرآن» › القارئ */
+.qn-recs { display: flex; flex-wrap: wrap; gap: 8px; }
+.qn-rec { min-height: 40px; padding: 0 14px; border-radius: 20px; font: inherit; font-size: 15px; color: inherit; background: rgba(243, 237, 226, 0.06); border: 1px solid rgba(243, 237, 226, 0.18); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.qn-rec small { font-size: 11px; padding: 1px 6px; border-radius: 8px; background: rgba(157, 185, 245, 0.18); color: #BFD7FF; }
+.qn-rec.is-on { background: var(--saffron, #F2AE3D); border-color: var(--saffron, #F2AE3D); color: #241707; font-weight: 600; }
+.qn-rec.is-on small { background: rgba(36, 23, 7, 0.15); color: #241707; }

@@ -220,6 +220,11 @@
       </div>
 
       <div class="card">
+        <div class="row-title"><h3>القارئ</h3><span class="hint">للإطار ولـ🎧؛ ما يُتلى الآن يُعاد بصوته</span></div>
+        <div class="qn-recs" id="qnRecs"></div>
+      </div>
+
+      <div class="card">
         <div class="row-title"><h3>سوري</h3><span class="hint">«الإطار» تُتلى في البيت، 🎧 تسمعها هنا</span></div>
         <ul class="qn-list" id="qnFavs"></ul>
         <div class="actions">
@@ -536,9 +541,9 @@
         <label for="sAdhkarMin">تبقى على الشاشة (دقائق)، أو حتى تُكمَل</label>
         <input id="sAdhkarMin" type="number" min="5" max="120" dir="ltr">
         <h3 class="sub-legend">التسجيل الصوتي</h3>
-        <p class="hint">ارفع تسجيلاً لأذكار الصباح وآخر لأذكار المساء (MP3 مثلاً، حتى 24 ميغابايت، أي نحو 20 دقيقة). يظهر على شاشة الأذكار زرّ لتشغيله، ويتوقف وقت الأذان.</p>
+        <p class="hint">ارفع تسجيلاً لأذكار الصباح وآخر لأذكار المساء (MP3 مثلاً، حتى 50 ميغابايت، أي نحو 50 دقيقة بجودة عادية). يظهر على شاشة الأذكار زرّ لتشغيله، ويتوقف وقت الأذان.</p>
         <div class="audio-rows">
-          <div class="audio-row" data-audio="adhkar-morning" data-max="24" data-done="رُفع التسجيل. يأخذه الإطار خلال 30 ثانية.">
+          <div class="audio-row" data-audio="adhkar-morning" data-max="50" data-done="رُفع التسجيل. يأخذه الإطار خلال 30 ثانية.">
             <div class="audio-head"><span class="audio-name">أذكار الصباح</span><span class="hint audio-info"></span></div>
             <audio controls preload="none" hidden></audio>
             <div class="actions">
@@ -546,7 +551,7 @@
               <button type="button" class="ghost small audio-del" hidden>حذف</button>
             </div>
           </div>
-          <div class="audio-row" data-audio="adhkar-evening" data-max="24" data-done="رُفع التسجيل. يأخذه الإطار خلال 30 ثانية.">
+          <div class="audio-row" data-audio="adhkar-evening" data-max="50" data-done="رُفع التسجيل. يأخذه الإطار خلال 30 ثانية.">
             <div class="audio-head"><span class="audio-name">أذكار المساء</span><span class="hint audio-info"></span></div>
             <audio controls preload="none" hidden></audio>
             <div class="actions">

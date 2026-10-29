@@ -1,5 +1,5 @@
-// «القرآن»: what the server, the frame and the phones share — the surahs' names, the reciter and
-// where his recordings are (mp3quran.net: every surah, Hafs ʿan ʿĀṣim, streamed directly).
+// «القرآن»: what the server, the frame and the phones share — the surahs' names, the reciters and
+// where their recordings are (mp3quran.net: all 114 surahs for each, streamed directly).
 
 export const SURAHS = ['الفاتحة', 'البقرة', 'آل عمران', 'النساء', 'المائدة', 'الأنعام', 'الأعراف', 'الأنفال', 'التوبة', 'يونس',
   'هود', 'يوسف', 'الرعد', 'إبراهيم', 'الحجر', 'النحل', 'الإسراء', 'الكهف', 'مريم', 'طه',
@@ -16,11 +16,20 @@ export const SURAHS = ['الفاتحة', 'البقرة', 'آل عمران', 'ا�
 export const surahName = (n) => SURAHS[n - 1] || '';
 export const validSurah = (n) => Number.isInteger(n) && n >= 1 && n <= 114;
 
+// Brahim's reciters, in his order. Hicham El Harraz recites in Warsh ʿan Nāfiʿ (the Moroccan
+// reading); the others in Hafs ʿan ʿĀṣim. Checked 2026-10-29: 114 surahs each.
 export const RECITERS = {
-  nufais: { name: 'أحمد النفيس', base: 'https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/' },
+  nufais: { name: 'أحمد النفيس', riwaya: 'حفص', base: 'https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/' },
+  jaleel: { name: 'خالد الجليل', riwaya: 'حفص', base: 'https://server10.mp3quran.net/jleel/' },
+  bader: { name: 'بدر التركي', riwaya: 'حفص', base: 'https://server10.mp3quran.net/bader/Rewayat-Hafs-A-n-Assem/' },
+  harraz: { name: 'هشام الهراز', riwaya: 'ورش', base: 'https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/' },
+  afasy: { name: 'مشاري العفاسي', riwaya: 'حفص', base: 'https://server8.mp3quran.net/afs/' },
 };
 export const DEFAULT_RECITER = 'nufais';
-export const surahUrl = (n, reciter = DEFAULT_RECITER) => (RECITERS[reciter] || RECITERS[DEFAULT_RECITER]).base + String(n).padStart(3, '0') + '.mp3';
+export const validReciter = (r) => typeof r === 'string' && Object.prototype.hasOwnProperty.call(RECITERS, r);
+export const reciterOf = (r) => (validReciter(r) ? r : DEFAULT_RECITER);
+export const reciterName = (r) => RECITERS[reciterOf(r)].name;
+export const surahUrl = (n, reciter = DEFAULT_RECITER) => RECITERS[reciterOf(reciter)].base + String(n).padStart(3, '0') + '.mp3';
 
 // Brahim's first choices, in his order.
 export const DEFAULT_FAVS = [2, 18, 15, 26, 12, 67, 32];
