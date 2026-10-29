@@ -17,6 +17,8 @@ import { createMatch } from './frame-match.js';
 import { createStatus } from './frame-status.js';
 import { createColoring } from './frame-color.js';
 import { createQuran } from './frame-quran.js';
+import { createWifi, WIFI_ICON } from './frame-wifi.js';
+import { setScreen } from './screen.js';
 import { BOOK } from './quran-common.js';
 import * as demo from './demo.js';
 
@@ -61,7 +63,10 @@ colorTab.addEventListener('click', () => { closeMenu(); touched(); coloring.open
 stage.addEventListener('pointerdown', (e) => { if (!funMenu.hidden && !funMenu.contains(e.target) && !funTab.contains(e.target)) closeMenu(); });
 const quranTab = h('button', { class: 'tab tab-fun tab-quran', type: 'button', html: BOOK(24) }, 'القرآن');
 quranTab.addEventListener('click', () => { closeMenu(); touched(); quran.open(); });
-nav.append(h('span', { class: 'tab-gap' }), quranTab, funTab);
+// Guest Wi-Fi: a round button, only once a network is set in the control panel.
+const wifiTab = h('button', { class: 'tab tab-fun tab-wifi', type: 'button', hidden: true, 'aria-label': 'الواي فاي للضيوف', html: WIFI_ICON(26) });
+wifiTab.addEventListener('click', () => { closeMenu(); touched(); wifi.open(); });
+nav.append(h('span', { class: 'tab-gap' }), quranTab, funTab, wifiTab);
 stage.appendChild(funMenu);
 // Small cards at the top of the clock screen: the next match, and what everyone is up to.
 const chipBox = h('div', { class: 'top-chips' });
@@ -76,6 +81,7 @@ const knock = createKnock({ stage });
 const wheel = createWheel({ stage, onChange: (n) => { wheelTab.hidden = !n; } });
 const coloring = createColoring({ stage });
 // «القرآن»: paused by the adhan, turned down while a moment from a phone plays.
+const wifi = createWifi({ stage, tab: wifiTab });
 // The Quran waits while the adhan or the adhkar recording plays; starting it stops the adhkar recording.
 const quran = createQuran({ stage, chipBox, held: () => !!adhan.adhanPlaying() || adhkarScreen.audioPlaying(), duck: () => pulse.busy(), onStart: () => adhkarScreen.stopAudio() });
 const pulse = createPulse({
@@ -148,6 +154,14 @@ stage.addEventListener('click', (e) => {
   if (e.timeStamp - swipedAt < 400) { e.stopPropagation(); e.preventDefault(); }
 }, true);
 stage.addEventListener('pointerdown', (e) => {
+  // A touch on a dark screen only wakes it (the black layer takes the touch, not a button).
+  if (night.classList.contains('is-off')) {
+    setScreen(true);
+    night.classList.remove('is-off');
+    night.style.transition = 'opacity 0.5s';
+    night.style.opacity = '0';
+    setTimeout(() => { night.style.transition = ''; }, 700);
+  }
   touched(); // any touch also wakes a dimmed screen
   adhan.unlock(); // and lets the page play the adhan from now on, if the browser asked for that
   pulse.unlockSound();
@@ -219,13 +233,19 @@ function schedule(t) {
   // A preview asked for in the control panel shows even at night, with the screen undimmed.
   const previewing = ramadanPreviewing() || adhkarScreen.forced();
   const nightNow = isNight(t) && real > awakeUntil && !previewing && !match.active();
-  night.style.opacity = nightNow ? String(config.night.dim) : '0';
+  // Fully off: the page goes black and the kiosk app switches the light off; a touch wakes it.
+  const dark = nightNow && !!config.night.off;
+  night.style.opacity = nightNow ? (dark ? '1' : String(config.night.dim)) : '0';
+  night.classList.toggle('is-off', dark);
   document.documentElement.classList.toggle('is-night', nightNow);
+  // The light goes off once the page has faded to black, and comes back at once.
+  if (dark) { if (!night.offAt) night.offAt = real + 3200; if (real >= night.offAt) setScreen(false); }
+  else { night.offAt = 0; setScreen(true); }
 
   // The adhan brings the prayer screen forward, even while someone is using the frame.
   if (adhan.adhanPlaying()) { if (screens[index].name !== 'prayer') go('prayer'); shownAt = real; return; }
   // A moment from a phone is playing, the door or the wheel is open, or the match is on: stay.
-  if (pulse.busy() || knock.busy() || wheel.busy() || coloring.busy() || quran.busy() || match.active() || adhkarScreen.audioPlaying()) { shownAt = real; return; }
+  if (pulse.busy() || knock.busy() || wheel.busy() || coloring.busy() || quran.busy() || wifi.busy() || match.active() || adhkarScreen.audioPlaying()) { shownAt = real; return; }
   if (idle < config.resumeAfterSeconds * 1000) return; // someone is using it
   if (!resumed) { resumed = true; rotIndex = 0; go('home'); return; }
   if (ramadanPreviewing()) { if (screens[index].name !== 'prayer') go('prayer'); shownAt = real; return; }
@@ -293,6 +313,7 @@ on('preview', () => {
   if (p.what === 'ramadan') go('prayer');
   if (p.what === 'adhkar') go('adhkar');
   if (p.what === 'adhan') adhan.play('dhuhr');
+  if (p.what === 'wifi') { touched(); wifi.open(); }
 });
 window.addEventListener('frame:go', (e) => { lastTouch = -Infinity; awakeUntil = 0; resumed = true; rotIndex = 0; go(e.detail || 'home'); });
 // The preview page (?demo) has buttons for these.

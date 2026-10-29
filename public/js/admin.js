@@ -7,6 +7,7 @@ import { dueFrom } from './routines.js';
 import { initPulse } from './admin-pulse.js';
 import { initFun } from './admin-fun.js';
 import { initQuran } from './admin-quran.js';
+import { wifiString, qrSvg } from './wifi-common.js';
 
 const DEMO = !!(window.FRAME_DEMO || /[?&]demo\b/.test(location.search));
 (function captureKey() {
@@ -637,6 +638,15 @@ function fillSettings(s) {
   $('sNightEnd').value = night.end;
   $('sNightDim').value = night.dim;
   $('sNightDimOut').textContent = Math.round(night.dim * 100) + '%';
+  $('sNightOff').checked = !!night.off;
+  const wf = s.wifi || {};
+  $('sWifiSsid').value = wf.ssid || '';
+  $('sWifiPass').value = wf.password || '';
+  $('sWifiSec').value = wf.security || 'WPA';
+  $('sWifiShow').checked = wf.showPassword !== false;
+  $('sWifiHidden').checked = !!wf.hidden;
+  renderWifi();
+  renderNightOff();
 
   const ad = Object.assign({}, config.adhan, s.adhan);
   const adPrayers = Object.assign({}, config.adhan.prayers, ad.prayers);
@@ -687,7 +697,8 @@ function collectSettings() {
     screens,
     touchNavigation: $('sTouch').checked,
     photoSeconds: Number($('sPhotoSeconds').value) || config.photoSeconds,
-    night: { enabled: $('sNight').checked, start: $('sNightStart').value || '23:00', end: $('sNightEnd').value || '06:00', dim: Number($('sNightDim').value) },
+    night: { enabled: $('sNight').checked, start: $('sNightStart').value || '23:00', end: $('sNightEnd').value || '06:00', dim: Number($('sNightDim').value), off: $('sNightOff').checked },
+    wifi: { ssid: $('sWifiSsid').value, password: $('sWifiPass').value, security: $('sWifiSec').value, hidden: $('sWifiHidden').checked, showPassword: $('sWifiShow').checked },
     quickShopping: split($('sQuickShopping').value),
     quickTasks: split($('sQuickTasks').value),
     adhan: {
@@ -709,7 +720,42 @@ $('v-settings').addEventListener('input', (e) => {
   if (e.target.id === 'sAdhanVol') $('sAdhanVolOut').textContent = Math.round(Number(e.target.value) * 100) + '%';
   if (e.target.id === 'sAdhkarVol') $('sAdhkarVolOut').textContent = Math.round(Number(e.target.value) * 100) + '%';
   if (e.target.type === 'file') return; // audio uploads save on their own
+  if (e.target.id && e.target.id.startsWith('sWifi')) renderWifi();
+  if (e.target.id === 'sNightOff' || e.target.id === 'sNight') renderNightOff();
   markDirty();
+});
+
+// ================= night: fully off =================
+function renderNightOff() {
+  const off = $('sNightOff').checked;
+  $('sNightDim').disabled = off;
+  const note = $('nightOffNote');
+  const fs = board.frameScreen;
+  note.hidden = !off;
+  note.textContent = fs === 'backlight' ? 'الإطار يطفئ ضوء الشاشة كلياً في الليل.'
+    : fs === 'dim' ? 'تطبيق الإطار لا يصل إلى مفتاح ضوء الشاشة، فتصير سوداء بأدنى إضاءة ممكنة.'
+      : 'ليُطفأ ضوء الشاشة نفسه يحتاج تطبيق الإطار (Home HQ) إلى التحديث. حتى ذلك تصير الشاشة سوداء فقط.';
+}
+onBoard(renderNightOff);
+
+// ================= guest Wi-Fi =================
+function renderWifi() {
+  const sec = $('sWifiSec').value;
+  $('sWifiPass').disabled = sec === 'nopass';
+  const w = { ssid: $('sWifiSsid').value, password: $('sWifiPass').value, security: sec, hidden: $('sWifiHidden').checked };
+  const ok = !!w.ssid.trim();
+  $('wifiPreview').hidden = !ok;
+  $('wifiQr').innerHTML = ok ? qrSvg(wifiString(w), 168) : '';
+}
+$('sWifiPassShow').addEventListener('click', () => {
+  const p = $('sWifiPass');
+  p.type = p.type === 'password' ? 'text' : 'password';
+  $('sWifiPassShow').textContent = p.type === 'password' ? 'إظهار' : 'إخفاء';
+});
+$('previewWifi').addEventListener('click', () => {
+  if (!$('saveBar').hidden) { toast('احفظ الإعدادات أولاً، ثم اعرض الرمز.'); return; }
+  if (!(settings.wifi && settings.wifi.ssid)) { toast('اكتب اسم الشبكة واحفظ أولاً.'); return; }
+  preview('wifi', 3);
 });
 $('saveSettings').addEventListener('click', async () => {
   const s = collectSettings();
@@ -789,7 +835,7 @@ for (const row of document.querySelectorAll('.audio-row')) {
 }
 
 // ================= previews on the frame =================
-const PREVIEW_AR = { ramadan: 'وضع رمضان', adhkar: 'الأذكار', adhan: 'الأذان' };
+const PREVIEW_AR = { ramadan: 'وضع رمضان', adhkar: 'الأذكار', adhan: 'الأذان', wifi: 'رمز الواي فاي' };
 function renderPreview() {
   const p = board.preview && board.preview.until > Date.now() ? board.preview : null;
   $('previewStop').hidden = !p || p.what !== 'ramadan';

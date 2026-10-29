@@ -32,7 +32,7 @@ The **control panel** (`/admin`) has these sections:
 | **القوائم** | Add, tick and remove shopping items and tasks, with quick-add buttons. **Repeating tasks** (every N days, every week on a day, or every month on a date) come back on the to-do list by themselves when due |
 | **الصور** | Upload photos (resized on your phone first) and delete them |
 | **المناسبات** | Add birthdays, anniversaries and one-off family dates, or import an `.ics` calendar file (Google Calendar, Outlook, a school timetable). Repeating events are spread over the coming year; importing a file with the same name again replaces its entries |
-| **الإعدادات** | City, prayer-time adjustments, **adhan** (upload the audio, choose the prayers, volume, test it on the frame), **Ramadan** mode and a button to preview it on the frame, **adhkar** (with their morning and evening recordings, and whether they start by themselves), the verse of the day and weather tip, Hijri day, which screens rotate and for how long, night mode, quick-add buttons |
+| **الإعدادات** | City, prayer-time adjustments, **adhan** (upload the audio, choose the prayers, volume, test it on the frame), **Ramadan** mode and a button to preview it on the frame, **adhkar** (with their morning and evening recordings, and whether they start by themselves), **guest Wi-Fi** (shown on the frame as a QR code), night mode (dimmed, or the screen **fully off**), the verse of the day and weather tip, Hijri day, which screens rotate and for how long, night mode, quick-add buttons |
 
 It also shows whether the frame is online. The frame picks up changes within 30 seconds.
 
@@ -160,6 +160,27 @@ when it plays).
   on the adhkar while it plays; leaving the screen or closing the adhkar (×) stops it.
 - Starting a surah from «القرآن» stops the adhkar recording; starting the adhkar recording while a
   surah plays holds the surah until the recording ends or is paused.
+
+### Guest Wi-Fi
+
+In **الإعدادات › الواي فاي للضيوف**, type the network name and password. A round Wi-Fi button
+then appears at the end of the frame's tab row: it shows the network as a big QR code that a
+phone camera turns into "join this network" (iPhone and Android), with the name and password
+written beside it (untick «كتابة كلمة السر…» to show only the code). «عرض الرمز على الإطار الآن»
+opens it from your phone. The password is stored with the frame's settings in your Cloudflare
+account, like everything else.
+
+### Night: dimmed or fully off
+
+**الإعدادات › الوضع الليلي** dims the screen between the two times. With **«إطفاء الشاشة كلياً»**
+the screen goes black and the frame's light is switched off instead; one touch anywhere turns it
+on (that touch doesn't press anything), and it goes off again after two minutes untouched.
+
+Switching the light itself off needs the Home HQ app on the frame to be updated once, with the
+two files in `tools/kiosk-screen/` (`ScreenControl.java` gives the page `window.HomeHQ.screen()`,
+which turns the backlight off through root; `update_kiosk.sh` adds it to the app, rebuilds and
+reinstalls it). The control panel says what the frame can do: light fully off, lowest brightness
+only, or (before the app update) a black page.
 
 ### Sending photos from the phone's share menu
 
@@ -394,14 +415,16 @@ public/js/           Frame screens (screens/), frame data (data.js), holidays (h
                      the phone (admin-fun.js, admin-beat.js, admin-status.js, admin-time.js; shared:
                      fun-common.js, sound.js, match-common.js, zellige.js, heart.js), «القرآن» on the
                      frame (frame-quran.js) and on the phone (admin-quran.js; surahs and reciter in
-                     quran-common.js), control panel (admin.js), .ics import (ics.js,
+                     quran-common.js), guest Wi-Fi (frame-wifi.js, wifi-common.js; QR codes by
+                     vendor/qrcode.js, MIT), night screen off (screen.js), control panel (admin.js), .ics import (ics.js,
                      ics-import.js), defaults (config.js)
 public/css/          Styles: app.css (frame), admin.css (control panel)
 public/fonts/        Reem Kufi and Readex Pro (SIL Open Font License)
 public/demo/         Sample pictures for ?demo (painted in code, tools/paint-demo-photos.py)
 tools/make-vapid.mjs Makes the key pair for phone notifications
+tools/kiosk-screen/  Lets the frame's Home HQ app switch the screen's light off at night (see above)
 public/brand/        Icons, splash screens and install screenshots (tools/make-brand.py);
                      favicon.svg, apple-touch-icon.png, icon-*.png at the top of public/
-test/                npm test: API, notifications, knocks/wheel/match, surprises/statuses/colouring, Quran,
+test/                npm test: API, notifications, knocks/wheel/match, surprises/statuses/colouring, Quran, Wi-Fi,
                      heartbeat detection, .ics import and frame logic tests
 ```

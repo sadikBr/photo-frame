@@ -166,6 +166,8 @@ html.is-ready #boot { opacity: 0; visibility: hidden; }
   transition: opacity 3s;
   z-index: 20;
 }
+/* fully off at night: the black layer takes the first touch, which only wakes the screen */
+.night.is-off { pointer-events: auto; }
 
 /* ---------- home: clock & weather ---------- */
 .home-grid {
@@ -1230,3 +1232,21 @@ html.is-ready #boot { opacity: 0; visibility: hidden; }
 .qr-mid { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; color: var(--plaster); background: rgba(243, 237, 226, 0.1); }
 .qr-vol { min-width: 64px; text-align: center; font-size: 20px; color: var(--plaster-2); }
 .qr-np.is-idle .qr-np-btns button:not(.qr-big) { opacity: 0.35; }
+
+/* ---------- guest Wi-Fi card ---------- */
+.tab-wifi { width: 56px; padding: 0; justify-content: center; color: #9FE0C6; background: rgba(127, 211, 181, 0.12); border-color: rgba(127, 211, 181, 0.4); }
+.tab-wifi[hidden] { display: none; }
+.tab-wifi svg { display: block; }
+.wf .fun-scrim { background: rgb(11, 9, 26); }
+.wf-panel { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 70px; padding: 60px 110px; }
+.wf-qr { flex: none; padding: 18px; border-radius: 28px; background: #fff; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45); }
+.wf-qr svg { display: block; }
+.wf-text { flex: 1; min-width: 0; max-width: 560px; display: flex; flex-direction: column; gap: 14px; }
+.wf-icon { color: #9FE0C6; }
+.wf-icon svg { display: block; }
+.wf-row { margin-top: 8px; padding: 14px 22px; border-radius: 20px; background: rgba(243, 237, 226, 0.06); border: 1px solid rgba(243, 237, 226, 0.14); }
+.wf-row[hidden] { display: none; }
+.wf-label { font-size: 19px; color: var(--plaster-3); }
+.wf-value { margin-top: 2px; font-size: 36px; font-weight: 500; color: var(--plaster); overflow-wrap: anywhere; }
+.wf-pass { direction: ltr; text-align: right; unicode-bidi: plaintext; letter-spacing: 0.04em; font-family: 'Readex Pro', ui-monospace, monospace; }
+.wf-note { font-size: 19px; color: var(--plaster-2); }

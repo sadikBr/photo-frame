@@ -604,6 +604,26 @@
         </div>
         <label for="sNightDim">درجة التعتيم <span id="sNightDimOut"></span></label>
         <input id="sNightDim" type="range" min="0" max="0.95" step="0.05">
+        <label class="switch"><input type="checkbox" id="sNightOff"><span>إطفاء الشاشة كلياً بدل التعتيم (لمسة واحدة تُشعلها)</span></label>
+        <p class="hint" id="nightOffNote" hidden></p>
+      </fieldset>
+
+      <fieldset class="card">
+        <legend>الواي فاي للضيوف</legend>
+        <p class="hint">يظهر زرّ الواي فاي في أسفل الإطار، ويعرض الشبكة رمزاً يمسحه الضيف بكاميرا هاتفه فيتصل. تُحفظ كلمة السر مع إعدادات الإطار.</p>
+        <label for="sWifiSsid">اسم الشبكة</label>
+        <input id="sWifiSsid" type="text" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false" dir="auto">
+        <label for="sWifiPass">كلمة السر</label>
+        <div class="wifi-pass">
+          <input id="sWifiPass" type="password" maxlength="63" autocomplete="off" autocapitalize="off" spellcheck="false" dir="ltr">
+          <button type="button" class="ghost small" id="sWifiPassShow">إظهار</button>
+        </div>
+        <label for="sWifiSec">نوع الحماية</label>
+        <select id="sWifiSec"><option value="WPA">WPA / WPA2 / WPA3 (الأغلب)</option><option value="WEP">WEP (قديم)</option><option value="nopass">بلا كلمة سر</option></select>
+        <label class="switch"><input type="checkbox" id="sWifiShow"><span>كتابة كلمة السر بجانب الرمز (لمن لا يستطيع المسح)</span></label>
+        <label class="switch"><input type="checkbox" id="sWifiHidden"><span>الشبكة مخفية</span></label>
+        <div class="wifi-preview" id="wifiPreview" hidden><div id="wifiQr"></div><p class="hint">جرّب المسح بهاتف آخر قبل أن يأتي الضيوف.</p></div>
+        <div class="actions"><button type="button" class="ghost" id="previewWifi">عرض الرمز على الإطار الآن</button></div>
       </fieldset>
 
       <fieldset class="card">

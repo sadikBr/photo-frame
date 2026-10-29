@@ -17,7 +17,7 @@
 //   PUT  /api/audio/<name>         upload a recording (name: adhan | adhan-fajr | adhkar-morning |
 //                                  adhkar-evening; body = audio bytes)
 //   GET  /api/audio/<name>         the audio file;  DELETE removes it
-//   POST /api/preview              {what:"ramadan"|"adhkar"|"adhan"|"none", minutes?}  show it on the frame now
+//   POST /api/preview              {what:"ramadan"|"adhkar"|"adhan"|"wifi"|"none", minutes?}  show it on the frame now
 //   /api/pulse…                    «نبضة»: moments from phones to the frame (see pulse-hub.js)
 //   GET  /api/photos               photo index
 //   POST /api/photos               upload one JPEG (body = image bytes)
@@ -237,7 +237,7 @@ async function putPreview(request, env) {
   let body;
   try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
   if (body.what === 'none') { await needStore(env).delete('preview'); return json(null); }
-  if (!['ramadan', 'adhkar', 'adhan'].includes(body.what)) return fail(400, 'Unknown preview.');
+  if (!['ramadan', 'adhkar', 'adhan', 'wifi'].includes(body.what)) return fail(400, 'Unknown preview.');
   const minutes = num(body.minutes, 1, 60) || 10;
   const p = { id: crypto.randomUUID().slice(0, 8), what: body.what, until: Date.now() + minutes * 60000 };
   await needStore(env).put('preview', JSON.stringify(p));
@@ -403,20 +403,24 @@ async function board(env, url) {
   // Whether the frame's browser lets the page play the adhan: "ok", "blocked" (needs one tap
   // on the screen) or "off" (adhan not switched on). Shown in the control panel.
   let frameAudio = (seen && seen.audio) || null;
+  // How it can turn the screen off at night: "backlight", "dim" or "page" (see data.js).
+  let frameScreen = (seen && seen.screen) || null;
   if (url.searchParams.get('frame') === '1') {
     const now = Date.now();
     const audioNow = ['ok', 'blocked', 'off'].includes(url.searchParams.get('audio')) ? url.searchParams.get('audio') : frameAudio;
-    if (!frameSeen || now - frameSeen > SEEN_EVERY || audioNow !== frameAudio) {
-      await store.put('frame:seen', JSON.stringify({ at: now, audio: audioNow }));
+    const screenNow = ['backlight', 'dim', 'page'].includes(url.searchParams.get('screen')) ? url.searchParams.get('screen') : frameScreen;
+    if (!frameSeen || now - frameSeen > SEEN_EVERY || audioNow !== frameAudio || screenNow !== frameScreen) {
+      await store.put('frame:seen', JSON.stringify({ at: now, audio: audioNow, screen: screenNow }));
     }
     frameSeen = now;
     frameAudio = audioNow;
+    frameScreen = screenNow;
   }
   // `build` changes with every deploy, so an open frame knows to reload the new code.
   const build = (env.CF_VERSION_METADATA && env.CF_VERSION_METADATA.id) || null;
   return json({
     lists, settings: settings || {}, events, message, routines, quran: quran || null, audio, preview,
-    frameSeen: frameSeen || null, frameAudio, now: Date.now(), today: localToday(env), utcOffset: Number(env.UTC_OFFSET_MINUTES) || 0, build,
+    frameSeen: frameSeen || null, frameAudio, frameScreen, now: Date.now(), today: localToday(env), utcOffset: Number(env.UTC_OFFSET_MINUTES) || 0, build,
   });
 }
 

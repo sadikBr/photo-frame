@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "test": "node test/worker.test.mjs && node test/webpush.test.mjs && node test/fun.test.mjs && node test/heart.test.mjs && node test/later.test.mjs && node test/quran.test.mjs && node test/ics-import.test.mjs && node test/frame-logic.test.mjs"
+    "test": "node test/worker.test.mjs && node test/webpush.test.mjs && node test/fun.test.mjs && node test/heart.test.mjs && node test/later.test.mjs && node test/quran.test.mjs && node test/wifi.test.mjs && node test/ics-import.test.mjs && node test/frame-logic.test.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.40.0"

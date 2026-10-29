@@ -89,7 +89,8 @@ function sampleEvents() {
 const SAMPLE_MESSAGE = null;
 
 export const events = () => store.get('demo-events', sampleEvents());
-export const settings = () => store.get('demo-settings', {});
+// A sample guest network, so the preview shows the Wi-Fi button.
+export const settings = () => store.get('demo-settings', { wifi: { ssid: 'بيت العائلة', password: 'example-1234', security: 'WPA', hidden: false, showPassword: true } });
 export const message = () => store.get('demo-message', SAMPLE_MESSAGE);
 
 // Repeating tasks in the preview work like the real ones: a task due today goes on the list,

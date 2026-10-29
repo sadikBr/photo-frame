@@ -28,7 +28,17 @@ export function sanitizeSettings(input) {
       start: hhmm(i.night.start) || '23:00',
       end: hhmm(i.night.end) || '06:00',
       dim: num(i.night.dim, 0, 0.95) != null ? +num(i.night.dim, 0, 0.95).toFixed(2) : 0.72,
+      // Screen fully off instead of dimmed (the kiosk app turns the backlight off; a touch wakes it).
+      off: i.night.off === true,
     };
+  }
+  // Guest Wi-Fi card: the frame shows the network as a QR code. The password is kept exactly as
+  // typed (spaces count in Wi-Fi passwords), without control characters. No name = no card.
+  if (i.wifi && typeof i.wifi === 'object') {
+    const raw = (v, max) => String(v == null ? '' : v).replace(/[\u0000-\u001f\u007f]/g, '').slice(0, max);
+    const ssid = raw(i.wifi.ssid, 32);
+    const security = ['WPA', 'WEP', 'nopass'].includes(i.wifi.security) ? i.wifi.security : 'WPA';
+    s.wifi = ssid.trim() ? { ssid, password: security === 'nopass' ? '' : raw(i.wifi.password, 63), security, hidden: i.wifi.hidden === true, showPassword: i.wifi.showPassword !== false } : null;
   }
   if (i.screens && typeof i.screens === 'object') {
     s.screens = {};

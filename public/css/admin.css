@@ -623,3 +623,10 @@ body.is-later #padSend, body.is-later #recSend, body.is-later #beatSend { backgr
 .qn-rec small { font-size: 11px; padding: 1px 6px; border-radius: 8px; background: rgba(157, 185, 245, 0.18); color: #BFD7FF; }
 .qn-rec.is-on { background: var(--saffron, #F2AE3D); border-color: var(--saffron, #F2AE3D); color: #241707; font-weight: 600; }
 .qn-rec.is-on small { background: rgba(36, 23, 7, 0.15); color: #241707; }
+
+/* الواي فاي للضيوف */
+.wifi-pass { display: flex; gap: 8px; align-items: stretch; }
+.wifi-pass input { flex: 1; min-width: 0; }
+.wifi-preview { display: flex; align-items: center; gap: 14px; margin-top: 10px; }
+.wifi-preview #wifiQr { flex: none; padding: 8px; border-radius: 12px; background: #fff; line-height: 0; }
+.wifi-preview .hint { margin: 0; }

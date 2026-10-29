@@ -83,6 +83,7 @@ function applySettings(s) {
   config.dailyVerse = typeof s.dailyVerse === 'boolean' ? s.dailyVerse : DEFAULTS.dailyVerse;
   config.weatherNudge = typeof s.weatherNudge === 'boolean' ? s.weatherNudge : DEFAULTS.weatherNudge;
   config.pulseSound = typeof s.pulseSound === 'boolean' ? s.pulseSound : DEFAULTS.pulseSound;
+  config.wifi = s.wifi && s.wifi.ssid ? s.wifi : null;
   if (s.screens) {
     config.rotation = ROTATION_ORDER.filter((k) => s.screens[k] && s.screens[k].on).map((k) => [k, s.screens[k].seconds]);
   } else {
@@ -180,7 +181,16 @@ export function setAudioStatus(v) {
   clearTimeout(reportTimer);
   if (!DEMO) reportTimer = setTimeout(refreshBoard, 1500);
 }
-const fetchBoard = () => (DEMO ? demo.board() : api('/api/board?frame=1&audio=' + audioStatus));
+// How the frame can turn its screen off at night: 'backlight' (the kiosk app switches the light
+// off), 'dim' (the app can only lower it), 'page' (no app support: the page just goes black).
+let screenStatus = '';
+export function setScreenStatus(v) {
+  if (v === screenStatus) return;
+  screenStatus = v;
+  clearTimeout(reportTimer);
+  if (!DEMO) reportTimer = setTimeout(refreshBoard, 1500);
+}
+const fetchBoard = () => (DEMO ? demo.board() : api('/api/board?frame=1&audio=' + audioStatus + (screenStatus ? '&screen=' + screenStatus : '')));
 const fetchPhotos = () => (DEMO ? demo.photos() : api('/api/photos'));
 
 // ---------- state ----------

@@ -27,7 +27,10 @@ export default {
   prayerFocus: { enabled: true, before: 10, after: 10 },
 
   // Night: dim the screen and show only the clock. Times are local, 24h.
-  night: { enabled: true, start: '23:00', end: '06:00', dim: 0.72 },
+  // off: the screen goes fully dark instead of dimming (backlight off through the kiosk app).
+  night: { enabled: true, start: '23:00', end: '06:00', dim: 0.72, off: false },
+  // Guest Wi-Fi card (set in the control panel): {ssid, password, security, hidden, showPassword}.
+  wifi: null,
 
   photoSeconds: 15,
 
