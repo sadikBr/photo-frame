@@ -1,7 +1,6 @@
 import config from './config.js';
 import { h, $, now, parts, minutesOfDay, MINUTE } from './util.js';
 import { start, on, connectionProblem, state, DEMO } from './data.js';
-import { khatam } from './icons.js';
 import { nextPrayer, lastPrayer, prayerName } from './prayer-times.js';
 import { createHome } from './screens/home.js';
 import { createPrayer } from './screens/prayer.js';
@@ -17,6 +16,8 @@ import { createKnock } from './frame-knock.js';
 import { createMatch } from './frame-match.js';
 import { createStatus } from './frame-status.js';
 import { createColoring } from './frame-color.js';
+import { createQuran } from './frame-quran.js';
+import { BOOK } from './quran-common.js';
 import * as demo from './demo.js';
 
 const SCREEN_W = 1280;
@@ -37,7 +38,7 @@ let index = 0;
 
 for (const sc of screens) {
   track.appendChild(sc.el);
-  const tab = h('button', { class: 'tab', type: 'button', 'data-for': sc.name }, h('span', { class: 'tab-star', html: khatam(18) }), sc.label);
+  const tab = h('button', { class: 'tab', type: 'button', 'data-for': sc.name }, sc.label);
   tab.addEventListener('click', () => { if (config.touchNavigation) go(sc.name, true); });
   nav.appendChild(tab);
 }
@@ -57,7 +58,9 @@ knockTab.addEventListener('click', () => { closeMenu(); touched(); knock.open();
 wheelTab.addEventListener('click', () => { closeMenu(); touched(); wheel.open(); });
 colorTab.addEventListener('click', () => { closeMenu(); touched(); coloring.open(); });
 stage.addEventListener('pointerdown', (e) => { if (!funMenu.hidden && !funMenu.contains(e.target) && !funTab.contains(e.target)) closeMenu(); });
-nav.append(h('span', { class: 'tab-gap' }), funTab);
+const quranTab = h('button', { class: 'tab tab-fun tab-quran', type: 'button', html: BOOK(24) }, 'القرآن');
+quranTab.addEventListener('click', () => { closeMenu(); touched(); quran.open(); });
+nav.append(h('span', { class: 'tab-gap' }), quranTab, funTab);
 stage.appendChild(funMenu);
 // Small cards at the top of the clock screen: the next match, and what everyone is up to.
 const chipBox = h('div', { class: 'top-chips' });
@@ -71,12 +74,14 @@ const statuses = createStatus({ chipBox });
 const knock = createKnock({ stage });
 const wheel = createWheel({ stage, onChange: (n) => { wheelTab.hidden = !n; } });
 const coloring = createColoring({ stage });
+// «القرآن»: paused by the adhan, turned down while a moment from a phone plays.
+const quran = createQuran({ stage, chipBox, held: () => !!adhan.adhanPlaying(), duck: () => pulse.busy() });
 const pulse = createPulse({
   stage,
   isNight: () => isNight(now()) && Date.now() > awakeUntil && !match.active(),
-  hold: () => !!adhan.adhanPlaying() || knock.busy() || wheel.busy() || coloring.busy(),
+  hold: () => !!adhan.adhanPlaying() || knock.busy() || wheel.busy() || coloring.busy() || quran.busy(),
   fun: { knock, wheel },
-  onSocket: (m) => { match.socket(m); wheel.socket(m); statuses.socket(m); coloring.socket(m); },
+  onSocket: (m) => { match.socket(m); wheel.socket(m); statuses.socket(m); coloring.socket(m); quran.socket(m); },
 });
 
 stage.insertBefore(night, null); // keep the night layer last
@@ -144,6 +149,7 @@ stage.addEventListener('pointerdown', (e) => {
   touched(); // any touch also wakes a dimmed screen
   adhan.unlock(); // and lets the page play the adhan from now on, if the browser asked for that
   pulse.unlockSound();
+  quran.unlock();
   if (!config.touchNavigation) return;
   drag = { x: e.clientX, y: e.clientY, id: e.pointerId, active: false };
 });
@@ -216,7 +222,7 @@ function schedule(t) {
   // The adhan brings the prayer screen forward, even while someone is using the frame.
   if (adhan.adhanPlaying()) { if (screens[index].name !== 'prayer') go('prayer'); shownAt = real; return; }
   // A moment from a phone is playing, the door or the wheel is open, or the match is on: stay.
-  if (pulse.busy() || knock.busy() || wheel.busy() || coloring.busy() || match.active()) { shownAt = real; return; }
+  if (pulse.busy() || knock.busy() || wheel.busy() || coloring.busy() || quran.busy() || match.active()) { shownAt = real; return; }
   if (idle < config.resumeAfterSeconds * 1000) return; // someone is using it
   if (!resumed) { resumed = true; rotIndex = 0; go('home'); return; }
   if (ramadanPreviewing()) { if (screens[index].name !== 'prayer') go('prayer'); shownAt = real; return; }
@@ -328,6 +334,7 @@ function loop() {
   try { pulse.tick(t); } catch (e) { console.error(e); }
   try { match.tick(screens[index].name); } catch (e) { console.error(e); }
   try { statuses.tick(screens[index].name); } catch (e) { console.error(e); }
+  try { quran.tick(t); } catch (e) { console.error(e); }
   try { schedule(t); } catch (e) { console.error(e); }
   setTimeout(loop, 1000 - (Date.now() % 1000) + 5);
 }

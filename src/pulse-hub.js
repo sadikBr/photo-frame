@@ -28,6 +28,9 @@
 // «حالتي»: GET /api/pulse/status · PUT {from, text, emoji, until} · POST /api/pulse/status/clear {from}.
 // «تلوين الزليج»: GET /api/pulse/coloring · POST …/fill {tile, color, from} · …/new {from} ·
 // …/saved {which: "current"|archived page's id} (the frame saves finished pages as photos).
+// «القرآن»: GET /api/pulse/quran · PUT {favs, schedules, volume, mode} · POST …/cmd {action:
+// play|pause|resume|next|prev|stop|volume, surah|list, idx, mode, volume, from} (the frame hears at
+// once) · POST …/status {id, idx, state, pos, dur} (the frame says what it is playing).
 //
 // Phone notifications (Web Push): a new moment goes to every other phone that asked for all
 // moments; a heart back goes to the phone(s) of the person it answers; a knock from the frame to
@@ -35,6 +38,7 @@
 
 import { sendPush, validSubscription } from './webpush.js';
 import { tileCount, PATTERN_COUNT, weekIndex } from '../public/js/zellige.js';
+import { validSurah, DEFAULT_FAVS } from '../public/js/quran-common.js';
 import { LEAGUES, scoreboardUrl, parseScoreboard, pickMatch, matchChanges, changeMessage, previewMatch, PREVIEW_MS } from './match.js';
 
 export const pushDeps = { fetch: (...a) => fetch(...a) }; // tests swap this
@@ -455,6 +459,86 @@ export class PulseHub {
       return fail(404, 'Unknown colouring route.');
     }
 
+    // ---------- the Quran ----------
+    if (path === '/api/pulse/quran' && method === 'GET') return json(await this.quran());
+    if (path === '/api/pulse/quran' && method === 'PUT') {
+      let body;
+      try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
+      const cfg = (await this.quran()).cfg;
+      if (Array.isArray(body.favs)) cfg.favs = [...new Set(body.favs.map(Number).filter(validSurah))].slice(0, 30);
+      if (['one', 'list', 'repeat'].includes(body.mode)) cfg.mode = body.mode;
+      if (body.volume != null && Number.isFinite(Number(body.volume))) cfg.volume = Math.min(1, Math.max(0, Number(body.volume)));
+      if (Array.isArray(body.schedules)) {
+        cfg.schedules = body.schedules.slice(0, 20).map((x) => ({
+          id: typeof x.id === 'string' && /^[a-z0-9]{4,24}$/.test(x.id) ? x.id : newId(),
+          surah: Number(x.surah),
+          days: [...new Set((Array.isArray(x.days) ? x.days : []).map(Number).filter((d) => Number.isInteger(d) && d >= 0 && d <= 6))].sort(),
+          time: /^([01]\d|2[0-3]):[0-5]\d$/.test(x.time) ? x.time : '',
+          on: x.on !== false,
+        })).filter((x) => validSurah(x.surah) && x.days.length && x.time);
+      }
+      await this.ctx.storage.put('quranCfg', cfg);
+      const q = await this.quran();
+      this.broadcast({ type: 'quran', quran: q });
+      return json(q);
+    }
+    if (path === '/api/pulse/quran/cmd' && method === 'POST') {
+      let body;
+      try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
+      const q = await this.quran();
+      let play = q.play;
+      const by = name(body.from) || HOME;
+      const a = body.action;
+      if (a === 'play') {
+        const list = Array.isArray(body.list) ? body.list.map(Number).filter(validSurah).slice(0, 114) : validSurah(Number(body.surah)) ? [Number(body.surah)] : [];
+        if (!list.length) return fail(400, 'Which surah?');
+        const idx = Math.min(list.length - 1, Math.max(0, Number(body.idx) || 0));
+        const mode = ['one', 'list', 'repeat'].includes(body.mode) ? body.mode : list.length > 1 ? q.cfg.mode === 'one' ? 'list' : q.cfg.mode : 'one';
+        play = { id: newId(), list, idx, mode, by, at: Date.now(), paused: false, rev: 0 };
+        q.status = null;
+      } else if (a === 'volume') {
+        const v = Number(body.volume);
+        if (!Number.isFinite(v)) return fail(400, 'Volume 0–1.');
+        q.cfg.volume = Math.min(1, Math.max(0, v));
+        await this.ctx.storage.put('quranCfg', q.cfg);
+      } else {
+        if (!play) return fail(409, 'Nothing is playing.');
+        if (a === 'pause') play.paused = true;
+        else if (a === 'resume') play.paused = false;
+        else if (a === 'stop') play = null;
+        else if (a === 'next' || a === 'prev') {
+          let i = play.idx + (a === 'next' ? 1 : -1);
+          if (i >= play.list.length) i = play.mode === 'repeat' ? 0 : -1;
+          if (i < 0 && a === 'prev') i = 0;
+          if (i < 0) play = null; else { play.idx = i; play.paused = false; q.status = null; }
+        } else return fail(400, 'Unknown action.');
+        if (play) { play.rev = (play.rev || 0) + 1; play.by = by; }
+      }
+      await this.ctx.storage.put('quranPlay', play);
+      if (a !== 'volume') await this.ctx.storage.put('quranStatus', q.status || null);
+      const out = await this.quran();
+      this.broadcast({ type: 'quran', quran: out });
+      return json(out);
+    }
+    if (path === '/api/pulse/quran/status' && method === 'POST') {
+      let body;
+      try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
+      const q = await this.quran();
+      const play = q.play;
+      if (!play || play.id !== body.id) return json({ ok: false });
+      const st = ['playing', 'paused', 'loading', 'error', 'ended'].includes(body.state) ? body.state : 'playing';
+      if (st === 'ended') {
+        await this.ctx.storage.put('quranPlay', null);
+        await this.ctx.storage.put('quranStatus', null);
+      } else {
+        // The frame moves on through a list by itself: keep the server's place in step.
+        const idx = Number(body.idx);
+        if (Number.isInteger(idx) && idx >= 0 && idx < play.list.length && idx !== play.idx) { play.idx = idx; await this.ctx.storage.put('quranPlay', play); }
+        await this.ctx.storage.put('quranStatus', { id: play.id, idx: play.idx, state: st, pos: Math.max(0, Number(body.pos) || 0), dur: Math.max(0, Number(body.dur) || 0), at: Date.now() });
+      }
+      return json({ ok: true });
+    }
+
     if (path === '/api/pulse/phones' && method === 'GET') {
       const names = [...new Set((await this.subs()).filter((s) => s.notify !== 'off').map((s) => s.name))];
       return json({ names });
@@ -731,6 +815,12 @@ export class PulseHub {
       await this.add(p, true);
     }
     return due.length;
+  }
+
+  // ---------- the Quran ----------
+  async quran() {
+    const cfg = Object.assign({ favs: DEFAULT_FAVS.slice(), mode: 'list', volume: 0.8, schedules: [], reciter: 'nufais' }, await this.ctx.storage.get('quranCfg'));
+    return { cfg, play: (await this.ctx.storage.get('quranPlay')) || null, status: (await this.ctx.storage.get('quranStatus')) || null };
   }
 
   // ---------- statuses ----------

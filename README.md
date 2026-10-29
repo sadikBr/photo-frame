@@ -18,13 +18,15 @@ The screens rotate on their own. At night (23:00 to 06:00 by default) the screen
 on the clock. On the frame itself, people can switch screens by touch (you can turn that off),
 tap a shopping item when it's bought or a task when it's done (tap again to undo), clear
 finished tasks and bought items with a second tap to confirm, and count the Quran in Ramadan.
+The «القرآن» button at the bottom opens the Quran player (see [القرآن](#القرآن-recitation-on-the-frame)).
 
-The **control panel** (`/admin`) has six sections:
+The **control panel** (`/admin`) has these sections:
 
 | Section | What you can do |
 | --- | --- |
 | **نبضة** | Send a moment to the frame from wherever you are: a tap (أفكر فيكم, اشتقت إليكم, صباح الخير, تصبحون على خير, في الطريق, خبر سعيد), a finger drawing, or a voice note of up to 15 seconds. It appears on the frame within a second or two with its own animation; the family at home can tap «ردّ بقلب» and you see it in the app. See [نبضة](#نبضة-moments-from-your-phone) |
 | **نبضة**, more | **🎁 مفاجأة لاحقاً**: write a moment now and choose when it appears (midnight for a birthday, 7:30 before an exam); nobody sees it before. **نبضك الحقيقي**: your fingertip on the phone's camera for 15 seconds, and the frame shows a heart beating in your own rhythm. **حالتي**: «📚 في الامتحان حتى 12:00» on the clock screen, gone when the time is up |
+| **القرآن** | Have the frame recite any surah in the voice of **Sheikh Ahmad Al-Nufais** (أحمد النفيس): your list (البقرة، الكهف، الحجر، الشعراء، يوسف، الملك، السجدة to start), one surah or the whole list in a row, pause, next, stop and volume from the phone, set times (al-Kahf on Friday morning, al-Mulk every night), or listen on the phone itself. See [القرآن](#القرآن-recitation-on-the-frame) |
 | **مرح** | **وضع الماتش**: when Morocco plays, the frame becomes a stadium screen (score, minute, goals, a roar and fireworks for each Moroccan goal) and phones can send cheers that fly across it. **الدقّة السرية**: tap a rhythm, the frame knocks it on a Moroccan door; knocks from the frame make phones buzz in that rhythm. **عجلة الحظ**: who washes the dishes, where to go on Sunday… spin it on the phone or on the frame. See [مرح](#مرح-match-mode-the-secret-knock-the-wheel) |
 | **الرسالة** | Put a note on the clock screen, for an hour, a day, a week or until you remove it |
 | **القوائم** | Add, tick and remove shopping items and tasks, with quick-add buttons. **Repeating tasks** (every N days, every week on a day, or every month on a date) come back on the to-do list by themselves when due |
@@ -293,6 +295,29 @@ medicine.
 until when (an hour, 3 hours, 20:00, tomorrow 8:00, 3 days). It shows as a small card at the top
 of the frame's clock screen and on the other phones, and disappears by itself.
 
+### القرآن: recitation on the frame
+
+The frame recites in the voice of Sheikh **Ahmad Al-Nufais** (Hafs ʿan ʿĀṣim). The recordings are
+streamed from [mp3quran.net](https://mp3quran.net), which hosts all 114 surahs in his voice, so
+nothing has to be uploaded and the frame needs the internet while it recites.
+
+- **From the phone**, «القرآن» tab: your list of surahs. «الإطار ▶» recites one on the frame;
+  «تشغيل القائمة كلها على الإطار» recites them all in order, then stops («ثم تتوقف») or starts again
+  («ثم تُعاد»). The card at the top shows what is being recited and how far it is, with
+  previous, pause, next, stop and the volume. 🎧 plays a surah on the phone instead. Add any of the
+  114 surahs to the list, or remove one with ×.
+- **On the frame**, the «القرآن» button opens your list in large tiles, «كل السور» shows all 114,
+  and the bar at the bottom has the same controls. While a surah plays, a small card at the top of
+  every screen shows its name with pause and stop; tap it to open the player again. The screens
+  stay put while it plays.
+- **Set times** («تشغيل تلقائي»): a surah, the days and the hour, and the frame starts it by itself
+  (suggested: al-Kahf every Friday at 10:00, al-Mulk every night at 22:00). If something is already
+  playing, the set time doesn't interrupt it.
+- **It gives way:** the adhan pauses it and it carries on after; a moment from «نبضة» turns it down
+  while it shows.
+- The sound comes from the frame's own speaker. If it is quiet even at 100%, raise the frame's
+  media volume once (Android's volume buttons or settings).
+
 ## About the time zone
 
 Morocco returned to permanent GMT on 20 September 2026. Older Android versions, including the
@@ -308,6 +333,7 @@ against the server every hour.
 - «نبضة» uses Durable Object requests: a frame with the live connection uses about 5,000 a day,
   one without it about 11,000; the free plan allows 100,000. Match mode adds about 1,500 a day
   (the frame asks once a minute, every 8 seconds during a match).
+- A recited surah streams about 1 MB a minute (al-Baqarah is a little over 2 hours).
 - Up to 300 photos are kept. Delete old ones from the control panel to add more.
 - If the internet drops, the frame keeps showing the last weather, prayer times, lists, message
   and settings it received. The calendar and holidays need no internet. A small notice appears in the corner
@@ -320,7 +346,8 @@ src/worker.js        Cloudflare Worker: API for lists, repeating tasks, photos, 
                      settings, dates, message, Quran tracker, previews, time
 src/pulse-hub.js     «نبضة»: the Durable Object that keeps moments, talks live to the frame and
                      sends phone notifications (src/webpush.js: VAPID signing + encryption);
-                     also knocks, wheels and match mode (src/match.js reads ESPN's scoreboard)
+                     also knocks, wheels, match mode (src/match.js reads ESPN's scoreboard) and
+                     the Quran player's list, set times and what is playing
 src/settings.js      Validation of settings saved from the control panel
 public/index.html    The frame (display only)
 public/admin.html    The control panel (/admin); public/sw.js receives photos shared from phones
@@ -332,7 +359,9 @@ public/js/           Frame screens (screens/), frame data (data.js), holidays (h
                      (admin-pulse.js, shared parts in pulse-common.js), «مرح» on the frame
                      (frame-knock.js, frame-wheel.js, frame-match.js, frame-color.js, frame-status.js) and on
                      the phone (admin-fun.js, admin-beat.js, admin-status.js, admin-time.js; shared:
-                     fun-common.js, sound.js, match-common.js, zellige.js, heart.js), control panel (admin.js), .ics import (ics.js,
+                     fun-common.js, sound.js, match-common.js, zellige.js, heart.js), «القرآن» on the
+                     frame (frame-quran.js) and on the phone (admin-quran.js; surahs and reciter in
+                     quran-common.js), control panel (admin.js), .ics import (ics.js,
                      ics-import.js), defaults (config.js)
 public/css/          Styles: app.css (frame), admin.css (control panel)
 public/fonts/        Reem Kufi and Readex Pro (SIL Open Font License)
@@ -340,6 +369,6 @@ public/demo/         Sample pictures for ?demo (painted in code, tools/paint-dem
 tools/make-vapid.mjs Makes the key pair for phone notifications
 public/brand/        Icons, splash screens and install screenshots (tools/make-brand.py);
                      favicon.svg, apple-touch-icon.png, icon-*.png at the top of public/
-test/                npm test: API, notifications, knocks/wheel/match, surprises/statuses/colouring,
+test/                npm test: API, notifications, knocks/wheel/match, surprises/statuses/colouring, Quran,
                      heartbeat detection, .ics import and frame logic tests
 ```

@@ -1174,3 +1174,43 @@ html.is-ready #boot { opacity: 0; visibility: hidden; }
 .zc-who { font-size: 19px; color: var(--plaster-2); line-height: 1.5; }
 .zc-done { padding: 14px 18px; border-radius: 16px; background: var(--saffron); color: var(--saffron-ink); font-size: 22px; font-weight: 500; }
 .zc-done[hidden] { display: none; }
+
+/* ---------- «القرآن» ---------- */
+.tab-quran { color: #BFD7FF; background: rgba(157, 185, 245, 0.14); border-color: rgba(157, 185, 245, 0.4); }
+.tab-quran svg { display: block; }
+.qr-chip { pointer-events: auto; display: flex; align-items: center; gap: 4px; height: 44px; padding: 0 6px 0 4px; border-radius: 22px; background: rgba(18, 26, 78, 0.78); border: 1px solid rgba(157, 185, 245, 0.35); }
+.qr-chip[hidden] { display: none; }
+.qr-open { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 12px 0 10px; font-size: 19px; color: var(--plaster); white-space: nowrap; }
+.qr-icon svg { display: block; color: #BFD7FF; }
+.qr-bar { width: 70px; height: 4px; border-radius: 2px; background: rgba(243, 237, 226, 0.18); overflow: hidden; }
+.qr-bar i { display: block; height: 100%; width: 0; background: #9DB9F5; }
+.qr-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--plaster); background: rgba(243, 237, 226, 0.08); }
+.qr-btn svg { display: block; }
+.qr-chip.is-paused .qr-title { color: var(--plaster-2); }
+
+.qr-panel { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 22px; padding: 46px 110px 40px 110px; }
+.qr-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+.qr-head-btns { display: flex; gap: 12px; }
+.qr-favs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-content: start; flex: 1; }
+.qr-favs[hidden], .qr-all[hidden] { display: none; }
+.qr-fav { position: relative; height: 104px; border-radius: 22px; font-family: var(--kufi); font-size: 40px; color: var(--plaster);
+  background: linear-gradient(160deg, rgba(34, 48, 110, 0.9), rgba(18, 26, 78, 0.9)); border: 1px solid rgba(157, 185, 245, 0.3); }
+.qr-fav.is-on { border-color: var(--saffron); box-shadow: 0 0 0 3px rgba(242, 174, 61, 0.45); }
+.qr-fav-n { position: absolute; top: 10px; left: 14px; font-family: var(--sans); font-size: 16px; color: rgba(243, 237, 226, 0.45); }
+.qr-all { flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; align-content: start; padding-left: 6px; }
+.qr-s { height: 64px; border-radius: 14px; font-size: 22px; color: var(--plaster); background: rgba(243, 237, 226, 0.06); border: 1px solid rgba(243, 237, 226, 0.12); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.qr-s small { font-size: 14px; color: var(--plaster-3); }
+.qr-np { display: flex; align-items: center; gap: 30px; padding: 18px 26px; border-radius: 26px; background: rgba(18, 26, 78, 0.8); border: 1px solid rgba(157, 185, 245, 0.3); }
+.qr-np-text { flex: 1; min-width: 0; }
+.qr-np-name { font-family: var(--kufi); font-size: 34px; color: var(--plaster); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qr-np-pos { margin-right: 16px; padding: 2px 12px; border-radius: 12px; font-family: var(--sans); font-size: 18px; vertical-align: middle; color: var(--plaster-2); background: rgba(243, 237, 226, 0.1); }
+.qr .fun-scrim { background: rgb(11, 9, 26); }
+.qr-np-time { font-size: 19px; color: var(--plaster-2); margin-top: 2px; direction: ltr; text-align: right; }
+.qr-np-bar { height: 6px; margin-top: 10px; border-radius: 3px; background: rgba(243, 237, 226, 0.15); overflow: hidden; }
+.qr-np-bar i { display: block; height: 100%; width: 0; background: #9DB9F5; }
+.qr-np-btns, .qr-np-vol { display: flex; align-items: center; gap: 12px; }
+.qr-big { width: 76px; height: 76px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--saffron); color: var(--saffron-ink); }
+.qr-big svg { width: 34px; height: 34px; }
+.qr-mid { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; color: var(--plaster); background: rgba(243, 237, 226, 0.1); }
+.qr-vol { min-width: 64px; text-align: center; font-size: 20px; color: var(--plaster-2); }
+.qr-np.is-idle .qr-np-btns button:not(.qr-big) { opacity: 0.35; }

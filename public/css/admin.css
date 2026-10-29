@@ -571,3 +571,45 @@ body.is-later #padSend, body.is-later #recSend, body.is-later #beatSend { backgr
 .zc-sw { height: 40px; border-radius: 10px; border: 2px solid rgba(243, 237, 226, 0.2); color: var(--plaster); font-size: 18px; }
 .zc-sw.is-on { border-color: #fff; box-shadow: 0 0 0 3px var(--saffron); }
 .zc-er { background: rgba(243, 237, 226, 0.06); }
+
+/* ---------- «القرآن» ---------- */
+@media (max-width: 420px) { .tabs button { font-size: 10.5px; padding: 0 1px; } .tabs svg { width: 21px; height: 21px; } }
+.qn-head { display: flex; align-items: center; gap: 10px; }
+.qn-head h2 { margin: 0; }
+.qn-icon svg { display: block; color: #9DB9F5; }
+.qn-now { background: linear-gradient(160deg, rgba(34, 48, 110, 0.55), rgba(243, 237, 226, 0.04)); }
+.qn-now-name { margin: 0; font-size: 22px; font-weight: 500; }
+.qn-now.is-idle .qn-now-name { color: var(--plaster-2); font-size: 18px; }
+.qn-bar { height: 6px; margin-top: 10px; border-radius: 3px; background: rgba(243, 237, 226, 0.12); overflow: hidden; }
+.qn-bar i { display: block; height: 100%; width: 0; background: #9DB9F5; transition: width 900ms linear; }
+.qn-ctrls { display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 14px; }
+.qn-c { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--plaster); background: rgba(243, 237, 226, 0.08); border: 1px solid var(--hair); }
+.qn-c svg { display: block; }
+.qn-main { width: 62px; height: 62px; background: var(--saffron); color: var(--ink); border: 0; }
+.qn-now.is-idle .qn-c:not(.qn-main) { opacity: 0.35; }
+.qn-vol { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 14px; color: var(--plaster-2); }
+.qn-vol input { flex: 1; accent-color: var(--saffron); }
+.qn-vol b { min-width: 42px; font-weight: 400; text-align: left; }
+.qn-list, .qn-sched { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.qn-list li { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; background: var(--card); border: 1px solid transparent; }
+.qn-list li.is-on { border-color: rgba(157, 185, 245, 0.6); background: rgba(34, 48, 110, 0.35); }
+.qn-n { min-width: 26px; font-size: 13px; color: var(--plaster-3); }
+.qn-name { flex: 1; font-size: 17px; }
+.qn-list .primary.small { display: inline-flex; align-items: center; gap: 4px; min-height: 38px; padding: 0 12px; }
+.qn-list .primary.small svg { width: 16px; height: 16px; }
+.qn-here { min-height: 38px; padding: 0 10px; display: inline-flex; align-items: center; }
+.qn-here.is-on { color: var(--saffron); border-color: var(--saffron); }
+.qn-del { width: 32px; height: 32px; border-radius: 50%; font-size: 20px; color: var(--plaster-3); }
+#qnMode, .qn-add select, #qnSchedSurah { min-height: 46px; padding: 0 10px; border-radius: 12px; border: 1px solid var(--hair); background: var(--field); color: var(--plaster); font: inherit; font-size: 15px; }
+.qn-add { display: flex; gap: 8px; margin-top: 12px; }
+.qn-add select { flex: 1; min-width: 0; }
+.qn-here-box { margin-top: 12px; }
+.qn-here-box[hidden] { display: none; }
+.qn-here-box audio { width: 100%; }
+.qn-sched li { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.qn-sw { margin-top: 0; }
+.qn-sw b { font-weight: 500; }
+.qn-sched-add { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--hair); }
+.qn-sched-add .wheel-chips { margin: 0; }
+.qn-sched-row { display: flex; gap: 8px; }
+.qn-sched-row input { flex: 1; min-height: 46px; padding: 0 10px; border-radius: 12px; border: 1px solid var(--hair); background: var(--field); color: var(--plaster); font: inherit; color-scheme: dark; }

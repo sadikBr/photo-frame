@@ -6,6 +6,7 @@ import { importICS } from './ics-import.js';
 import { dueFrom } from './routines.js';
 import { initPulse } from './admin-pulse.js';
 import { initFun } from './admin-fun.js';
+import { initQuran } from './admin-quran.js';
 
 const DEMO = !!(window.FRAME_DEMO || /[?&]demo\b/.test(location.search));
 (function captureKey() {
@@ -61,6 +62,7 @@ let fun = null;
 const pulse = initPulse({ api, send, toast, el, $, key, DEMO, showView: (v) => showView(v), playKnock: (p) => fun && fun.playKnock(p),
   offset: () => { try { return (board && board.utcOffset) || 0; } catch (e) { return 0; } } });
 // «مرح»: match mode, the secret knock, the wheel.
+const quran = initQuran({ api, send, toast, el, $, DEMO, me: pulse.me });
 fun = initFun({ api, send, toast, el, $, DEMO, me: pulse.me, needName: pulse.needName, showView: (v) => showView(v), onSent: () => pulse.refresh() });
 
 // ================= shared state =================
@@ -77,7 +79,7 @@ async function loadBoard() {
 }
 
 // ================= tabs =================
-const VIEWS = ['pulse', 'fun', 'message', 'lists', 'photos', 'dates', 'settings'];
+const VIEWS = ['pulse', 'quran', 'fun', 'message', 'lists', 'photos', 'dates', 'settings'];
 function showView(v) {
   if (!VIEWS.includes(v)) v = 'pulse';
   for (const b of document.querySelectorAll('#tabs button')) {
@@ -90,6 +92,7 @@ function showView(v) {
   if (v === 'photos') loadPhotos();
   pulse.shown(v === 'pulse');
   fun.shown(v === 'fun');
+  quran.shown(v === 'quran');
   pulse.watch(v === 'fun');
   window.scrollTo(0, 0);
 }

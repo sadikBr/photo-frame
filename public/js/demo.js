@@ -3,6 +3,7 @@ import { startOfDay, now, parts, dayKey, DAY, MINUTE, HOUR, store } from './util
 import { dueFrom, addDays } from './routines.js';
 import { previewMatch, PREVIEW_MS } from './match-common.js';
 import { tileCount, PATTERN_COUNT, weekIndex } from './zellige.js';
+import { DEFAULT_FAVS, SCHEDULE_SUGGESTIONS } from './quran-common.js';
 
 const today = () => startOfDay(now());
 const at = (dayOffset, h, m) => today() + dayOffset * DAY + (h * 60 + m) * MINUTE;
@@ -317,4 +318,42 @@ export function colorNew() {
   const old = coloring().page;
   store.set('demo-coloring', { pid: (old.pid + 1) % PATTERN_COUNT, week: old.week, fills: {}, who: {}, v: old.v + 1, doneAt: 0, savedAt: 0 });
   return coloring();
+}
+
+// ---------- «القرآن» in demo mode (same rules as the server) ----------
+export function quran() {
+  const st = store.get('demo-quran', null) || {};
+  const cfg = Object.assign({ favs: DEFAULT_FAVS.slice(), mode: 'list', volume: 0.8, schedules: SCHEDULE_SUGGESTIONS.map((x, i) => Object.assign({ id: 'demosched' + i, on: true }, x)), reciter: 'nufais' }, st.cfg);
+  return { cfg, play: st.play || null, status: st.status || null };
+}
+function saveQuran(q) { store.set('demo-quran', q); return q; }
+export function quranCfg(c) { const q = quran(); Object.assign(q.cfg, c); return saveQuran(q); }
+export function quranCmd(b) {
+  const q = quran();
+  const a = b.action;
+  if (a === 'play') {
+    const list = b.list ? b.list.slice() : [b.surah];
+    q.play = { id: Date.now().toString(36), list, idx: Math.min(list.length - 1, b.idx || 0), mode: b.mode || (list.length > 1 ? (q.cfg.mode === 'one' ? 'list' : q.cfg.mode) : 'one'), by: b.from || 'البيت', at: Date.now(), paused: false, rev: 0 };
+    q.status = null;
+  } else if (a === 'volume') q.cfg.volume = Math.min(1, Math.max(0, b.volume));
+  else if (q.play) {
+    if (a === 'pause') q.play.paused = true;
+    else if (a === 'resume') q.play.paused = false;
+    else if (a === 'stop') q.play = null;
+    else if (a === 'next' || a === 'prev') {
+      let i = q.play.idx + (a === 'next' ? 1 : -1);
+      if (i >= q.play.list.length) i = q.play.mode === 'repeat' ? 0 : -1;
+      if (i < 0 && a === 'prev') i = 0;
+      if (i < 0) q.play = null; else { q.play.idx = i; q.play.paused = false; q.status = null; }
+    }
+    if (q.play) q.play.rev = (q.play.rev || 0) + 1;
+  }
+  return saveQuran(q);
+}
+export function quranStatus(s) {
+  const q = quran();
+  if (!q.play || q.play.id !== s.id) return;
+  if (s.state === 'ended') { q.play = null; q.status = null; } else { q.play.idx = s.idx; q.status = Object.assign({ at: Date.now() }, s); }
+  // (no storage event for the frame's own progress every second)
+  try { localStorage.setItem('fd:demo-quran', JSON.stringify(q)); } catch (e) { /* full */ }
 }
