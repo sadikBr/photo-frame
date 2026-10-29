@@ -45,7 +45,8 @@ export default {
   ramadan: { enabled: true, quran: true },
 
   // Morning adhkar after Fajr and evening adhkar after Asr, for this many minutes.
-  adhkar: { auto: true, minutes: 30 },
+  // audioAuto: play the uploaded recording when they come up by themselves.
+  adhkar: { auto: true, minutes: 30, audioAuto: true, volume: 0.8 },
 
   // A short verse or hadith of the day on the clock screen, and a plain weather tip.
   dailyVerse: true,

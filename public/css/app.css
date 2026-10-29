@@ -791,6 +791,17 @@ html.is-ready #boot { opacity: 0; visibility: hidden; }
   justify-content: center;
   border: 1px solid rgba(243, 237, 226, 0.22);
 }
+/* the adhkar recording: a pill beside the close button */
+.a-head-end { display: flex; align-items: center; gap: 16px; }
+.a-audio { display: flex; align-items: center; gap: 14px; height: 64px; padding: 0 6px 0 22px; border-radius: 32px; background: rgba(243, 237, 226, 0.08); border: 1px solid rgba(243, 237, 226, 0.2); }
+.a-audio[hidden] { display: none; }
+.a-play { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--saffron); color: var(--saffron-ink); flex: none; }
+.a-play svg { display: block; }
+.a-ainfo { display: flex; flex-direction: column; gap: 7px; min-width: 190px; }
+.a-atime { font-size: 19px; color: var(--plaster); white-space: nowrap; }
+.a-abar { display: block; height: 4px; border-radius: 2px; background: rgba(243, 237, 226, 0.18); overflow: hidden; }
+.a-abar i { display: block; height: 100%; width: 0; background: var(--saffron); }
+.a-audio:not(.is-on) .a-abar { opacity: 0.5; }
 .a-body { position: absolute; top: 178px; right: 40px; left: 40px; bottom: 136px; display: flex; align-items: stretch; gap: 16px; }
 .a-nav { flex: none; width: 64px; display: flex; align-items: center; justify-content: center; color: var(--plaster-2); border-radius: 20px; }
 .a-nav:disabled { opacity: 0.2; }

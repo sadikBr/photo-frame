@@ -15,7 +15,7 @@ const STOP = '<svg width="20" height="20" viewBox="0 0 24 24"><rect x="6" y="6" 
 const NEXT = '<svg width="22" height="22" viewBox="0 0 24 24"><path d="M17 6v12L9 12zM7 6h2v12H7z" fill="currentColor"/></svg>';
 const PREV = '<svg width="22" height="22" viewBox="0 0 24 24"><path d="M7 6v12l8-6zM15 6h2v12h-2z" fill="currentColor"/></svg>';
 
-export function createQuran({ stage, chipBox, held, duck }) {
+export function createQuran({ stage, chipBox, held, duck, onStart }) {
   let q = { cfg: { favs: [], volume: 0.8, mode: 'list', schedules: [] }, play: null, status: null };
   let cur = null; // what the audio element has loaded: {key, id, idx}
   let want = false, holding = false, ducking = false, blocked = false, lastReport = 0, retries = 0, modalOpen = false, closeTimer = 0;
@@ -123,8 +123,11 @@ export function createQuran({ stage, chipBox, held, duck }) {
   }
   function apply(nq) {
     if (!nq || !nq.cfg) return;
+    const was = q.play && !q.play.paused ? q.play.id : null;
     q = nq;
     const p = q.play;
+    // Starting (or resuming) a recitation stops the adhkar recording.
+    if (p && !p.paused && p.id !== was && onStart) onStart();
     if (!p) {
       want = false;
       if (cur) { audio.pause(); audio.removeAttribute('src'); try { audio.load(); } catch (e) { /* none */ } cur = null; }
@@ -210,7 +213,7 @@ export function createQuran({ stage, chipBox, held, duck }) {
       if (fired[s.id] === today) continue;
       fired[s.id] = today;
       store.set(FIRED, fired);
-      if (!q.play) cmd('play', { surah: s.surah, mode: 'one' }); // (not over something already playing)
+      if (!q.play && !(held && held())) cmd('play', { surah: s.surah, mode: 'one' }); // (not over something already playing)
     }
   }
 

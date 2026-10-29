@@ -654,6 +654,9 @@ function fillSettings(s) {
   const ak = Object.assign({}, config.adhkar, s.adhkar);
   $('sAdhkar').checked = ak.auto !== false;
   $('sAdhkarMin').value = ak.minutes;
+  $('sAdhkarAudio').checked = ak.audioAuto !== false;
+  $('sAdhkarVol').value = ak.volume == null ? 0.8 : ak.volume;
+  $('sAdhkarVolOut').textContent = Math.round(Number($('sAdhkarVol').value) * 100) + '%';
   $('sVerse').checked = typeof s.dailyVerse === 'boolean' ? s.dailyVerse : config.dailyVerse;
   $('sNudge').checked = typeof s.weatherNudge === 'boolean' ? s.weatherNudge : config.weatherNudge;
   $('sPulseSound').checked = typeof s.pulseSound === 'boolean' ? s.pulseSound : config.pulseSound;
@@ -693,7 +696,7 @@ function collectSettings() {
       prayers: Object.fromEntries(['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].map((k) => [k, $('ad-' + k).checked])),
     },
     ramadan: { enabled: $('sRamadan').checked, quran: $('sQuran').checked },
-    adhkar: { auto: $('sAdhkar').checked, minutes: Number($('sAdhkarMin').value) || 30 },
+    adhkar: { auto: $('sAdhkar').checked, minutes: Number($('sAdhkarMin').value) || 30, audioAuto: $('sAdhkarAudio').checked, volume: Number($('sAdhkarVol').value) },
     dailyVerse: $('sVerse').checked,
     weatherNudge: $('sNudge').checked,
     pulseSound: $('sPulseSound').checked,
@@ -704,6 +707,7 @@ function markDirty() { $('saveBar').hidden = false; }
 $('v-settings').addEventListener('input', (e) => {
   if (e.target.id === 'sNightDim') $('sNightDimOut').textContent = Math.round(Number(e.target.value) * 100) + '%';
   if (e.target.id === 'sAdhanVol') $('sAdhanVolOut').textContent = Math.round(Number(e.target.value) * 100) + '%';
+  if (e.target.id === 'sAdhkarVol') $('sAdhkarVolOut').textContent = Math.round(Number(e.target.value) * 100) + '%';
   if (e.target.type === 'file') return; // audio uploads save on their own
   markDirty();
 });
@@ -730,7 +734,7 @@ onBoard(() => {
   fillSettings(settings);
 });
 
-// ================= adhan audio =================
+// ================= recordings: adhan, morning and evening adhkar =================
 const sizeMB = (b) => (b < 1048576 ? Math.max(1, Math.round(b / 1024)) + ' كيلوبايت' : (b / 1048576).toFixed(1).replace('.0', '') + ' ميغابايت');
 function renderAudio() {
   for (const row of document.querySelectorAll('.audio-row')) {
@@ -762,12 +766,13 @@ for (const row of document.querySelectorAll('.audio-row')) {
     e.target.value = '';
     if (!file) return;
     if (DEMO) { toast('المعاينة لا ترفع الملفات.'); return; }
-    if (file.size > 10 * 1024 * 1024) { toast('الملف أكبر من 10 ميغابايت.'); return; }
+    const maxMB = Number(row.dataset.max) || 10;
+    if (file.size > maxMB * 1024 * 1024) { toast('الملف أكبر من ' + maxMB + ' ميغابايت.'); return; }
     toast('جاري رفع الملف…');
     try {
       board.audio = await api('/api/audio/' + name, { method: 'PUT', body: file, headers: { 'content-type': file.type || 'audio/mpeg' } });
       renderAudio();
-      toast('رُفع الأذان. يأخذه الإطار خلال 30 ثانية.');
+      toast(row.dataset.done || 'رُفع الأذان. يأخذه الإطار خلال 30 ثانية.');
     } catch (err) { toast(err.message); }
   });
   let armed = false, timer;

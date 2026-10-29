@@ -191,7 +191,17 @@ assert.deepEqual(new Uint8Array(await r.arrayBuffer()), mp3);
 r = await call(k('/api/audio/adhan'), { method: 'PUT', body: 'x', headers: { 'content-type': 'text/plain' } });
 assert.equal(r.status, 415);
 r = await call(k('/api/audio/other'), { method: 'PUT', body: mp3, headers: { 'content-type': 'audio/mpeg' } });
-assert.equal(r.status, 404, 'only adhan and adhan-fajr');
+assert.equal(r.status, 404, 'only the known recordings');
+// adhkar recordings: same route, a larger size allowed (an adhkar recording runs ~20 minutes)
+r = await call(k('/api/audio/adhkar-morning'), { method: 'PUT', body: new Uint8Array(12 * 1024 * 1024), headers: { 'content-type': 'audio/mpeg' } });
+assert.equal(r.status, 200, '12 MB is fine for adhkar');
+assert.equal((await r.json())['adhkar-morning'].size, 12 * 1024 * 1024);
+r = await call(k('/api/audio/adhan-fajr'), { method: 'PUT', body: new Uint8Array(12 * 1024 * 1024), headers: { 'content-type': 'audio/mpeg' } });
+assert.equal(r.status, 413, 'but not for the adhan');
+r = await call(k('/api/audio/adhkar-evening'), { method: 'PUT', body: new Uint8Array(25 * 1024 * 1024), headers: { 'content-type': 'audio/mpeg' } });
+assert.equal(r.status, 413, 'nor over 24 MB');
+r = await call(k('/api/audio/adhkar-morning'), { method: 'DELETE' });
+assert.equal((await r.json())['adhkar-morning'], undefined);
 
 // previews and the frame's sound status
 const pv = (body) => call(k('/api/preview'), { method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json' } });
@@ -219,7 +229,7 @@ data = await (await put('/api/settings', {
 })).json();
 assert.deepEqual(data.adhan, { enabled: true, prayers: { fajr: false, dhuhr: true, asr: true, maghrib: true, isha: true }, volume: 1 });
 assert.deepEqual(data.ramadan, { enabled: false, quran: true });
-assert.deepEqual(data.adhkar, { auto: true, minutes: 120 });
+assert.deepEqual(data.adhkar, { auto: true, minutes: 120, audioAuto: true, volume: 0.8 });
 assert.equal(data.dailyVerse, false);
 assert.equal(data.weatherNudge, undefined);
 

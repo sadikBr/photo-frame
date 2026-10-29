@@ -54,8 +54,12 @@ export function sanitizeSettings(input) {
   }
   // Ramadan look on the prayer screen (switches on by itself in Ramadan) and the Quran tracker.
   if (i.ramadan && typeof i.ramadan === 'object') s.ramadan = { enabled: i.ramadan.enabled !== false, quran: i.ramadan.quran !== false };
-  // Morning and evening adhkar shown after Fajr and Asr.
-  if (i.adhkar && typeof i.adhkar === 'object') s.adhkar = { auto: i.adhkar.auto !== false, minutes: int(i.adhkar.minutes, 5, 120) || 30 };
+  // Morning and evening adhkar shown after Fajr and Asr; their recording (if uploaded) can start
+  // by itself when they come up, at its own volume.
+  if (i.adhkar && typeof i.adhkar === 'object') {
+    const v = num(i.adhkar.volume, 0.1, 1);
+    s.adhkar = { auto: i.adhkar.auto !== false, minutes: int(i.adhkar.minutes, 5, 120) || 30, audioAuto: i.adhkar.audioAuto !== false, volume: v != null ? +v.toFixed(2) : 0.8 };
+  }
   if (typeof i.dailyVerse === 'boolean') s.dailyVerse = i.dailyVerse;
   if (typeof i.weatherNudge === 'boolean') s.weatherNudge = i.weatherNudge;
   if (typeof i.pulseSound === 'boolean') s.pulseSound = i.pulseSound;

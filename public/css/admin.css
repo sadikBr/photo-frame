@@ -613,3 +613,6 @@ body.is-later #padSend, body.is-later #recSend, body.is-later #beatSend { backgr
 .qn-sched-add .wheel-chips { margin: 0; }
 .qn-sched-row { display: flex; gap: 8px; }
 .qn-sched-row input { flex: 1; min-height: 46px; padding: 0 10px; border-radius: 12px; border: 1px solid var(--hair); background: var(--field); color: var(--plaster); font: inherit; color-scheme: dark; }
+
+/* a smaller heading inside a settings card (الأذكار › التسجيل الصوتي) */
+.card h3.sub-legend { margin-top: 10px; padding-top: 14px; border-top: 1px solid var(--line, rgba(243, 237, 226, 0.12)); font-size: 16px; }

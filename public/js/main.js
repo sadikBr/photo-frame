@@ -31,7 +31,8 @@ const adhanBar = h('button', { class: 'adhan-bar', type: 'button', hidden: true 
   h('span', { class: 'adhan-bar-dot' }), h('span', { class: 'adhan-bar-text' }), h('span', { class: 'adhan-bar-stop' }, 'إيقاف'));
 
 // ---------- screens ----------
-const adhkarScreen = createAdhkar();
+// (These run later, once everything below exists.)
+const adhkarScreen = createAdhkar({ held: () => !!adhan.adhanPlaying(), duck: () => pulse.busy(), busyElsewhere: () => quran.playing() });
 const screens = [createHome(), createPrayer(), adhkarScreen, createCalendar(), createLists(), createPhotos()];
 const byName = Object.fromEntries(screens.map((s) => [s.name, s]));
 let index = 0;
@@ -75,7 +76,8 @@ const knock = createKnock({ stage });
 const wheel = createWheel({ stage, onChange: (n) => { wheelTab.hidden = !n; } });
 const coloring = createColoring({ stage });
 // «القرآن»: paused by the adhan, turned down while a moment from a phone plays.
-const quran = createQuran({ stage, chipBox, held: () => !!adhan.adhanPlaying(), duck: () => pulse.busy() });
+// The Quran waits while the adhan or the adhkar recording plays; starting it stops the adhkar recording.
+const quran = createQuran({ stage, chipBox, held: () => !!adhan.adhanPlaying() || adhkarScreen.audioPlaying(), duck: () => pulse.busy(), onStart: () => adhkarScreen.stopAudio() });
 const pulse = createPulse({
   stage,
   isNight: () => isNight(now()) && Date.now() > awakeUntil && !match.active(),
@@ -150,6 +152,7 @@ stage.addEventListener('pointerdown', (e) => {
   adhan.unlock(); // and lets the page play the adhan from now on, if the browser asked for that
   pulse.unlockSound();
   quran.unlock();
+  adhkarScreen.unlock();
   if (!config.touchNavigation) return;
   drag = { x: e.clientX, y: e.clientY, id: e.pointerId, active: false };
 });
@@ -222,7 +225,7 @@ function schedule(t) {
   // The adhan brings the prayer screen forward, even while someone is using the frame.
   if (adhan.adhanPlaying()) { if (screens[index].name !== 'prayer') go('prayer'); shownAt = real; return; }
   // A moment from a phone is playing, the door or the wheel is open, or the match is on: stay.
-  if (pulse.busy() || knock.busy() || wheel.busy() || coloring.busy() || quran.busy() || match.active()) { shownAt = real; return; }
+  if (pulse.busy() || knock.busy() || wheel.busy() || coloring.busy() || quran.busy() || match.active() || adhkarScreen.audioPlaying()) { shownAt = real; return; }
   if (idle < config.resumeAfterSeconds * 1000) return; // someone is using it
   if (!resumed) { resumed = true; rotIndex = 0; go('home'); return; }
   if (ramadanPreviewing()) { if (screens[index].name !== 'prayer') go('prayer'); shownAt = real; return; }

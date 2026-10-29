@@ -14,7 +14,8 @@
 //   POST /api/routines             {op:"add", text, kind:"days"|"weekly"|"monthly", every?, weekday?, day?, start?}
 //                                  | {op:"remove", id}   repeating tasks that come back on the to-do list
 //   POST /api/quran                {year, op:"inc"|"dec"|"set", value?}  Ramadan Quran tracker (juz read)
-//   PUT  /api/audio/<name>         upload the adhan (name: adhan | adhan-fajr; body = audio bytes)
+//   PUT  /api/audio/<name>         upload a recording (name: adhan | adhan-fajr | adhkar-morning |
+//                                  adhkar-evening; body = audio bytes)
 //   GET  /api/audio/<name>         the audio file;  DELETE removes it
 //   POST /api/preview              {what:"ramadan"|"adhkar"|"adhan"|"none", minutes?}  show it on the frame now
 //   /api/pulse…                    «نبضة»: moments from phones to the frame (see pulse-hub.js)
@@ -41,8 +42,9 @@ const MAX_IMPORT = 500;
 const KEEP_PAST_DAYS = 40; // one-off dates older than this are dropped
 const SEEN_EVERY = 10 * 60 * 1000; // write the frame's check-in at most every 10 minutes
 const MAX_ROUTINES = 60;
-const AUDIO_NAMES = ['adhan', 'adhan-fajr'];
-const MAX_AUDIO_BYTES = 10 * 1024 * 1024;
+const AUDIO_NAMES = ['adhan', 'adhan-fajr', 'adhkar-morning', 'adhkar-evening'];
+// The adhan is short; an adhkar recording can be 20 minutes. KV holds up to 25 MiB per value.
+const maxAudioBytes = (name) => (name.startsWith('adhkar') ? 24 : 10) * 1024 * 1024;
 
 const json = (data, status = 200, extra = {}) =>
   new Response(JSON.stringify(data), {
@@ -160,7 +162,7 @@ async function updateQuran(request, env) {
   return json(q);
 }
 
-// ---------- adhan audio ----------
+// ---------- recordings: the adhan, and the morning and evening adhkar ----------
 async function audioIndex(env) {
   return (await needStore(env).get('audio:index', 'json')) || {};
 }
@@ -170,7 +172,7 @@ async function putAudio(request, env, name) {
   if (!/^audio\/[a-z0-9.+-]+$/.test(type)) return fail(415, 'Send an audio file (MP3, M4A, OGG or WAV).');
   const buf = await request.arrayBuffer();
   if (!buf.byteLength) return fail(400, 'The file is empty.');
-  if (buf.byteLength > MAX_AUDIO_BYTES) return fail(413, 'The audio file is larger than 10 MB.');
+  if (buf.byteLength > maxAudioBytes(name)) return fail(413, 'The audio file is larger than ' + maxAudioBytes(name) / 1048576 + ' MB.');
   await needStore(env).put('audio:' + name, buf, { metadata: { type } });
   const index = await audioIndex(env);
   index[name] = { at: Date.now(), size: buf.byteLength, type };

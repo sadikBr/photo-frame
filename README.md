@@ -9,7 +9,7 @@ phone or computer. The frame has six screens:
 | --- | --- |
 | **الساعة** (clock) | Large clock, weekday, Gregorian date with Moroccan month names, Hijri date, your family message (or a verse or hadith of the day), next prayer, current weather with a plain tip when the day calls for one (umbrella, cold morning, heat, wind) and the next five days |
 | **الصلاة** (prayer) | Next prayer with a live countdown; the day drawn as the sun's path with all prayer times on it. Comes forward on its own 10 minutes before each adhan, and plays the adhan if you switch it on. **In Ramadan** it changes by itself: a big countdown to iftar (and to imsak at night), the fast's times with imsak and maghrib highlighted, the day of the month, and a Quran tracker (tap «+ جزء» for each juz read) |
-| **الأذكار** (adhkar) | Morning adhkar after Fajr and evening adhkar after Asr, one card at a time; tap the card to count the repetitions. Comes forward on its own for 30 minutes after each of those prayers, until finished or closed |
+| **الأذكار** (adhkar) | Morning adhkar after Fajr and evening adhkar after Asr, one card at a time; tap the card to count the repetitions. Comes forward on its own for 30 minutes after each of those prayers, until finished or closed. If you upload a recording of the morning and evening adhkar, a play button at the top plays it, and it can start by itself |
 | **التقويم** (calendar) | The month with Gregorian and Hijri dates, Moroccan public holidays (national and religious), Ashura and the start of Ramadan, your family dates, and the next five occasions |
 | **القوائم** (lists) | What the house needs, as large tiles you tap when bought, and the family to-do list |
 | **الصور** (photos) | Your family photos as a slideshow, with the time and temperature in the corner |
@@ -32,7 +32,7 @@ The **control panel** (`/admin`) has these sections:
 | **القوائم** | Add, tick and remove shopping items and tasks, with quick-add buttons. **Repeating tasks** (every N days, every week on a day, or every month on a date) come back on the to-do list by themselves when due |
 | **الصور** | Upload photos (resized on your phone first) and delete them |
 | **المناسبات** | Add birthdays, anniversaries and one-off family dates, or import an `.ics` calendar file (Google Calendar, Outlook, a school timetable). Repeating events are spread over the coming year; importing a file with the same name again replaces its entries |
-| **الإعدادات** | City, prayer-time adjustments, **adhan** (upload the audio, choose the prayers, volume, test it on the frame), **Ramadan** mode and a button to preview it on the frame, **adhkar**, the verse of the day and weather tip, Hijri day, which screens rotate and for how long, night mode, quick-add buttons |
+| **الإعدادات** | City, prayer-time adjustments, **adhan** (upload the audio, choose the prayers, volume, test it on the frame), **Ramadan** mode and a button to preview it on the frame, **adhkar** (with their morning and evening recordings, and whether they start by themselves), the verse of the day and weather tip, Hijri day, which screens rotate and for how long, night mode, quick-add buttons |
 
 It also shows whether the frame is online. The frame picks up changes within 30 seconds.
 
@@ -141,6 +141,23 @@ after that the adhan plays for as long as the frame stays on. The control panel 
 the frame can play sound. If your kiosk app has a setting like "autoplay media" or "media
 playback requires user gesture", setting it so media can play without a gesture avoids the
 touch altogether.
+
+### Adhkar recordings
+
+In **الإعدادات › الأذكار**, upload one recording for the morning adhkar and one for the evening
+(MP3, M4A, OGG or WAV, up to 24 MB each, about 20 minutes at normal quality). They are kept in
+your Cloudflare storage like the adhan, so they don't depend on another website.
+
+- On the frame, the adhkar screen shows a play button with the time beside the close button
+  whenever a recording exists for that time of day.
+- **«تشغيل التسجيل تلقائياً…»** (on by default): when the adhkar come up by themselves after Fajr
+  or Asr, or when you press «عرض الأذكار على الإطار الآن», the recording starts on its own, once per
+  morning and once per evening. It doesn't start over a Quran recitation that is already playing.
+  Switch it off to start the recording only with the button.
+- It has its own volume. The adhan pauses it; a moment from «نبضة» turns it down; the screen stays
+  on the adhkar while it plays; leaving the screen or closing the adhkar (×) stops it.
+- Starting a surah from «القرآن» stops the adhkar recording; starting the adhkar recording while a
+  surah plays holds the surah until the recording ends or is paused.
 
 ### Sending photos from the phone's share menu
 
@@ -343,7 +360,7 @@ against the server every hour.
 
 ```
 src/worker.js        Cloudflare Worker: API for lists, repeating tasks, photos, adhan audio,
-                     settings, dates, message, Quran tracker, previews, time
+                     settings, dates, message, Quran tracker, previews, time; recordings (adhan, adhkar)
 src/pulse-hub.js     «نبضة»: the Durable Object that keeps moments, talks live to the frame and
                      sends phone notifications (src/webpush.js: VAPID signing + encryption);
                      also knocks, wheels, match mode (src/match.js reads ESPN's scoreboard) and
