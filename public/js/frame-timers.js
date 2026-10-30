@@ -10,28 +10,22 @@
 // window.HomeHQ.alarmVolume), the frame's media volume is also raised to the maximum while it
 // rings and put back afterwards. During the adhan the alarm waits (the card shows at once).
 //
-// Timers live in this browser (localStorage), so a reload or a power cut keeps them; one that
-// ended while the frame was off rings when it comes back, if it ended less than 30 minutes ago.
-import { h, store } from './util.js';
+// The timers live on the server (PulseHub), so the control panel can start, see and stop them
+// too: every change goes there and comes back to the frame at once over its live connection.
+// If the frame can't reach the server, a timer started on it still runs here on its own. A copy
+// is kept in this browser, so a reload or a power cut keeps them.
+import { h, store, now } from './util.js';
+import { frameFetch, DEMO } from './data.js';
+import * as demo from './demo.js';
+import { timerOp, cleanTimers, timerEnded, timerLeft, fmtTimer as fmt, minutesAr, timerName, MAX_TIMERS, TIMER_LABELS as LABELS, TIMER_PRESETS as PRESETS, SNOOZES } from './timers-common.js';
 
-const PRESETS = [1, 3, 5, 10, 15, 20, 30, 45, 60];
-const LABELS = ['أتاي', 'الطبخ', 'الفرن', 'الخبز', 'الغسيل', 'الأطفال'];
-const MAX_TIMERS = 6;
 const RING_FOR = 10 * 60000; // the sound stops by itself after this (the card stays)
-const STALE = 30 * 60000; // a timer that ended longer ago than this (frame off) is dropped
 const MIN = 60000;
 
 export const TIMER_ICON = (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.5" r="8"/><path d="M12 9.5v4l2.6 1.6M9.5 2.5h5M12 2.5v3M19 6.2l1.4-1.4"/></svg>`;
 const BELL = `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.6 2H4.4z"/><path d="M10 21a2 2 0 0 0 4 0"/><path d="M2.5 8.5A9.5 9.5 0 0 1 5 4M21.5 8.5A9.5 9.5 0 0 0 19 4"/></svg>`;
 
-// "4:05", "12:30", "1:05:00" (left to right, with Western digits like the clock).
-export function fmt(ms) {
-  const s = Math.max(0, Math.ceil(ms / 1000));
-  const hh = Math.floor(s / 3600), mm = Math.floor((s % 3600) / 60), ss = s % 60;
-  const p2 = (n) => String(n).padStart(2, '0');
-  return hh ? hh + ':' + p2(mm) + ':' + p2(ss) : mm + ':' + p2(ss);
-}
-const minutesAr = (m) => (m === 1 ? 'دقيقة' : m === 2 ? 'دقيقتان' : m <= 10 ? m + ' دقائق' : m + ' دقيقة');
+export { fmt };
 
 // ---------- the alarm sound ----------
 // One 1.4 s loop: four short beeps alternating 2000 / 2600 Hz, then a pause. A square wave at
@@ -99,13 +93,44 @@ function createAlarm() {
 // ---------- timers ----------
 export function createTimers({ stage, tab, wake, held }) {
   const alarm = createAlarm();
-  const valid = (x) => x && typeof x.id === 'string' && x.total > 0 && (x.end > 0 || x.left > 0);
-  let timers = (store.get('timers', []) || []).filter(valid);
-  timers = timers.filter((x) => !(x.end && Date.now() - x.end > STALE));
-  let seq = Date.now();
-  const save = () => store.set('timers', timers.map(({ id, label, total, end, left, snoozed }) => ({ id, label, total, end, left, snoozed })));
-  const remaining = (x, t) => (x.end ? x.end - t : x.left);
-  const ended = (x, t) => !!x.end && x.end <= t;
+  // The server's list, plus any started here while the server couldn't be reached (local: true).
+  let timers = cleanTimers(store.get('timers', []), now());
+  const save = () => store.set('timers', timers);
+  const ended = (x, t) => timerEnded(x, t);
+  const remaining = (x, t) => timerLeft(x, t);
+
+  function fromServer(list) {
+    const t = now();
+    const local = timers.filter((x) => x.local);
+    timers = cleanTimers((list || []).concat(local), t);
+    save();
+    draw(t, true);
+  }
+  async function load() {
+    try {
+      if (DEMO) fromServer(demo.timers());
+      else fromServer((await frameFetch('/api/pulse/timers')).timers);
+    } catch (e) { /* offline: keep what we have */ }
+  }
+  // Every change: at once here, then on the server (which tells the phones and sends the list back).
+  async function op(body) {
+    const t = now();
+    const target = body.id && timers.find((x) => x.id === body.id);
+    const r = timerOp(timers, body, t);
+    if (r.error) return r;
+    timers = r.list;
+    save();
+    draw(t, true);
+    if (target && target.local) return r; // only here
+    try {
+      const res = DEMO ? demo.timerOp(body) : await frameFetch('/api/pulse/timers', 'POST', body);
+      fromServer(res.timers);
+    } catch (e) {
+      // No server: a new timer goes on here alone; other changes wait for the next load.
+      if (body.op === 'add' && r.timer) { r.timer.local = true; save(); }
+    }
+    return r;
+  }
 
   // ----- the panel -----
   const list = h('div', { class: 'tm-list' });
@@ -159,9 +184,9 @@ export function createTimers({ stage, tab, wake, held }) {
   const ringSince = h('div', { class: 'tm-ring-since' });
   const stopBtn = h('button', { type: 'button', class: 'tm-ring-stop' }, 'إيقاف');
   // Snooze: ring again in 1, 5 or 10 minutes.
-  const snoozeBtns = [1, 5, 10].map((m) => {
-    const b = h('button', { type: 'button', class: 'tm-ring-snooze' }, h('bdi', null, String(m)), ' ', m === 1 ? 'دقيقة' : m === 10 ? 'دقائق' : 'دقائق');
-    b.addEventListener('click', (e) => { e.stopPropagation(); snooze(m * MIN); });
+  const snoozeBtns = SNOOZES.map((m) => {
+    const b = h('button', { type: 'button', class: 'tm-ring-snooze' }, h('bdi', null, String(m)), ' ', m === 1 ? 'دقيقة' : 'دقائق');
+    b.addEventListener('click', (e) => { e.stopPropagation(); snooze(m); });
     return b;
   });
   const ring = h('div', { class: 'tm-ring', hidden: true, role: 'alertdialog', 'aria-label': 'انتهى المؤقّت' },
@@ -180,7 +205,7 @@ export function createTimers({ stage, tab, wake, held }) {
     open = true;
     modal.hidden = false;
     full.hidden = timers.length < MAX_TIMERS;
-    draw(Date.now(), true);
+    draw(now(), true);
     modal.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220 });
     poke();
   }
@@ -189,34 +214,14 @@ export function createTimers({ stage, tab, wake, held }) {
   closeBtn.addEventListener('click', close);
   modal.querySelector('.fun-scrim').addEventListener('click', close);
 
-  function add(minutes) {
+  async function add(minutes) {
     alarm.unlock();
     if (timers.length >= MAX_TIMERS) { full.hidden = false; poke(); return; }
-    const t = Date.now();
-    timers.push({ id: 't' + (seq++).toString(36), label, total: minutes * MIN, end: t + minutes * MIN, left: 0 });
-    save();
+    const l = label;
     label = '';
     drawChips();
     close();
-    draw(t, true);
-  }
-  function remove(id) { timers = timers.filter((x) => x.id !== id); save(); draw(Date.now(), true); }
-  function addTime(id, ms) {
-    const t = Date.now();
-    const x = timers.find((y) => y.id === id);
-    if (!x) return;
-    if (x.end) x.end = Math.max(x.end, t) + ms; else x.left += ms;
-    x.total = Math.max(x.total, remaining(x, t));
-    save();
-    draw(t, true);
-  }
-  function pauseToggle(id) {
-    const t = Date.now();
-    const x = timers.find((y) => y.id === id);
-    if (!x || ended(x, t)) return;
-    if (x.end) { x.left = x.end - t; x.end = 0; } else { x.end = t + x.left; x.left = 0; }
-    save();
-    draw(t, true);
+    await op({ op: 'add', minutes, label: l });
   }
 
   // ----- drawing (once a second) -----
@@ -243,7 +248,7 @@ export function createTimers({ stage, tab, wake, held }) {
     want.forEach((x, i) => {
       const p = pills.children[i];
       p.classList.toggle('is-paused', !x.end);
-      p.querySelector('.tm-pill-name').textContent = (x.snoozed ? 'غفوة · ' : '') + (x.label || (x.total / MIN >= 1 ? minutesAr(Math.round(x.total / MIN)) : 'مؤقّت'));
+      p.querySelector('.tm-pill-name').textContent = (x.snoozed ? 'غفوة · ' : '') + timerName(x);
       p.querySelector('.tm-pill-time').textContent = fmt(remaining(x, t)) + (running.length > 3 && i === 2 ? '  +' + (running.length - 3) : '');
       p.querySelector('.tm-pill-bar i').style.transform = 'scaleX(' + Math.max(0, Math.min(1, remaining(x, t) / x.total)).toFixed(4) + ')';
     });
@@ -255,13 +260,13 @@ export function createTimers({ stage, tab, wake, held }) {
         list.textContent = '';
         for (const x of running) {
           const pause = h('button', { type: 'button', class: 'tm-row-btn' }, x.end ? 'إيقاف مؤقت' : 'استئناف');
-          pause.addEventListener('click', () => { pauseToggle(x.id); poke(); });
+          pause.addEventListener('click', () => { op({ op: x.end ? 'pause' : 'resume', id: x.id }); poke(); });
           const more = h('button', { type: 'button', class: 'tm-row-btn' }, '+ دقيقة');
-          more.addEventListener('click', () => { addTime(x.id, MIN); poke(); });
+          more.addEventListener('click', () => { op({ op: 'more', id: x.id, minutes: 1 }); poke(); });
           const del = h('button', { type: 'button', class: 'tm-row-del', 'aria-label': 'إلغاء المؤقّت' }, '×');
-          del.addEventListener('click', () => { remove(x.id); poke(); });
+          del.addEventListener('click', () => { op({ op: 'cancel', id: x.id }); poke(); });
           list.append(h('div', { class: 'tm-row' + (x.end ? '' : ' is-paused'), 'data-id': x.id },
-            h('span', { class: 'tm-row-name' }, x.label || minutesAr(Math.round(x.total / MIN))),
+            h('span', { class: 'tm-row-name' }, (x.snoozed ? 'غفوة · ' : '') + timerName(x), x.by ? h('small', { class: 'tm-row-by' }, ' · من ' + x.by) : null),
             h('bdi', { class: 'tm-row-time', dir: 'ltr' }),
             more, pause, del));
         }
@@ -271,31 +276,21 @@ export function createTimers({ stage, tab, wake, held }) {
         if (x) row.querySelector('.tm-row-time').textContent = fmt(remaining(x, t));
       }
       list.hidden = !running.length;
+      full.hidden = timers.length < MAX_TIMERS;
     }
     // The ringing card.
     ring.hidden = !ringing.length;
     if (ringing.length) {
-      const names = ringing.map((x) => x.label || minutesAr(Math.round(x.total / MIN))).join(' · ');
+      const names = ringing.map(timerName).join(' · ');
       if (ringNames.textContent !== names) ringNames.textContent = names;
       const since = t - Math.min(...ringing.map((x) => x.end));
       ringSince.textContent = since < 5000 ? '' : 'منذ ' + fmt(since);
     }
   }
 
-  function stopRinging() {
-    const t = Date.now();
-    timers = timers.filter((x) => !ended(x, t));
-    save();
-    alarm.stop();
-    draw(t, true);
-  }
-  function snooze(ms) {
-    const t = Date.now();
-    for (const x of timers) if (ended(x, t)) { x.end = t + ms; x.total = ms; x.snoozed = true; }
-    save();
-    alarm.stop();
-    draw(t, true);
-  }
+  const ringingIds = () => { const t = now(); return timers.filter((x) => ended(x, t)).map((x) => x.id); };
+  function stopRinging() { alarm.stop(); op({ op: 'stop', ids: ringingIds() }); }
+  function snooze(m) { alarm.stop(); op({ op: 'snooze', minutes: m, ids: ringingIds() }); }
   stopBtn.addEventListener('click', (e) => { e.stopPropagation(); stopRinging(); });
   // A tap anywhere else on the card also silences it (someone ran to the kitchen).
   ring.addEventListener('click', () => stopRinging());
@@ -303,7 +298,7 @@ export function createTimers({ stage, tab, wake, held }) {
   stage.addEventListener('pointerdown', () => alarm.unlock(), { capture: true });
 
   function tick() {
-    const t = Date.now();
+    const t = now();
     const ringing = timers.filter((x) => ended(x, t));
     draw(t, false);
     if (!ringing.length) { if (alarm.playing()) alarm.stop(); return; }
@@ -311,15 +306,20 @@ export function createTimers({ stage, tab, wake, held }) {
     const since = t - Math.min(...ringing.map((x) => x.end));
     if (since > RING_FOR || held()) alarm.stop(); else alarm.start();
   }
-  draw(Date.now(), true);
+  draw(now(), true);
+  load();
+  setInterval(load, 60000);
+  if (DEMO) window.addEventListener('storage', (e) => { if (e.key === 'fd:demo-timers') load(); });
 
   return {
     open: show,
     ringEl: ring,
     tick,
-    busy: () => open || timers.some((x) => ended(x, Date.now())),
-    ringing: () => timers.some((x) => ended(x, Date.now())),
+    busy: () => open || timers.some((x) => ended(x, now())),
+    ringing: () => timers.some((x) => ended(x, now())),
+    // The server's list, the moment something changes (from a phone too).
+    socket(m) { if (m.type === 'timers') fromServer(m.timers); },
     // For the preview page: a timer of a few seconds.
-    demo(seconds, name) { const t = Date.now(); timers.push({ id: 't' + (seq++).toString(36), label: name || '', total: seconds * 1000, end: t + seconds * 1000, left: 0 }); save(); draw(t, true); },
+    demo(seconds, name) { const t = now(); timers.push({ id: 'd' + t.toString(36), label: name || '', by: '', total: seconds * 1000, end: t + seconds * 1000, left: 0, local: true }); save(); draw(t, true); },
   };
 }

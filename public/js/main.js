@@ -122,7 +122,7 @@ const pulse = createPulse({
   isNight: () => isNight(now()) && Date.now() > awakeUntil && !match.active(),
   hold: () => !!adhan.adhanPlaying() || knock.busy() || wheel.busy() || coloring.busy() || quran.busy() || timers.ringing(),
   fun: { knock, wheel },
-  onSocket: (m) => { match.socket(m); wheel.socket(m); statuses.socket(m); coloring.socket(m); quran.socket(m); },
+  onSocket: (m) => { match.socket(m); wheel.socket(m); statuses.socket(m); coloring.socket(m); quran.socket(m); timers.socket(m); },
 });
 
 stage.insertBefore(night, null); // keep the night layer last

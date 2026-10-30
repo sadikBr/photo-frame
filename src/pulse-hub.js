@@ -26,6 +26,8 @@
 // sends it) · GET /api/pulse/later?from=… · POST /api/pulse/later/cancel {id, from}.
 // «نبضة حقيقية»: POST /api/pulse {kind:"beat", bpm, intervals:[ms…], from}.
 // «حالتي»: GET /api/pulse/status · PUT {from, text, emoji, until} · POST /api/pulse/status/clear {from}.
+// «مؤقّت»: GET /api/pulse/timers → {timers, now} · POST {op, …} (see timers-common.js); the frame hears
+// at once ({type:"timers"}), and whoever started a timer from a phone is notified when it rings.
 // «تلوين الزليج»: GET /api/pulse/coloring · POST …/fill {tile, color, from} · …/new {from} ·
 // …/saved {which: "current"|archived page's id} (the frame saves finished pages as photos).
 // «القرآن»: GET /api/pulse/quran · PUT {favs, schedules, volume, mode, reciter} · POST …/cmd {action:
@@ -39,6 +41,7 @@
 import { sendPush, validSubscription } from './webpush.js';
 import { tileCount, PATTERN_COUNT, weekIndex } from '../public/js/zellige.js';
 import { validSurah, validReciter, DEFAULT_FAVS } from '../public/js/quran-common.js';
+import { timerOp, cleanTimers, timerName } from '../public/js/timers-common.js';
 import { LEAGUES, scoreboardUrl, parseScoreboard, pickMatch, matchChanges, changeMessage, previewMatch, PREVIEW_MS } from './match.js';
 
 export const pushDeps = { fetch: (...a) => fetch(...a) }; // tests swap this
@@ -396,6 +399,19 @@ export class PulseHub {
 
     // ---------- statuses ----------
     if (path === '/api/pulse/status' && method === 'GET') return json({ statuses: await this.statuses() });
+
+    // ---------- timers ----------
+    if (path === '/api/pulse/timers' && method === 'GET') return json({ timers: await this.timers(), now: Date.now() });
+    if (path === '/api/pulse/timers' && method === 'POST') {
+      let body;
+      try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
+      const r = timerOp(await this.timers(), body, Date.now());
+      if (r.error) return fail(400, r.error);
+      await this.ctx.storage.put('timers', r.list);
+      this.broadcast({ type: 'timers', timers: r.list, now: Date.now() });
+      await this.setNextAlarm();
+      return json({ timers: r.list, now: Date.now(), timer: r.timer || null });
+    }
     if ((path === '/api/pulse/status' && method === 'PUT') || (path === '/api/pulse/status/clear' && method === 'POST')) {
       let body;
       try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
@@ -773,6 +789,8 @@ export class PulseHub {
     const m = cfg.on ? await s.get('matchAlarm') : null;
     if (m) times.push(Math.max(m, now + 1000));
     for (const x of await this.laterList()) times.push(Math.max(x.due, now + 1000));
+    // A phone's timer: tell that phone when it rings.
+    for (const x of await this.timers()) if (x.by && !x.rang && x.end) times.push(Math.max(x.end, now + 1000));
     if (!times.length) return;
     const at = Math.min(...times);
     try {
@@ -783,9 +801,28 @@ export class PulseHub {
 
   async alarm() {
     await this.releaseDue();
+    await this.timersRang();
     const cfg = await this.matchCfg();
     if (cfg.on) await this.matchView(0);
     await this.setNextAlarm();
+  }
+
+  // ---------- timers ----------
+  async timers() { return cleanTimers(await this.ctx.storage.get('timers'), Date.now()); }
+  // The phone that started a timer hears when it rings on the frame.
+  async timersRang() {
+    const list = await this.timers();
+    const now = Date.now();
+    const due = list.filter((x) => x.by && !x.rang && x.end && x.end <= now + 1000);
+    if (!due.length) return 0;
+    for (const x of due) x.rang = true;
+    await this.ctx.storage.put('timers', list);
+    const subs = (await this.subs()).filter((s) => s.notify !== 'off');
+    for (const x of due) {
+      const to = subs.filter((s) => s.name === x.by);
+      if (to.length) await this.pushTo(to, { id: x.id, kind: 'timer', tag: 'timer-' + x.id, url: '/admin#timers', title: 'انتهى المؤقّت ⏰', body: '«' + timerName(x) + '» يرنّ الآن على الإطار', heart: false }, 'high');
+    }
+    return due.length;
   }
 
   // ---------- surprises for later ----------

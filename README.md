@@ -190,10 +190,17 @@ account, like everything else.
 
 ### Timers (مؤقّت)
 
+Timers can also be started from the control panel: **الرئيسية → مؤقّت على الإطار** (same names and
+durations). The panel lists every timer running on the frame, wherever it was started, to add a
+minute, pause, cancel, or silence and snooze one that rings; whoever started one from a phone gets
+a notification when it rings. The timers live on the server («نبضة»'s Durable Object:
+`/api/pulse/timers`), so the frame and every phone see the same ones at once.
+
 The «مؤقّت» tab (or a tap on the big clock) opens kitchen timers: pick a name if you like (أتاي، الطبخ،
 الفرن…) and touch a duration (1 to 60 minutes) or set another one. Up to six run at once; they
 show in the tab in the original look and as small counters in the bottom-left corner in the other
-looks, and keep running through a reload or a power cut. When one ends, a red card fills the
+looks, and keep running through a reload or a power cut (and on the frame alone if it can't reach
+the server). When one ends, a red card fills the
 screen (even at night, when it wakes the screen) and a loud two-tone alarm rings until someone
 touches «إيقاف», or «غفوة» for 1, 5 or 10 more minutes. It stops by itself after 10 minutes and
 waits while the adhan plays.

@@ -531,7 +531,7 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView, playKn
       if (!e.data) return;
       if (e.data.type === 'pulse-push') refresh();
       if (e.data.type === 'pulse-open') {
-        if (e.data.kind === 'knock') { playId = e.data.id; showView('fun'); } else if (e.data.kind === 'match' || /#fun/.test(e.data.url || '')) showView('fun'); else showView('pulse');
+        if (e.data.kind === 'knock') { playId = e.data.id; showView('fun'); } else if (e.data.kind === 'timer') showView('timers'); else if (e.data.kind === 'match' || /#fun/.test(e.data.url || '')) showView('fun'); else showView('pulse');
         refresh();
       }
     });

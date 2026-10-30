@@ -1,5 +1,6 @@
 // Sample data for previewing the dashboard without a backend (open with ?demo).
 import { startOfDay, now, parts, dayKey, DAY, MINUTE, HOUR, store } from './util.js';
+import { timerOp as timerOpShared, cleanTimers } from './timers-common.js';
 import { dueFrom, addDays } from './routines.js';
 import { previewMatch, PREVIEW_MS } from './match-common.js';
 import { tileCount, PATTERN_COUNT, weekIndex } from './zellige.js';
@@ -359,4 +360,14 @@ export function quranStatus(s) {
   if (s.state === 'ended') { q.play = null; q.status = null; } else { q.play.idx = s.idx; q.status = Object.assign({ at: Date.now() }, s); }
   // (no storage event for the frame's own progress every second)
   try { localStorage.setItem('fd:demo-quran', JSON.stringify(q)); } catch (e) { /* full */ }
+}
+
+// «مؤقّت» on the preview pages: shared through this browser's storage, so a timer started in the
+// control panel's preview rings on the frame's preview in another tab.
+export const timers = () => cleanTimers(store.get('demo-timers', []), Date.now());
+export function timerOp(body) {
+  const r = timerOpShared(timers(), body, Date.now());
+  if (r.error) throw new Error(r.error);
+  store.set('demo-timers', r.list);
+  return { timers: r.list, now: Date.now(), timer: r.timer || null };
 }

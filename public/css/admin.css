@@ -923,3 +923,30 @@ main { padding: 18px max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-
 .card { border-radius: 18px; background: #46202F; border-color: #5A3443; }
 #v-dates > h2, #v-photos > h2, #v-message > h2 { margin: 4px 0 2px; font: 600 18px/1.4 'Reem Kufi', sans-serif; }
 #v-fun > h2 { margin-top: 0; }
+
+/* ---------- «مؤقّت»: timers that ring on the frame ---------- */
+.hg-wide { grid-column: 1 / -1; }
+.hg.is-running { border-color: var(--saffron); }
+.hg.is-running .hg-sub { color: var(--saffron); font-variant-numeric: tabular-nums; }
+.tmr-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.tmr-item { padding: 12px 14px; border-radius: 14px; background: rgba(243, 237, 226, 0.05); border: 1px solid rgba(243, 237, 226, 0.12); }
+.tmr-item.is-ringing { background: rgba(226, 68, 42, 0.18); border-color: #E2442A; }
+.tmr-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.tmr-name { font-size: 17px; min-width: 0; }
+.tmr-name small { font-size: 13px; color: var(--plaster-3); }
+.tmr-time { font-size: 26px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--saffron); white-space: nowrap; }
+.tmr-item.is-paused .tmr-time { color: var(--plaster-3); }
+.tmr-item.is-ringing .tmr-time { font-size: 18px; color: #FF8A73; }
+.tmr-bar { height: 4px; margin: 8px 0 10px; border-radius: 2px; background: rgba(243, 237, 226, 0.1); overflow: hidden; }
+.tmr-bar i { display: block; height: 100%; background: var(--saffron); transform-origin: right center; transition: transform 1s linear; }
+.tmr-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.tmr-cancel { margin-right: auto; }
+.tmr-presets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 12px; }
+.tmr-preset { height: 72px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--plaster); background: rgba(242, 174, 61, 0.1); border: 1px solid rgba(242, 174, 61, 0.4); }
+.tmr-preset:active { background: var(--saffron); color: var(--ink); }
+.tmr-preset-n { font-size: 26px; font-weight: 500; line-height: 1; }
+.tmr-preset-u { font-size: 13px; color: var(--plaster-2); }
+.tmr-custom { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.tmr-custom-label { font-size: 15px; color: var(--plaster-2); margin-left: 4px; }
+.tmr-step { min-width: 46px; direction: ltr; }
+.tmr-custom-val { min-width: 96px; text-align: center; font-size: 18px; font-weight: 500; }
