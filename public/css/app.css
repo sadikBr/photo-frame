@@ -1444,3 +1444,5 @@ html.is-ready #boot { opacity: 0; visibility: hidden; }
 @keyframes tmFlash { 0%, 100% { opacity: 0.15; } 20%, 45% { opacity: 0.7; } }
 @keyframes tmShake { 0%, 50%, 100% { transform: rotate(0); } 8%, 24% { transform: rotate(-14deg); } 16%, 32% { transform: rotate(14deg); } 40% { transform: rotate(-6deg); } }
 @media (prefers-reduced-motion: reduce) { .tm-ring-bell { animation: none; } .tm-ring-flash { animation: none; opacity: 0.4; } }
+.tm-alarms { margin-top: 2px; font-size: 21px; color: var(--plaster-2); }
+.tm-alarms[hidden] { display: none; }

@@ -10,14 +10,18 @@
 // window.HomeHQ.alarmVolume), the frame's media volume is also raised to the maximum while it
 // rings and put back afterwards. During the adhan the alarm waits (the card shows at once).
 //
+// Daily alarms («منبّه يومي», set in the control panel: the pill at 21:00) ring on the same card when
+// the frame's clock reaches their time; «إيقاف» marks them done for the day, «غفوة» turns them
+// into a short timer.
+//
 // The timers live on the server (PulseHub), so the control panel can start, see and stop them
 // too: every change goes there and comes back to the frame at once over its live connection.
 // If the frame can't reach the server, a timer started on it still runs here on its own. A copy
 // is kept in this browser, so a reload or a power cut keeps them.
-import { h, store, now } from './util.js';
+import { h, store, now, parts, dayKey } from './util.js';
 import { frameFetch, DEMO } from './data.js';
 import * as demo from './demo.js';
-import { timerOp, cleanTimers, timerEnded, timerLeft, fmtTimer as fmt, minutesAr, timerName, MAX_TIMERS, TIMER_LABELS as LABELS, TIMER_PRESETS as PRESETS, SNOOZES } from './timers-common.js';
+import { timerOp, cleanTimers, timerEnded, timerLeft, fmtTimer as fmt, minutesAr, timerName, MAX_TIMERS, TIMER_LABELS as LABELS, TIMER_PRESETS as PRESETS, SNOOZES, cleanAlarms, alarmRinging, daysAr } from './timers-common.js';
 
 const RING_FOR = 10 * 60000; // the sound stops by itself after this (the card stays)
 const MIN = 60000;
@@ -99,6 +103,19 @@ export function createTimers({ stage, tab, wake, held }) {
   const ended = (x, t) => timerEnded(x, t);
   const remaining = (x, t) => timerLeft(x, t);
 
+  // Daily alarms: the server's list; done-for-today kept here too in case the server can't be told.
+  let alarms = cleanAlarms(store.get('alarms', []));
+  const localDone = store.get('alarms-done', {}) || {};
+  const told = {}; // id → the day the server was told it rings
+  const wall = (t) => { const p = parts(t); return { day: dayKey(t), wd: p.wd, minutes: p.h * 60 + p.mi }; };
+  const ringingAlarms = (t) => { const w = wall(t); return alarms.filter((a) => alarmRinging(a, w) && localDone[a.id] !== w.day); };
+  // When today's ring began (for «منذ …» and the 10 minutes of sound).
+  const alarmStart = (a, t) => { const [hh, mm] = a.time.split(':').map(Number); const w = wall(t); return t - ((w.minutes - (hh * 60 + mm)) * 60000) - (parts(t).s * 1000); };
+  function alarmsFromServer(list) { alarms = cleanAlarms(list); store.set('alarms', alarms); draw(now(), true); }
+  async function alarmOpSend(body) {
+    try { const r = DEMO ? demo.alarmOp(body) : await frameFetch('/api/pulse/alarms', 'POST', body); alarmsFromServer(r.alarms); return true; } catch (e) { return false; }
+  }
+
   function fromServer(list) {
     const t = now();
     const local = timers.filter((x) => x.local);
@@ -111,6 +128,7 @@ export function createTimers({ stage, tab, wake, held }) {
       if (DEMO) fromServer(demo.timers());
       else fromServer((await frameFetch('/api/pulse/timers')).timers);
     } catch (e) { /* offline: keep what we have */ }
+    try { alarmsFromServer(DEMO ? demo.alarms() : (await frameFetch('/api/pulse/alarms')).alarms); } catch (e) { /* offline */ }
   }
   // Every change: at once here, then on the server (which tells the phones and sends the list back).
   async function op(body) {
@@ -139,6 +157,7 @@ export function createTimers({ stage, tab, wake, held }) {
   const customVal = h('bdi', { class: 'tm-custom-val' });
   const customBox = h('div', { class: 'tm-custom' });
   const full = h('div', { class: 'tm-full', hidden: true }, 'يكفي ' + MAX_TIMERS + ' مؤقّتات في وقت واحد. أوقفوا واحداً أولاً.');
+  const alarmLine = h('div', { class: 'tm-alarms', hidden: true });
   const closeBtn = h('button', { class: 'fun-close', type: 'button', 'aria-label': 'إغلاق' }, '×');
   const modal = h('div', { class: 'fun-modal tm', hidden: true },
     h('div', { class: 'fun-scrim' }),
@@ -152,7 +171,8 @@ export function createTimers({ stage, tab, wake, held }) {
       h('div', { class: 'tm-step' }, h('span', { class: 'tm-step-n' }, '2'), 'المسوا المدة ليبدأ'),
       presets,
       customBox,
-      full),
+      full,
+      alarmLine),
     closeBtn);
 
   let label = '';
@@ -182,6 +202,7 @@ export function createTimers({ stage, tab, wake, held }) {
   stage.append(pills);
   const ringNames = h('div', { class: 'tm-ring-names' });
   const ringSince = h('div', { class: 'tm-ring-since' });
+  const ringTitle = h('div', { class: 'tm-ring-title' }, 'انتهى الوقت!');
   const stopBtn = h('button', { type: 'button', class: 'tm-ring-stop' }, 'إيقاف');
   // Snooze: ring again in 1, 5 or 10 minutes.
   const snoozeBtns = SNOOZES.map((m) => {
@@ -193,7 +214,7 @@ export function createTimers({ stage, tab, wake, held }) {
     h('div', { class: 'tm-ring-flash' }),
     h('div', { class: 'tm-ring-card' },
       h('div', { class: 'tm-ring-bell', html: BELL }),
-      h('div', { class: 'tm-ring-title' }, 'انتهى الوقت!'),
+      ringTitle,
       ringNames,
       ringSince,
       h('div', { class: 'tm-ring-actions' }, stopBtn,
@@ -278,19 +299,52 @@ export function createTimers({ stage, tab, wake, held }) {
       list.hidden = !running.length;
       full.hidden = timers.length < MAX_TIMERS;
     }
-    // The ringing card.
-    ring.hidden = !ringing.length;
-    if (ringing.length) {
-      const names = ringing.map(timerName).join(' · ');
+    // Today's daily alarms, in the panel.
+    if (open) {
+      const w = wall(t);
+      const today = alarms.filter((a) => a.on && (!a.days.length || a.days.includes(w.wd)));
+      alarmLine.hidden = !today.length;
+      const txt = 'المنبّهات اليوم: ' + today.map((a) => a.time + ' ' + a.label + (a.doneDay === w.day || localDone[a.id] === w.day ? ' ✓' : '')).join(' · ');
+      if (alarmLine.textContent !== txt) alarmLine.textContent = txt;
+    }
+    // The ringing card: timers that ended and daily alarms whose time has come.
+    const ringAl = ringingAlarms(t);
+    ring.hidden = !ringing.length && !ringAl.length;
+    if (!ring.hidden) {
+      const names = ringAl.map((a) => a.label).concat(ringing.map(timerName)).join(' · ');
       if (ringNames.textContent !== names) ringNames.textContent = names;
-      const since = t - Math.min(...ringing.map((x) => x.end));
+      const title = ringAl.length ? 'حان الوقت!' : 'انتهى الوقت!';
+      if (ringTitle.textContent !== title) ringTitle.textContent = title;
+      const since = t - Math.min(...ringing.map((x) => x.end), ...ringAl.map((a) => alarmStart(a, t)));
       ringSince.textContent = since < 5000 ? '' : 'منذ ' + fmt(since);
     }
   }
 
   const ringingIds = () => { const t = now(); return timers.filter((x) => ended(x, t)).map((x) => x.id); };
-  function stopRinging() { alarm.stop(); op({ op: 'stop', ids: ringingIds() }); }
-  function snooze(m) { alarm.stop(); op({ op: 'snooze', minutes: m, ids: ringingIds() }); }
+  // Daily alarms: done for today (here at once, and on the server); a snooze becomes a timer.
+  function alarmsDone() {
+    const t = now();
+    const day = wall(t).day;
+    const list = ringingAlarms(t);
+    for (const a of list) { localDone[a.id] = day; alarmOpSend({ op: 'done', id: a.id, day }); }
+    for (const k of Object.keys(localDone)) if (localDone[k] !== day) delete localDone[k];
+    store.set('alarms-done', localDone);
+    return list;
+  }
+  function stopRinging() {
+    alarm.stop();
+    alarmsDone();
+    const ids = ringingIds();
+    if (ids.length) op({ op: 'stop', ids });
+    draw(now(), true);
+  }
+  function snooze(m) {
+    alarm.stop();
+    for (const a of alarmsDone()) op({ op: 'add', minutes: m, label: a.label });
+    const ids = ringingIds();
+    if (ids.length) op({ op: 'snooze', minutes: m, ids });
+    draw(now(), true);
+  }
   stopBtn.addEventListener('click', (e) => { e.stopPropagation(); stopRinging(); });
   // A tap anywhere else on the card also silences it (someone ran to the kitchen).
   ring.addEventListener('click', () => stopRinging());
@@ -300,25 +354,29 @@ export function createTimers({ stage, tab, wake, held }) {
   function tick() {
     const t = now();
     const ringing = timers.filter((x) => ended(x, t));
+    const ringAl = ringingAlarms(t);
     draw(t, false);
-    if (!ringing.length) { if (alarm.playing()) alarm.stop(); return; }
+    if (!ringing.length && !ringAl.length) { if (alarm.playing()) alarm.stop(); return; }
+    // A daily alarm that starts ringing: the server tells the phone that set it.
+    const day = wall(t).day;
+    for (const a of ringAl) if (told[a.id] !== day && a.ringDay !== day) { told[a.id] = day; alarmOpSend({ op: 'ring', id: a.id, day }); }
     wake(); // keeps a dimmed or dark screen lit while it rings
-    const since = t - Math.min(...ringing.map((x) => x.end));
+    const since = t - Math.min(...ringing.map((x) => x.end), ...ringAl.map((a) => alarmStart(a, t)));
     if (since > RING_FOR || held()) alarm.stop(); else alarm.start();
   }
   draw(now(), true);
   load();
   setInterval(load, 60000);
-  if (DEMO) window.addEventListener('storage', (e) => { if (e.key === 'fd:demo-timers') load(); });
+  if (DEMO) window.addEventListener('storage', (e) => { if (e.key === 'fd:demo-timers' || e.key === 'fd:demo-alarms') load(); });
 
   return {
     open: show,
     ringEl: ring,
     tick,
-    busy: () => open || timers.some((x) => ended(x, now())),
-    ringing: () => timers.some((x) => ended(x, now())),
-    // The server's list, the moment something changes (from a phone too).
-    socket(m) { if (m.type === 'timers') fromServer(m.timers); },
+    busy: () => open || timers.some((x) => ended(x, now())) || ringingAlarms(now()).length > 0,
+    ringing: () => timers.some((x) => ended(x, now())) || ringingAlarms(now()).length > 0,
+    // The server's lists, the moment something changes (from a phone too).
+    socket(m) { if (m.type === 'timers') fromServer(m.timers); if (m.type === 'alarms') alarmsFromServer(m.alarms); },
     // For the preview page: a timer of a few seconds.
     demo(seconds, name) { const t = now(); timers.push({ id: 'd' + t.toString(36), label: name || '', by: '', total: seconds * 1000, end: t + seconds * 1000, left: 0, local: true }); save(); draw(t, true); },
   };

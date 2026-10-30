@@ -950,3 +950,13 @@ main { padding: 18px max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-
 .tmr-custom-label { font-size: 15px; color: var(--plaster-2); margin-left: 4px; }
 .tmr-step { min-width: 46px; direction: ltr; }
 .tmr-custom-val { min-width: 96px; text-align: center; font-size: 18px; font-weight: 500; }
+.alm-list { margin-bottom: 14px; }
+.alm-list[hidden] { display: none; }
+.alm-item .tmr-time { font-size: 28px; color: var(--plaster); }
+.alm-item.is-paused .tmr-time, .alm-item.is-paused .tmr-name { opacity: 0.55; }
+.alm-item.is-ringing .tmr-time { font-size: 18px; color: #FF8A73; }
+.alm-switch { margin: 0; font-size: 14px; color: var(--plaster-2); }
+.alm-form { display: flex; flex-direction: column; gap: 8px; }
+.alm-label { font-size: 14px; color: var(--plaster-2); margin-top: 4px; }
+.alm-form .wheel-chips { margin: 0 0 4px; }
+.alm-day { min-width: 40px; justify-content: center; }

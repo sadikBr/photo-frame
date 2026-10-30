@@ -67,7 +67,7 @@ const pulse = initPulse({ api, send, toast, el, $, key, DEMO, showView: (v) => s
 const quran = initQuran({ api, send, toast, el, $, DEMO, me: pulse.me });
 fun = initFun({ api, send, toast, el, $, DEMO, me: pulse.me, needName: pulse.needName, showView: (v) => showView(v), onSent: () => pulse.refresh() });
 // «مؤقّت»: timers that ring on the frame.
-const timers = initTimers({ api, send, toast, el, $, DEMO, me: pulse.me });
+const timers = initTimers({ api, send, toast, el, $, DEMO, me: pulse.me, offset: () => { try { return (board && board.utcOffset) || 0; } catch (e) { return 0; } } });
 
 // ================= shared state =================
 let board = { lists: { tasks: [], shopping: [] }, settings: {}, events: [], message: null, frameSeen: null, routines: [], audio: {}, preview: null };

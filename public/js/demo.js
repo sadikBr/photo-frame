@@ -1,6 +1,6 @@
 // Sample data for previewing the dashboard without a backend (open with ?demo).
 import { startOfDay, now, parts, dayKey, DAY, MINUTE, HOUR, store } from './util.js';
-import { timerOp as timerOpShared, cleanTimers } from './timers-common.js';
+import { timerOp as timerOpShared, cleanTimers, alarmOp as alarmOpShared, cleanAlarms } from './timers-common.js';
 import { dueFrom, addDays } from './routines.js';
 import { previewMatch, PREVIEW_MS } from './match-common.js';
 import { tileCount, PATTERN_COUNT, weekIndex } from './zellige.js';
@@ -370,4 +370,11 @@ export function timerOp(body) {
   if (r.error) throw new Error(r.error);
   store.set('demo-timers', r.list);
   return { timers: r.list, now: Date.now(), timer: r.timer || null };
+}
+export const alarms = () => cleanAlarms(store.get('demo-alarms', [{ id: 'ademo', label: 'حبوب الحمل', time: '21:00', days: [], on: true, by: 'ماما' }]));
+export function alarmOp(body) {
+  const r = alarmOpShared(alarms(), body, Date.now());
+  if (r.error) throw new Error(r.error);
+  store.set('demo-alarms', r.list);
+  return { alarms: r.list, alarm: r.alarm || null };
 }

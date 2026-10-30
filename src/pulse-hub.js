@@ -28,6 +28,8 @@
 // «حالتي»: GET /api/pulse/status · PUT {from, text, emoji, until} · POST /api/pulse/status/clear {from}.
 // «مؤقّت»: GET /api/pulse/timers → {timers, now} · POST {op, …} (see timers-common.js); the frame hears
 // at once ({type:"timers"}), and whoever started a timer from a phone is notified when it rings.
+// «منبّه يومي»: GET /api/pulse/alarms → {alarms} · POST {op, …} (see timers-common.js); the frame rings
+// them by its own clock and says so ({op:"ring"}), which tells the phone that set it, once a day.
 // «تلوين الزليج»: GET /api/pulse/coloring · POST …/fill {tile, color, from} · …/new {from} ·
 // …/saved {which: "current"|archived page's id} (the frame saves finished pages as photos).
 // «القرآن»: GET /api/pulse/quran · PUT {favs, schedules, volume, mode, reciter} · POST …/cmd {action:
@@ -41,7 +43,7 @@
 import { sendPush, validSubscription } from './webpush.js';
 import { tileCount, PATTERN_COUNT, weekIndex } from '../public/js/zellige.js';
 import { validSurah, validReciter, DEFAULT_FAVS } from '../public/js/quran-common.js';
-import { timerOp, cleanTimers, timerName } from '../public/js/timers-common.js';
+import { timerOp, cleanTimers, timerName, alarmOp, cleanAlarms } from '../public/js/timers-common.js';
 import { LEAGUES, scoreboardUrl, parseScoreboard, pickMatch, matchChanges, changeMessage, previewMatch, PREVIEW_MS } from './match.js';
 
 export const pushDeps = { fetch: (...a) => fetch(...a) }; // tests swap this
@@ -411,6 +413,23 @@ export class PulseHub {
       this.broadcast({ type: 'timers', timers: r.list, now: Date.now() });
       await this.setNextAlarm();
       return json({ timers: r.list, now: Date.now(), timer: r.timer || null });
+    }
+    if (path === '/api/pulse/alarms' && method === 'GET') return json({ alarms: cleanAlarms(await this.ctx.storage.get('alarms')) });
+    if (path === '/api/pulse/alarms' && method === 'POST') {
+      let body;
+      try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
+      const r = alarmOp(await this.ctx.storage.get('alarms'), body, Date.now());
+      if (r.error) return fail(400, r.error);
+      await this.ctx.storage.put('alarms', r.list);
+      this.broadcast({ type: 'alarms', alarms: r.list });
+      if (body.op === 'ring' && r.firstRing) {
+        const a = r.list.find((x) => x.id === body.id);
+        if (a && a.by) {
+          const to = (await this.subs()).filter((sub) => sub.name === a.by && sub.notify !== 'off');
+          if (to.length) await this.pushTo(to, { id: a.id, kind: 'timer', tag: 'alarm-' + a.id, url: '/admin#timers', title: '⏰ ' + a.label, body: 'المنبّه يرنّ الآن على الإطار (' + a.time + ')', heart: false }, 'high');
+        }
+      }
+      return json({ alarms: r.list, alarm: r.alarm || null });
     }
     if ((path === '/api/pulse/status' && method === 'PUT') || (path === '/api/pulse/status/clear' && method === 'POST')) {
       let body;

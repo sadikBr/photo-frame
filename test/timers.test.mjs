@@ -1,7 +1,7 @@
 // «مؤقّت»: timers that ring on the frame, started from the frame or a phone (server side + rules).
 import assert from 'node:assert/strict';
 import { PulseHub, pushDeps } from '../src/pulse-hub.js';
-import { timerOp, cleanTimers, fmtTimer } from '../public/js/timers-common.js';
+import { timerOp, cleanTimers, fmtTimer, alarmOp, alarmRinging, daysAr } from '../public/js/timers-common.js';
 import { b64u } from '../src/webpush.js';
 import { fakeNamespace } from './fake-do.mjs';
 
@@ -96,5 +96,42 @@ r = await call('/api/pulse/timers', 'POST', { op: 'stop' });
 assert.equal((await r.json()).timers.length, 0);
 assert.equal(sock.got.at(-1).timers.length, 0);
 
+// ---------- daily alarms ----------
+let a = alarmOp([], { op: 'add', label: 'حبوب الحمل', time: '21:00', by: 'ماما' }, t0);
+const al = a.list[0];
+assert.deepEqual(al.days, [], 'every day');
+assert.ok(alarmOp([], { op: 'add', label: 'x', time: '25:00' }, t0).error);
+assert.ok(alarmOp([], { op: 'add', label: '', time: '21:00' }, t0).error);
+const fri = { day: '2026-10-30', wd: 5 };
+assert.equal(alarmRinging(al, { ...fri, minutes: 20 * 60 + 59 }), false);
+assert.equal(alarmRinging(al, { ...fri, minutes: 21 * 60 }), true);
+assert.equal(alarmRinging(al, { ...fri, minutes: 21 * 60 + 29 }), true, 'still, if the frame was off at 21:00');
+assert.equal(alarmRinging(al, { ...fri, minutes: 21 * 60 + 30 }), false);
+let done = alarmOp(a.list, { op: 'done', id: al.id, day: fri.day }).list[0];
+assert.equal(alarmRinging(done, { ...fri, minutes: 21 * 60 + 5 }), false, 'stopped for today');
+assert.equal(alarmRinging(done, { day: '2026-10-31', wd: 6, minutes: 21 * 60 + 5 }), true, 'and back tomorrow');
+const week = alarmOp([], { op: 'add', label: 'الفيتامين', time: '08:00', days: [1, 2, 3, 4, 5] }, t0).list[0];
+assert.equal(alarmRinging(week, { day: '2026-10-31', wd: 6, minutes: 8 * 60 + 1 }), false, 'not on Saturday');
+assert.equal(daysAr(week.days), 'من الإثنين إلى الجمعة');
+assert.equal(alarmOp(a.list, { op: 'update', id: al.id, on: false }).list[0].on, false);
+assert.equal(alarmOp(a.list, { op: 'remove', id: al.id }).list.length, 0);
+
+// The server: the frame says it rings; the phone that set it hears once a day.
+pushed.length = 0;
+r = await call('/api/pulse/alarms', 'POST', { op: 'add', label: 'حبوب الحمل', time: '21:00', by: 'ماما' });
+assert.equal(r.status, 200);
+const aid = (await r.json()).alarm.id;
+assert.equal(sock.got.at(-1).type, 'alarms', 'the frame hears at once');
+await call('/api/pulse/alarms', 'POST', { op: 'ring', id: aid, day: '2026-10-30' });
+await call('/api/pulse/alarms', 'POST', { op: 'ring', id: aid, day: '2026-10-30' });
+assert.equal(pushed.length, 1, 'once');
+assert.deepEqual(pushed[0].to, ['ماما']);
+assert.match(pushed[0].message.title, /حبوب الحمل/);
+r = await call('/api/pulse/alarms', 'POST', { op: 'done', id: aid, day: '2026-10-30' });
+assert.equal((await r.json()).alarms[0].doneDay, '2026-10-30');
+await call('/api/pulse/alarms', 'POST', { op: 'ring', id: aid, day: '2026-10-31' });
+assert.equal(pushed.length, 2, 'and again the next day');
+assert.equal((await (await call('/api/pulse/alarms')).json()).alarms.length, 1);
+
 Date.now = realNow;
-console.log('timers: all tests passed');
+console.log('timers & alarms: all tests passed');

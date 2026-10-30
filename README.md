@@ -205,6 +205,14 @@ screen (even at night, when it wakes the screen) and a loud two-tone alarm rings
 touches «إيقاف», or «غفوة» for 1, 5 or 10 more minutes. It stops by itself after 10 minutes and
 waits while the adhan plays.
 
+**Daily alarms (منبّه يومي).** In the same page of the control panel, add an alarm with what it's for
+(«حبوب الحمل»), a time and the days (every day by default, or chosen days). At that time the frame
+rings it on the same red card («حان الوقت!»), loud, until someone touches «إيقاف» (done for today)
+or «غفوة» (it comes back as a 1, 5 or 10-minute timer). If the frame was off at that time, it still
+rings when it comes back within 30 minutes. The phone that set the alarm gets a notification when
+it rings, and the panel can stop or snooze it from afar. Each alarm can be switched off without
+deleting it. The frame's timer panel lists today's alarms.
+
 The alarm plays at full volume, but it can't be louder than the frame's media volume. With the
 updated kiosk app (`bash tools/kiosk-screen/update_kiosk.sh`, needs the frame on adb), the frame
 turns its media volume up to the maximum while a timer rings and puts it back afterwards. On the

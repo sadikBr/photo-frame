@@ -89,3 +89,83 @@ export function fmtTimer(ms) {
 }
 export const minutesAr = (m) => (m === 1 ? 'دقيقة' : m === 2 ? 'دقيقتان' : m <= 10 ? m + ' دقائق' : m + ' دقيقة');
 export const timerName = (x) => x.label || minutesAr(Math.max(1, Math.round(x.total / MIN)));
+
+// ---------- «منبّه يومي»: a daily alarm at a set time (the pill at 21:00) ----------
+// An alarm: { id, label, time: "HH:MM" (the frame's local time), days: [0–6] (Sunday = 0; empty =
+// every day), on, by, ringDay, doneDay }. The frame rings it when its clock reaches the time
+// (or up to ALARM_WINDOW minutes later, if it was off), unless it was already stopped that day.
+// ringDay: the day the frame last rang it (the phone that set it is told, once); doneDay: the day
+// someone stopped it.
+//
+// alarmOp(list, body) → { list } or { error }. Ops:
+//   {op:"add", label, time, days?, by?} · {op:"update", id, label?, time?, days?, on?}
+//   {op:"remove", id} · {op:"ring", id, day} · {op:"done", id, day}
+export const MAX_ALARMS = 20;
+export const ALARM_WINDOW = 30; // minutes after the time when a missed alarm still rings
+export const ALARM_LABELS = ['الدواء', 'حبوب الحمل', 'الفيتامين', 'قياس السكر', 'سقي النباتات'];
+export const DAY_SHORT = ['ح', 'ن', 'ث', 'ر', 'خ', 'ج', 'س']; // Sunday first, like Date.getDay()
+const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
+const DAYKEY = /^\d{4}-\d{2}-\d{2}$/;
+
+const cleanDays = (v) => [...new Set((Array.isArray(v) ? v : []).map(Number).filter((d) => Number.isInteger(d) && d >= 0 && d <= 6))].sort();
+export function cleanAlarms(list) {
+  return (Array.isArray(list) ? list : []).filter((x) => x && typeof x.id === 'string' && HHMM.test(x.time)).slice(0, MAX_ALARMS)
+    .map((x) => ({ id: x.id, label: text(x.label, 30), time: x.time, days: cleanDays(x.days).length === 7 ? [] : cleanDays(x.days), on: x.on !== false, by: text(x.by, 24), ringDay: DAYKEY.test(x.ringDay) ? x.ringDay : '', doneDay: DAYKEY.test(x.doneDay) ? x.doneDay : '' }));
+}
+
+export function alarmOp(input, body, t) {
+  const list = cleanAlarms(input);
+  const b = body || {};
+  const x = list.find((y) => y.id === b.id);
+  switch (b.op) {
+    case 'add': {
+      if (list.length >= MAX_ALARMS) return { error: 'يكفي ' + MAX_ALARMS + ' منبّهاً.' };
+      if (!HHMM.test(String(b.time))) return { error: 'اختر الساعة.' };
+      const label = text(b.label, 30);
+      if (!label) return { error: 'اكتب ما يذكّر به المنبّه.' };
+      const a = cleanAlarms([{ id: 'a' + (t || Date.now()).toString(36) + Math.random().toString(36).slice(2, 5), label, time: b.time, days: b.days, on: true, by: b.by }])[0];
+      list.push(a);
+      list.sort((p, q) => p.time.localeCompare(q.time));
+      return { list, alarm: a };
+    }
+    case 'update': {
+      if (!x) return { error: 'That alarm is gone.' };
+      if (b.time != null) { if (!HHMM.test(String(b.time))) return { error: 'اختر الساعة.' }; x.time = b.time; x.ringDay = ''; x.doneDay = ''; }
+      if (b.label != null) { const l = text(b.label, 30); if (!l) return { error: 'اكتب ما يذكّر به المنبّه.' }; x.label = l; }
+      if (b.days != null) x.days = cleanDays(b.days).length === 7 ? [] : cleanDays(b.days);
+      if (b.on != null) x.on = !!b.on;
+      list.sort((p, q) => p.time.localeCompare(q.time));
+      return { list };
+    }
+    case 'remove':
+      return { list: list.filter((y) => y.id !== b.id) };
+    case 'ring': case 'done': {
+      if (!x) return { error: 'That alarm is gone.' };
+      if (!DAYKEY.test(String(b.day))) return { error: 'Which day?' };
+      if (b.op === 'ring') { x.firstRing = x.ringDay !== b.day; x.ringDay = b.day; } else x.doneDay = b.day;
+      const out = { list: list.map((y) => { const c = Object.assign({}, y); delete c.firstRing; return c; }) };
+      if (b.op === 'ring') out.firstRing = x.firstRing;
+      return out;
+    }
+    default:
+      return { error: 'Unknown alarm op.' };
+  }
+}
+
+// Is this alarm ringing now? w = the frame's local {day: "YYYY-MM-DD", wd: 0–6, minutes: since midnight}.
+export function alarmRinging(a, w) {
+  if (!a.on || a.doneDay === w.day) return false;
+  if (a.days.length && !a.days.includes(w.wd)) return false;
+  const [hh, mm] = a.time.split(':').map(Number);
+  const m = hh * 60 + mm;
+  return w.minutes >= m && w.minutes < m + ALARM_WINDOW;
+}
+// «كل يوم», «أيام العمل», «ن ث ر»…
+export function daysAr(days) {
+  if (!days || !days.length || days.length === 7) return 'كل يوم';
+  const k = days.join(',');
+  if (k === '1,2,3,4,5') return 'من الإثنين إلى الجمعة';
+  if (k === '0,6') return 'نهاية الأسبوع';
+  const names = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+  return days.map((d) => names[d]).join('، ');
+}
