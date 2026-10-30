@@ -19,6 +19,8 @@
 //   GET  /api/audio/<name>         the audio file;  DELETE removes it
 //   POST /api/preview              {what:"ramadan"|"adhkar"|"adhan"|"wifi"|"theme"|"none", minutes?, theme?}  show it on the frame now
 //   /api/pulse…                    «نبضة»: moments from phones to the frame (see pulse-hub.js)
+//   GET  /api/recipes?a=|c=|q=     «وصفات»: recipes from TheMealDB, in Arabic (see recipes.js)
+//   GET  /api/recipes/<id>         one recipe, step by step
 //   GET  /api/photos               photo index
 //   POST /api/photos               upload one JPEG (body = image bytes)
 //   GET  /api/photos/<id>          the photo
@@ -27,6 +29,7 @@
 
 import { sanitizeSettings, clean, num, THEMES } from './settings.js';
 import { dueFrom, addDays } from '../public/js/routines.js';
+import { recipeList, recipeOne } from './recipes.js';
 
 export { dueFrom };
 // «نبضة» lives in a Durable Object (see pulse-hub.js and wrangler.jsonc).
@@ -452,6 +455,9 @@ export default {
         if (!env.PULSE) return fail(500, 'The PULSE Durable Object is not bound. See wrangler.jsonc and the README.');
         return env.PULSE.get(env.PULSE.idFromName('family')).fetch(request);
       }
+      if (path === '/api/recipes' && method === 'GET') return recipeList(env, url);
+      const rm = /^\/api\/recipes\/(\d{1,10})$/.exec(path);
+      if (rm && method === 'GET') return recipeOne(env, rm[1]);
       if (path === '/api/settings') {
         if (method === 'GET') return json((await needStore(env).get('settings', 'json')) || {});
         if (method === 'PUT') return putSettings(request, env);

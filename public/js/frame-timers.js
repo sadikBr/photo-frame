@@ -371,6 +371,7 @@ export function createTimers({ stage, tab, wake, held }) {
 
   return {
     open: show,
+    start: (minutes, label) => op({ op: 'add', minutes, label: label || '' }),
     ringEl: ring,
     tick,
     busy: () => open || timers.some((x) => ended(x, now())) || ringingAlarms(now()).length > 0,

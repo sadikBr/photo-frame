@@ -80,7 +80,8 @@
         <button type="button" class="hg" data-go="photos"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="#F2AE3D" stroke-width="1.9"/><path d="M3 16l5-5 4 4 3-3 6 6" fill="none" stroke="#F2AE3D" stroke-width="1.9" stroke-linejoin="round"/></svg><span class="hg-t"><span class="hg-title">أضف صوراً</span><span class="hg-sub" id="homePhotos">ألبوم الإطار</span></span></button>
         <button type="button" class="hg" data-go="fun"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.2 5.6L20 9l-5.8 1.5L12 16l-2.2-5.5L4 9l5.8-1.4z" fill="#F2AE3D"/></svg><span class="hg-t"><span class="hg-title">مرح</span><span class="hg-sub">دقّة، عجلة، تلوين</span></span></button>
         <button type="button" class="hg" id="homeWifi"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#9FE0C6" stroke-width="2" stroke-linecap="round"><path d="M2.5 9a14 14 0 0 1 19 0"/><path d="M5.8 12.6a9.2 9.2 0 0 1 12.4 0"/><path d="M9.1 16.1a4.6 4.6 0 0 1 5.8 0"/><circle cx="12" cy="19.6" r="1.2" fill="#9FE0C6" stroke="none"/></svg><span class="hg-t"><span class="hg-title">الواي فاي</span><span class="hg-sub" id="homeWifiSub">اعرض الرمز للضيوف</span></span></button>
-        <button type="button" class="hg hg-wide" data-go="timers" id="homeTimers"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#F2AE3D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.5" r="8"/><path d="M12 9.5v4l2.6 1.6M9.5 2.5h5M12 2.5v3"/></svg><span class="hg-t"><span class="hg-title">مؤقّت ومنبّه</span><span class="hg-sub" id="homeTimersSub">يرنّ في البيت بصوت عالٍ</span></span></button>
+        <button type="button" class="hg" data-go="timers" id="homeTimers"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#F2AE3D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.5" r="8"/><path d="M12 9.5v4l2.6 1.6M9.5 2.5h5M12 2.5v3"/></svg><span class="hg-t"><span class="hg-title">مؤقّت ومنبّه</span><span class="hg-sub" id="homeTimersSub">يرنّ في البيت بصوت عالٍ</span></span></button>
+        <button type="button" class="hg" data-go="recipes"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#F2AE3D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h16a8 8 0 0 1-16 0z"/><path d="M2.5 13h19M9 9c0-1.5 1-1.5 1-3M13 9c0-1.5 1-1.5 1-3"/></svg><span class="hg-t"><span class="hg-title">وصفة على الإطار</span><span class="hg-sub">اطبخوا خطوة خطوة</span></span></button>
       </section>
 
       <section class="home-today" aria-labelledby="todayTitle">
@@ -405,6 +406,39 @@
     </section>
 
     <!-- ===== message ===== -->
+    <!-- ===== «وصفات»: recipes to cook from the frame ===== -->
+    <section id="v-recipes" class="view" hidden>
+      <button type="button" class="back" data-go="home">الرئيسية</button>
+      <div id="rcpBrowse">
+        <h2>وصفات</h2>
+        <p class="lead">اختر وصفة واعرضها على الإطار: تظهر خطوة خطوة بخط كبير، مع مؤقّت لكل خطوة تنتظر.</p>
+        <form class="addbar rcp-search" id="rcpSearch">
+          <label class="sr" for="rcpQ">ابحث عن وصفة</label>
+          <input id="rcpQ" type="search" maxlength="60" autocomplete="off" placeholder="ابحث: طاجين، كسكس، دجاج…" enterkeyhint="search">
+          <button type="submit" aria-label="ابحث"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>
+        </form>
+        <div class="wheel-chips rcp-shelves" id="rcpShelves"></div>
+        <p class="hint" id="rcpNote" hidden></p>
+        <div class="rcp-grid" id="rcpGrid"></div>
+      </div>
+      <div id="rcpOne" hidden>
+        <button type="button" class="ghost small" id="rcpBack">كل الوصفات</button>
+        <div class="rcp-photo" id="rcpPhoto"></div>
+        <h2 id="rcpTitle"></h2>
+        <p class="hint" id="rcpLang" hidden>بالإنجليزية الآن: الترجمة لم تنجح، وستُعاد لاحقاً.</p>
+        <button type="button" class="primary wide" id="rcpShow">اعرضها على الإطار</button>
+        <button type="button" class="ghost wide rcp-shop" id="rcpShop">أضف المكوّنات إلى قائمة الشراء</button>
+        <div class="card">
+          <h3>المكوّنات</h3>
+          <ul class="rcp-ingr" id="rcpIngr"></ul>
+        </div>
+        <div class="card">
+          <h3>الخطوات</h3>
+          <ol class="rcp-steps" id="rcpSteps"></ol>
+        </div>
+      </div>
+    </section>
+
     <!-- ===== «مؤقّت»: timers that ring on the frame ===== -->
     <section id="v-timers" class="view" hidden>
       <button type="button" class="back" data-go="home">الرئيسية</button>

@@ -8,6 +8,7 @@ import { initPulse } from './admin-pulse.js';
 import { initFun } from './admin-fun.js';
 import { initQuran } from './admin-quran.js';
 import { initTimers } from './admin-timers.js';
+import { initRecipes } from './admin-recipes.js';
 import { wifiString, qrSvg } from './wifi-common.js';
 
 const DEMO = !!(window.FRAME_DEMO || /[?&]demo\b/.test(location.search));
@@ -68,6 +69,8 @@ const quran = initQuran({ api, send, toast, el, $, DEMO, me: pulse.me });
 fun = initFun({ api, send, toast, el, $, DEMO, me: pulse.me, needName: pulse.needName, showView: (v) => showView(v), onSent: () => pulse.refresh() });
 // «مؤقّت»: timers that ring on the frame.
 const timers = initTimers({ api, send, toast, el, $, DEMO, me: pulse.me, offset: () => { try { return (board && board.utcOffset) || 0; } catch (e) { return 0; } } });
+// «وصفات»: recipes to cook from the frame.
+const recipes = initRecipes({ api, send, toast, el, $, DEMO, me: pulse.me, onListsChanged: () => loadBoard() });
 
 // ================= shared state =================
 let board = { lists: { tasks: [], shopping: [] }, settings: {}, events: [], message: null, frameSeen: null, routines: [], audio: {}, preview: null };
@@ -85,7 +88,7 @@ async function loadBoard() {
 // ================= tabs =================
 // Five tabs. «البيت» holds four views (lists, dates, photos, message) under one switcher;
 // «مرح» opens from «نبضة»; the settings are a menu of short pages.
-const VIEWS = ['home', 'pulse', 'quran', 'fun', 'timers', 'message', 'lists', 'photos', 'dates', 'settings'];
+const VIEWS = ['home', 'pulse', 'quran', 'fun', 'timers', 'recipes', 'message', 'lists', 'photos', 'dates', 'settings'];
 const HOUSE = ['lists', 'dates', 'photos', 'message'];
 const TAB_OF = { fun: 'pulse', lists: 'house', dates: 'house', photos: 'house', message: 'house' };
 function showView(v, page) {
@@ -113,6 +116,7 @@ function showView(v, page) {
   fun.shown(v === 'fun');
   quran.shown(v === 'quran');
   timers.shown(v === 'timers' || v === 'home');
+  recipes.shown(v === 'recipes');
   pulse.watch(v === 'fun');
   window.scrollTo(0, 0);
 }

@@ -960,3 +960,21 @@ main { padding: 18px max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-
 .alm-label { font-size: 14px; color: var(--plaster-2); margin-top: 4px; }
 .alm-form .wheel-chips { margin: 0 0 4px; }
 .alm-day { min-width: 40px; justify-content: center; }
+
+/* ---------- «وصفات» ---------- */
+.rcp-search { margin-bottom: 10px; }
+.rcp-shelves { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.rcp-shelves::-webkit-scrollbar { display: none; }
+.rcp-shelves .wheel-chip { flex: none; }
+.rcp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 6px; }
+.rcp-card { display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; background: #46202F; border: 1px solid #5A3443; color: var(--plaster); text-align: right; }
+.rcp-card-img { height: 110px; background: rgba(242, 174, 61, 0.14) center / cover no-repeat; }
+.rcp-card-name { padding: 8px 10px 10px; font-size: 15px; line-height: 1.35; }
+#rcpOne[hidden], #rcpBrowse[hidden], .rcp-photo[hidden] { display: none; }
+.rcp-photo { height: 190px; margin: 12px 0 4px; border-radius: 18px; background: rgba(242, 174, 61, 0.14) center / cover no-repeat; }
+.rcp-shop { width: 100%; margin: 8px 0 14px; }
+.rcp-ingr { list-style: none; margin: 0; padding: 0; }
+.rcp-ingr li { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(243, 237, 226, 0.08); font-size: 15px; }
+.rcp-ingr small { color: var(--plaster-3); text-align: left; }
+.rcp-steps { margin: 0; padding-inline-start: 22px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.6; }
+.rcp-min { display: inline-block; margin-inline-start: 8px; padding: 0 8px; border-radius: 10px; font-size: 13px; color: var(--saffron); background: rgba(242, 174, 61, 0.14); }

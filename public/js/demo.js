@@ -378,3 +378,21 @@ export function alarmOp(body) {
   store.set('demo-alarms', r.list);
   return { alarms: r.list, alarm: r.alarm || null };
 }
+
+// «وصفات» on the preview pages: a few recipes already in Arabic (the real ones come from
+// TheMealDB through the server, which translates them).
+const DEMO_RECIPES = [
+  { id: '90001', title: 'حريرة مغربية', area: 'Moroccan', category: 'Soup', thumb: '', lang: 'ar',
+    ingredients: [{ name: 'لحم غنم مقطّع صغيراً', qty: '250 غ' }, { name: 'حمّص منقوع', qty: 'كأس' }, { name: 'عدس', qty: 'نصف كأس' }, { name: 'طماطم مهروسة', qty: '4 حبات' }, { name: 'بصل مفروم', qty: 'حبة' }, { name: 'كرفس وقزبر ومعدنوس', qty: 'حزمة صغيرة' }, { name: 'دقيق', qty: '3 ملاعق كبيرة' }, { name: 'شعرية', qty: 'حفنة' }, { name: 'زنجبيل وكركم وقرفة', qty: 'ملعقة صغيرة من كلّ' }],
+    steps: [{ text: 'ضعوا اللحم والبصل والتوابل مع ملعقة سمن في القدر، وقلّبوا على نار متوسطة.', minutes: 5 }, { text: 'أضيفوا الحمّص والعدس والطماطم والأعشاب المفرومة، ثم ستة لترات من الماء.', minutes: null }, { text: 'غطّوا القدر واتركوه يطهى حتى ينضج الحمّص.', minutes: 45 }, { text: 'اخلطوا الدقيق مع كأس ماء حتى يصير «تدويرة» ناعمة بلا كتل.', minutes: null }, { text: 'أضيفوا الشعرية واتركوها تطهى.', minutes: 5 }, { text: 'صبّوا التدويرة شيئاً فشيئاً مع التحريك الدائم حتى تتماسك الحريرة.', minutes: 10 }, { text: 'قدّموها ساخنة مع التمر والشباكية والحامض.', minutes: null }] },
+  { id: '90002', title: 'طاجين الدجاج بالزيتون والحامض المصيّر', area: 'Moroccan', category: 'Chicken', thumb: '', lang: 'ar',
+    ingredients: [{ name: 'دجاجة مقطّعة', qty: 'حبة' }, { name: 'بصل', qty: '2 حبة' }, { name: 'ثوم', qty: '3 فصوص' }, { name: 'حامض مصيّر', qty: 'حبة' }, { name: 'زيتون أخضر', qty: 'كأس' }, { name: 'زعفران وزنجبيل وكركم', qty: 'رشة من كلّ' }, { name: 'زيت زيتون', qty: '4 ملاعق' }],
+    steps: [{ text: 'تبّلوا الدجاج بالثوم والتوابل والزيت، واتركوه يتشرّب.', minutes: 30 }, { text: 'ضعوا البصل المقطّع في الطاجين ثم الدجاج فوقه.', minutes: null }, { text: 'أضيفوا كأس ماء، وغطّوا الطاجين على نار هادئة.', minutes: 45 }, { text: 'أضيفوا الزيتون وقشر الحامض المصيّر.', minutes: 15 }, { text: 'قدّموه مع الخبز.', minutes: null }] },
+  { id: '90003', title: 'كسكس بسبع خضار', area: 'Moroccan', category: 'Lamb', thumb: '', lang: 'ar',
+    ingredients: [{ name: 'كسكس', qty: '1 كغ' }, { name: 'لحم غنم', qty: '1 كغ' }, { name: 'خضر: جزر، لفت، كوسة، قرع، ملفوف، باذنجان، فول', qty: '' }, { name: 'حمّص منقوع', qty: 'كأس' }, { name: 'بصل وطماطم', qty: '2 حبة من كلّ' }],
+    steps: [{ text: 'ضعوا اللحم والبصل والطماطم والتوابل في الكسكاس مع الماء.', minutes: 30 }, { text: 'رطّبوا الكسكس بالماء والزيت وافركوه، ثم ضعوه فوق البخار.', minutes: 20 }, { text: 'أضيفوا الخضر الصلبة إلى المرق.', minutes: 20 }, { text: 'بخّروا الكسكس مرة ثانية وأضيفوا الخضر الطرية.', minutes: 20 }, { text: 'رتّبوا الكسكس واللحم والخضر في القصعة وسقوه بالمرق.', minutes: null }] },
+];
+export const recipeList = () => ({ recipes: DEMO_RECIPES.map((r) => ({ id: r.id, name: r.title, ar: r.title, thumb: r.thumb })) });
+export const recipeOne = (id) => DEMO_RECIPES.find((r) => r.id === String(id)) || null;
+export const demoRecipe = () => store.get('demo-recipe', null);
+export function sendRecipe(r) { const v = r && r.id ? { id: r.id, title: r.title || '', by: r.by || '', at: Date.now() } : null; store.set('demo-recipe', v); return { recipe: v }; }

@@ -35,6 +35,10 @@
             "new_sqlite_classes": ["PulseHub"],
         },
     ],
+    // «وصفات»: Workers AI translates the recipes into Arabic (once each; free daily allowance).
+    "ai": {
+        "binding": "AI",
+    },
     // Phone notifications for «نبضة» (Web Push). The public half of the key pair; the private
     // half is a secret: npx wrangler secret put VAPID_PRIVATE_KEY (its value is in .dev.vars).
     "vars": {

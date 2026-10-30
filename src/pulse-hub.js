@@ -28,6 +28,7 @@
 // «حالتي»: GET /api/pulse/status · PUT {from, text, emoji, until} · POST /api/pulse/status/clear {from}.
 // «مؤقّت»: GET /api/pulse/timers → {timers, now} · POST {op, …} (see timers-common.js); the frame hears
 // at once ({type:"timers"}), and whoever started a timer from a phone is notified when it rings.
+// «وصفات»: GET /api/pulse/recipe · POST {id, title, by} — open a recipe on the frame (id null closes it).
 // «منبّه يومي»: GET /api/pulse/alarms → {alarms} · POST {op, …} (see timers-common.js); the frame rings
 // them by its own clock and says so ({op:"ring"}), which tells the phone that set it, once a day.
 // «تلوين الزليج»: GET /api/pulse/coloring · POST …/fill {tile, color, from} · …/new {from} ·
@@ -413,6 +414,18 @@ export class PulseHub {
       this.broadcast({ type: 'timers', timers: r.list, now: Date.now() });
       await this.setNextAlarm();
       return json({ timers: r.list, now: Date.now(), timer: r.timer || null });
+    }
+    // «وصفات»: a recipe sent from a phone opens on the frame ({id, title, by}; {id: null} closes it).
+    if (path === '/api/pulse/recipe' && method === 'GET') return json({ recipe: (await this.ctx.storage.get('recipe')) || null });
+    if (path === '/api/pulse/recipe' && method === 'POST') {
+      let body;
+      try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
+      const id = body.id == null ? null : String(body.id);
+      if (id !== null && !/^\d{1,10}$/.test(id)) return fail(400, 'Which recipe?');
+      const recipe = id ? { id, title: String(body.title || '').trim().slice(0, 80), by: name(body.by), at: Date.now() } : null;
+      await this.ctx.storage.put('recipe', recipe);
+      this.broadcast({ type: 'recipe', recipe });
+      return json({ recipe });
     }
     if (path === '/api/pulse/alarms' && method === 'GET') return json({ alarms: cleanAlarms(await this.ctx.storage.get('alarms')) });
     if (path === '/api/pulse/alarms' && method === 'POST') {

@@ -218,6 +218,26 @@ updated kiosk app (`bash tools/kiosk-screen/update_kiosk.sh`, needs the frame on
 turns its media volume up to the maximum while a timer rings and puts it back afterwards. On the
 preview page, `frameDemo.timer(5, 'أتاي')` in the console starts a 5-second timer.
 
+### Recipes (وصفات)
+
+On the frame: **المزيد → وصفات**. Choose a shelf (مغربية، حلويات، فطور، جزائرية، تونسية… or
+دجاج، سمك، نباتية…) and a dish, then cook it one step at a time in big letters: touch the step or
+«التالي» to go on. A step that waits («اتركه 45 دقيقة») has a button that starts that timer, and
+the ingredients go to the shopping list with one tap. From the control panel, **الرئيسية → وصفة
+على الإطار** browses and searches the same recipes (in Arabic or English) and «اعرضها على الإطار»
+opens one on the frame at once.
+
+The recipes come from [TheMealDB](https://www.themealdb.com) (free; its test key is meant for
+personal use like this — set a `MEALDB_KEY` variable if you become a supporter). The server puts
+each one into Arabic once with Workers AI and keeps it in KV, so later views are instant and free.
+That needs the `"ai"` binding in `wrangler.jsonc` (already there; it uses the free daily
+allowance). Without it, or if a translation fails, the recipe shows in English and the translation
+is tried again a day later. Dishes with pork or alcohol are left out. In `wrangler dev`, the AI
+binding runs on Cloudflare (you'll be asked to log in).
+
+The tab row now holds only the screens, the Quran and «المزيد»; the timers, recipes, the games and
+the guest Wi-Fi are in the «المزيد» menu.
+
 ### Night: dimmed or fully off
 
 **الإعدادات › الوضع الليلي** dims the screen between the two times. With **«إطفاء الشاشة كلياً»**

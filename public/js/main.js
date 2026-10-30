@@ -19,6 +19,7 @@ import { createColoring } from './frame-color.js';
 import { createQuran } from './frame-quran.js';
 import { createWifi, WIFI_ICON } from './frame-wifi.js';
 import { createTimers, TIMER_ICON } from './frame-timers.js';
+import { createRecipes, RECIPE_ICON } from './frame-recipes.js';
 import { setScreen } from './screen.js';
 import { initTheme, previewTheme, themeTick } from './theme.js';
 import { BOOK } from './quran-common.js';
@@ -79,10 +80,20 @@ stage.append(track, dockScrim, nav, status, adhanBar, night);
 const knockTab = h('button', { class: 'tab tab-fun', type: 'button', 'aria-label': 'الدقّة السرية', html: '<svg width="24" height="28" viewBox="0 0 24 28" aria-hidden="true"><path d="M3 28V11a9 9 0 0 1 18 0v17z" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="12" cy="17" r="3.4" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>' }, 'دقّة');
 const wheelTab = h('button', { class: 'tab tab-fun', type: 'button', hidden: true, 'aria-label': 'عجلة الحظ', html: '<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M13 2v22M2 13h22M5.2 5.2l15.6 15.6M20.8 5.2L5.2 20.8" stroke="currentColor" stroke-width="1.6"/><circle cx="13" cy="13" r="3" fill="currentColor"/></svg>' }, 'العجلة');
 const colorTab = h('button', { class: 'tab tab-fun', type: 'button', 'aria-label': 'تلوين الزليج', html: '<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><polygon points="13,1 16.2,7.3 23.4,6.6 19.6,12.6 23.4,18.8 16.2,18.1 13,24.6 9.8,18.1 2.6,18.8 6.4,12.6 2.6,6.6 9.8,7.3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><circle cx="13" cy="12.8" r="3.4" fill="currentColor"/></svg>' }, 'تلوين');
-// One «مرح» button in the tabs; it opens the three above it (the row stays short, clear of the
-// corners where the moments' badge and the tray sit).
-const funTab = h('button', { class: 'tab tab-fun', type: 'button', 'aria-expanded': 'false', html: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.2 5.6L20 9l-5.8 1.5L12 16l-2.2-5.5L4 9l5.8-1.4z" fill="currentColor"/><path d="M19 15l.9 2.1 2.1.9-2.1.9L19 21l-.9-2.1-2.1-.9 2.1-.9z" fill="currentColor"/></svg>' }, 'مرح');
-const funMenu = h('div', { class: 'fun-menu', hidden: true }, knockTab, wheelTab, colorTab);
+// The tab row keeps only the screens and the Quran; everything else is behind one «المزيد» button
+// that opens a small menu above it (timers, recipes, the games, the guest Wi-Fi). The row stays
+// short, clear of the corners where the moments' badge and the tray sit.
+const funTab = h('button', { class: 'tab tab-fun tab-more', type: 'button', 'aria-expanded': 'false', 'aria-label': 'المزيد', html: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><circle cx="6" cy="6" r="2.2"/><circle cx="12" cy="6" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="6" cy="12" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="18" cy="12" r="2.2"/><circle cx="6" cy="18" r="2.2"/><circle cx="12" cy="18" r="2.2"/><circle cx="18" cy="18" r="2.2"/></svg>' }, 'المزيد');
+// «مؤقّت»: kitchen timers and daily alarms (frame-timers.js); running ones show in a corner.
+const timerTab = h('button', { class: 'tab tab-fun tab-timer', type: 'button', 'aria-label': 'مؤقّت', html: TIMER_ICON(24) + '<span class="tm-tab-text">مؤقّت</span>' });
+timerTab.addEventListener('click', () => { closeMenu(); closeDock(); touched(); });
+// «وصفات»: recipes, step by step (frame-recipes.js).
+const recipeTab = h('button', { class: 'tab tab-fun tab-recipe', type: 'button', 'aria-label': 'وصفات', html: RECIPE_ICON(24) }, 'وصفات');
+recipeTab.addEventListener('click', () => { closeMenu(); closeDock(); touched(); });
+// Guest Wi-Fi: only once a network is set in the control panel.
+const wifiTab = h('button', { class: 'tab tab-fun tab-wifi', type: 'button', hidden: true, 'aria-label': 'الواي فاي للضيوف', html: WIFI_ICON(24) }, 'الواي فاي');
+wifiTab.addEventListener('click', () => { closeMenu(); closeDock(); touched(); wifi.open(); });
+const funMenu = h('div', { class: 'fun-menu', hidden: true }, timerTab, recipeTab, knockTab, wheelTab, colorTab, wifiTab);
 const closeMenu = () => { funMenu.hidden = true; funTab.setAttribute('aria-expanded', 'false'); };
 funTab.addEventListener('click', (e) => { e.stopPropagation(); touched(); if (stage.classList.contains('dock-open')) openDock(); funMenu.hidden = !funMenu.hidden; funTab.setAttribute('aria-expanded', String(!funMenu.hidden)); clearTimeout(funTab.t); if (!funMenu.hidden) funTab.t = setTimeout(closeMenu, 12000); });
 knockTab.addEventListener('click', () => { closeMenu(); closeDock(); touched(); knock.open(); });
@@ -91,13 +102,7 @@ colorTab.addEventListener('click', () => { closeMenu(); closeDock(); touched(); 
 stage.addEventListener('pointerdown', (e) => { if (!funMenu.hidden && !funMenu.contains(e.target) && !funTab.contains(e.target)) closeMenu(); });
 const quranTab = h('button', { class: 'tab tab-fun tab-quran', type: 'button', html: BOOK(24) }, 'القرآن');
 quranTab.addEventListener('click', () => { closeMenu(); closeDock(); touched(); quran.open(); });
-// Guest Wi-Fi: a round button, only once a network is set in the control panel.
-const wifiTab = h('button', { class: 'tab tab-fun tab-wifi', type: 'button', hidden: true, 'aria-label': 'الواي فاي للضيوف', html: WIFI_ICON(26) + '<span class="tab-dock-label">الواي فاي</span>' });
-wifiTab.addEventListener('click', () => { closeMenu(); closeDock(); touched(); wifi.open(); });
-// «مؤقّت»: kitchen timers (frame-timers.js). In the original look the tab shows the countdown.
-const timerTab = h('button', { class: 'tab tab-fun tab-timer', type: 'button', 'aria-label': 'مؤقّت', html: TIMER_ICON(24) + '<span class="tm-tab-text">مؤقّت</span>' });
-timerTab.addEventListener('click', () => { closeMenu(); closeDock(); touched(); });
-nav.append(h('span', { class: 'tab-gap' }), quranTab, timerTab, funTab, wifiTab);
+nav.append(h('span', { class: 'tab-gap' }), quranTab, funTab);
 stage.appendChild(funMenu);
 // Small cards at the top of the clock screen: the next match, and what everyone is up to.
 const chipBox = h('div', { class: 'top-chips' });
@@ -115,6 +120,7 @@ const coloring = createColoring({ stage });
 const wifi = createWifi({ stage, tab: wifiTab });
 // Timers ring over everything (and wake the screen); the alarm waits while the adhan plays.
 const timers = createTimers({ stage, tab: timerTab, wake: () => touched(), held: () => !!adhan.adhanPlaying() });
+const recipes = createRecipes({ stage, tab: recipeTab, startTimer: (minutes, label) => timers.start(minutes, label) });
 // The Quran waits while the adhan or the adhkar recording plays; starting it stops the adhkar recording.
 const quran = createQuran({ stage, chipBox, held: () => !!adhan.adhanPlaying() || adhkarScreen.audioPlaying() || timers.ringing(), duck: () => pulse.busy(), onStart: () => adhkarScreen.stopAudio() });
 const pulse = createPulse({
@@ -122,7 +128,7 @@ const pulse = createPulse({
   isNight: () => isNight(now()) && Date.now() > awakeUntil && !match.active(),
   hold: () => !!adhan.adhanPlaying() || knock.busy() || wheel.busy() || coloring.busy() || quran.busy() || timers.ringing(),
   fun: { knock, wheel },
-  onSocket: (m) => { match.socket(m); wheel.socket(m); statuses.socket(m); coloring.socket(m); quran.socket(m); timers.socket(m); },
+  onSocket: (m) => { match.socket(m); wheel.socket(m); statuses.socket(m); coloring.socket(m); quran.socket(m); timers.socket(m); recipes.socket(m); },
 });
 
 stage.insertBefore(night, null); // keep the night layer last
@@ -289,7 +295,7 @@ function schedule(t) {
   // The adhan brings the prayer screen forward, even while someone is using the frame.
   if (adhan.adhanPlaying()) { if (screens[index].name !== 'prayer') go('prayer'); shownAt = real; return; }
   // A moment from a phone is playing, the door or the wheel is open, or the match is on: stay.
-  if (pulse.busy() || knock.busy() || wheel.busy() || coloring.busy() || quran.busy() || wifi.busy() || timers.busy() || match.active() || adhkarScreen.audioPlaying()) { shownAt = real; return; }
+  if (pulse.busy() || knock.busy() || wheel.busy() || coloring.busy() || quran.busy() || wifi.busy() || timers.busy() || recipes.busy() || match.active() || adhkarScreen.audioPlaying()) { shownAt = real; return; }
   if (idle < config.resumeAfterSeconds * 1000) return; // someone is using it
   if (!resumed) { resumed = true; rotIndex = 0; go('home'); return; }
   if (ramadanPreviewing()) { if (screens[index].name !== 'prayer') go('prayer'); shownAt = real; return; }
@@ -412,6 +418,7 @@ function loop() {
   try { statuses.tick(screens[index].name); } catch (e) { console.error(e); }
   try { quran.tick(t); } catch (e) { console.error(e); }
   try { timers.tick(); } catch (e) { console.error(e); }
+  try { recipes.tick(); } catch (e) { console.error(e); }
   try { schedule(t); } catch (e) { console.error(e); }
   try { themeTick(t, screens[index].name); } catch (e) { console.error(e); }
   setTimeout(loop, 1000 - (Date.now() % 1000) + 5);
