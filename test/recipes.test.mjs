@@ -56,6 +56,7 @@ const get = async (path) => worker.fetch(new Request('https://frame.test' + path
 let r = await get('/api/recipes?a=Moroccan');
 assert.equal(r.status, 200);
 let data = await r.json();
+data.recipes = data.recipes.filter((x) => !x.builtin); // the built-in Moroccan ones: below
 assert.equal(data.recipes.length, 1, 'pork left out');
 assert.equal(data.recipes[0].ar, 'طاجين الدجاج');
 const n = calls.length;
@@ -76,7 +77,7 @@ assert.equal((await get('/api/recipes/1')).status, 404);
 // Arabic search → English → TheMealDB.
 r = await get('/api/recipes?q=' + encodeURIComponent('طاجين'));
 data = await r.json();
-assert.equal(data.recipes[0].id, '52999');
+assert.ok(data.recipes.some((x) => x.id === '52999'));
 assert.ok(calls.some((c) => c.includes('search.php?s=tagine')));
 
 // No translation: English, tried again later.
@@ -106,11 +107,51 @@ assert.equal(data.lang, 'ar');
 assert.ok(!data.pending);
 data = await (await getNow('/api/recipes?c=Chicken')).json();
 assert.equal(data.pending, true);
-assert.equal(data.recipes[0].ar, '');
+const fromSite = (d) => d.recipes.filter((x) => !x.builtin)[0];
+assert.equal(fromSite(data).ar, '');
 await Promise.all(bg);
 data = await (await getNow('/api/recipes?c=Chicken')).json();
-assert.equal(data.recipes[0].ar, 'طاجين الدجاج');
+assert.equal(fromSite(data).ar, 'طاجين الدجاج');
 assert.ok(!data.pending);
+
+// Built-in Moroccan recipes come first; one opens without TheMealDB or the AI.
+const { MOROCCAN } = await import('../public/js/recipes-morocco.js');
+data = await (await get('/api/recipes?a=Moroccan')).json();
+assert.equal(data.recipes[0].id, MOROCCAN[0].id, 'built-in first');
+assert.equal(data.recipes.length, MOROCCAN.length + 1, 'then TheMealDB');
+const dessert = MOROCCAN.find((r) => r.cat === 'Dessert');
+data = await (await get('/api/recipes?c=Dessert')).json();
+assert.ok(data.recipes.some((r) => r.id === dessert.id), 'by kind of dish too');
+const before2 = calls.length, ai2 = aiCalls;
+data = await (await get('/api/recipes/' + MOROCCAN[0].id)).json();
+assert.equal(data.lang, 'ar');
+assert.equal(data.title, MOROCCAN[0].title);
+assert.ok(data.thumb.startsWith('/img/recipes/'));
+assert.equal(calls.length, before2);
+assert.equal(aiCalls, ai2);
+data = await (await get('/api/recipes?q=' + encodeURIComponent(MOROCCAN[0].title))).json();
+assert.equal(data.recipes[0].id, MOROCCAN[0].id, 'found by its Arabic name');
+assert.equal((await get('/api/recipes/ma999')).status, 404);
+const realFetch = recipeDeps.fetch;
+recipeDeps.fetch = async () => new Response('down', { status: 503 });
+env.STORE.m.clear();
+data = await (await get('/api/recipes?a=Moroccan')).json();
+assert.equal(data.recipes.length, MOROCCAN.length, 'recipe site down: built-in ones still there');
+recipeDeps.fetch = realFetch;
+
+// Favourites, shared by the frame and the phones.
+const post = (body) => worker.fetch(new Request('https://frame.test/api/recipes/favs', { method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json' } }), env);
+assert.deepEqual((await (await get('/api/recipes/favs')).json()).favs, []);
+await post({ op: 'add', id: '52999', name: 'Chicken Tagine', ar: 'طاجين الدجاج', thumb: 'https://www.themealdb.com/images/media/meals/x.jpg' });
+await post({ op: 'add', id: 'ma01', name: 'Harira', ar: 'حريرة', thumb: 'javascript:alert(1)' });
+data = (await (await get('/api/recipes/favs')).json()).favs;
+assert.deepEqual(data.map((f) => f.id), ['ma01', '52999'], 'newest first');
+assert.equal(data[0].thumb, '', 'only recipe pictures');
+await post({ op: 'add', id: '52999', name: 'Chicken Tagine' });
+assert.equal((await (await get('/api/recipes/favs')).json()).favs.length, 2, 'no doubles');
+await post({ op: 'remove', id: 'ma01' });
+assert.deepEqual((await (await get('/api/recipes/favs')).json()).favs.map((f) => f.id), ['52999']);
+assert.equal((await post({ op: 'add', id: '../x' })).status, 400);
 
 // Open a recipe on the frame.
 const hub = env.PULSE;

@@ -3,6 +3,11 @@
 //   GET /api/recipes?a=Moroccan | ?c=Dessert   a shelf: [{id, name, ar, thumb}]
 //   GET /api/recipes?q=طاجين                     a search (an Arabic query is put into English first)
 //   GET /api/recipes/<id>                        one recipe, in Arabic when the translation works
+//   GET /api/recipes/favs                        the family's favourites [{id, name, ar, thumb}]
+//   POST /api/recipes/favs {op: add|remove, ...} add or take one off
+//
+// Moroccan dishes come first from the built-in collection (public/js/recipes-morocco.js, ids
+// "ma01"…, already in Arabic, painted pictures), then whatever TheMealDB has.
 //
 // The translation takes a while the first time (the model writes the whole recipe), so nobody
 // waits for it: the first answer is the English straight from TheMealDB with "pending": true,
@@ -16,6 +21,7 @@
 // translation fails) the recipe comes in English and the translation is tried again a day later.
 // Pork and alcohol are left out.
 import { fromMeal, checkTranslation, halalMeal, halalName, shelfById } from '../public/js/recipes-common.js';
+import { moroccanById, moroccanRecipe, moroccanCard, moroccanFor, moroccanMatching } from '../public/js/recipes-morocco.js';
 
 export const recipeDeps = { fetch: (...a) => fetch(...a) }; // tests swap this
 const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
@@ -76,6 +82,22 @@ async function arabicNames(env, names) {
 }
 
 export async function recipeList(env, url, ctx) {
+  const a = url.searchParams.get('a'), c = url.searchParams.get('c');
+  const q = (url.searchParams.get('q') || '').trim().slice(0, 60);
+  const shelf = q ? null : a ? shelfById('a', a) : c ? shelfById('c', c) : shelfById('a', 'Moroccan');
+  if (!q && !shelf) return fail(400, 'Unknown shelf.');
+  const mine = (q ? moroccanMatching(q) : moroccanFor(shelf)).map(moroccanCard);
+  let res;
+  try { res = await mealdbList(env, url, ctx); } catch (e) {
+    if (!mine.length) throw e;
+    return json({ recipes: mine }); // the recipe site is down: the built-in ones still show
+  }
+  if (!mine.length || res.status !== 200) return res;
+  const data = await res.json();
+  return json(Object.assign({}, data, { recipes: mine.concat(data.recipes || []), note: data.recipes && data.recipes.length ? '' : undefined }));
+}
+
+async function mealdbList(env, url, ctx) {
   const kv = env.STORE;
   const a = url.searchParams.get('a'), c = url.searchParams.get('c');
   let q = (url.searchParams.get('q') || '').trim().slice(0, 60);
@@ -124,6 +146,10 @@ export async function recipeList(env, url, ctx) {
 }
 
 export async function recipeOne(env, id, ctx) {
+  if (/^ma\d+$/.test(id)) {
+    const r = moroccanById(id);
+    return r ? json(moroccanRecipe(r)) : fail(404, 'That recipe is gone.');
+  }
   const kv = env.STORE;
   const key = V + id;
   const hit = kv && await kv.get(key, 'json');
@@ -162,4 +188,26 @@ async function translate(env, en) {
   ]);
   if (!head || parts.some((p) => !p || !Array.isArray(p.steps))) return null;
   return checkTranslation({ title: head.title, ingredients: head.ingredients, steps: parts.flatMap((p) => p.steps) }, en);
+}
+
+// ---------- the family's favourites ----------
+const FAVS = 'recipes:favs';
+const MAX_FAVS = 100;
+export async function recipeFavs(env, request) {
+  const kv = env.STORE;
+  let favs = (await kv.get(FAVS, 'json')) || [];
+  if (request.method === 'GET') return json({ favs });
+  let b;
+  try { b = await request.json(); } catch (e) { return fail(400, 'Bad JSON.'); }
+  const id = String((b && b.id) || '');
+  if (!/^(\d{1,10}|ma\d{2,3})$/.test(id)) return fail(400, 'Which recipe?');
+  favs = favs.filter((f) => f.id !== id);
+  if (b.op === 'add') {
+    const str = (v, n) => String(v == null ? '' : v).slice(0, n);
+    const thumb = str(b.thumb, 300);
+    favs.unshift({ id, name: str(b.name, 100), ar: str(b.ar, 100), thumb: /^(https:\/\/www\.themealdb\.com\/|\/img\/recipes\/)/.test(thumb) ? thumb : '', at: Date.now() });
+    favs = favs.slice(0, MAX_FAVS);
+  } else if (b.op !== 'remove') return fail(400, 'Unknown op.');
+  await kv.put(FAVS, JSON.stringify(favs));
+  return json({ favs });
 }

@@ -21,6 +21,7 @@
 //   /api/pulse…                    «نبضة»: moments from phones to the frame (see pulse-hub.js)
 //   GET  /api/recipes?a=|c=|q=     «وصفات»: recipes from TheMealDB, in Arabic (see recipes.js)
 //   GET  /api/recipes/<id>         one recipe, step by step
+//   GET|POST /api/recipes/favs     the family's favourite recipes
 //   GET  /api/photos               photo index
 //   POST /api/photos               upload one JPEG (body = image bytes)
 //   GET  /api/photos/<id>          the photo
@@ -29,7 +30,7 @@
 
 import { sanitizeSettings, clean, num, THEMES } from './settings.js';
 import { dueFrom, addDays } from '../public/js/routines.js';
-import { recipeList, recipeOne } from './recipes.js';
+import { recipeList, recipeOne, recipeFavs } from './recipes.js';
 
 export { dueFrom };
 // «نبضة» lives in a Durable Object (see pulse-hub.js and wrangler.jsonc).
@@ -456,7 +457,8 @@ export default {
         return env.PULSE.get(env.PULSE.idFromName('family')).fetch(request);
       }
       if (path === '/api/recipes' && method === 'GET') return recipeList(env, url, ctx);
-      const rm = /^\/api\/recipes\/(\d{1,10})$/.exec(path);
+      if (path === '/api/recipes/favs' && (method === 'GET' || method === 'POST')) return recipeFavs(env, request);
+      const rm = /^\/api\/recipes\/(\d{1,10}|ma\d{2,3})$/.exec(path);
       if (rm && method === 'GET') return recipeOne(env, rm[1], ctx);
       if (path === '/api/settings') {
         if (method === 'GET') return json((await needStore(env).get('settings', 'json')) || {});

@@ -235,6 +235,19 @@ allowance). Without it, or if a translation fails, the recipe shows in English a
 is tried again a day later. Dishes with pork or alcohol are left out. In `wrangler dev`, the AI
 binding runs on Cloudflare (you'll be asked to log in).
 
+**Moroccan recipes** come first from a built-in collection of classic home recipes
+(`public/js/recipes-morocco.js`: حريرة، طواجن، كسكس، بسطيلة، رفيسة، زعلوك، حلويات… with painted
+pictures in `public/img/recipes`). Each was put together from Moroccan cooks' published recipes;
+the control panel shows those sources under the title. To change or add one, edit `tools/recipes-morocco/*.json` and
+run `python3 tools/build-moroccan.py tools/recipes-morocco/*.json`.
+
+The first time anyone opens a TheMealDB recipe or shelf it appears at once in English, and the
+Arabic replaces it a few seconds later (the translation runs in the background, in pieces at the
+same time); after that it opens in Arabic straight away.
+
+**Favourites:** «♥ للمفضّلة» on a recipe (frame or phone) puts it on the «المفضّلة» shelf, shared by
+the whole family.
+
 The tab row now holds only the screens, the Quran and «المزيد»; the timers, recipes, the games and
 the guest Wi-Fi are in the «المزيد» menu.
 

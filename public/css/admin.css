@@ -967,9 +967,17 @@ main { padding: 18px max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-
 .rcp-shelves::-webkit-scrollbar { display: none; }
 .rcp-shelves .wheel-chip { flex: none; }
 .rcp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 6px; }
-.rcp-card { display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; background: #46202F; border: 1px solid #5A3443; color: var(--plaster); text-align: right; }
-.rcp-card-img { height: 110px; background: rgba(242, 174, 61, 0.14) center / cover no-repeat; }
-.rcp-card-name { padding: 8px 10px 10px; font-size: 15px; line-height: 1.35; }
+.rcp-card { position: relative; height: 168px; padding: 0; border: 0; border-radius: 16px; overflow: hidden; background: #46202F; color: var(--plaster); text-align: right; }
+.rcp-card::after { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 1px solid #5A3443; pointer-events: none; }
+.rcp-card-img { position: absolute; top: 0; left: 0; right: 0; bottom: 56px; background: #5A2C3B center / cover no-repeat; } /* every photo the same size */
+.rcp-card-name { position: absolute; left: 0; right: 0; bottom: 0; height: 56px; padding: 0 10px; display: flex; align-items: center; }
+.rcp-card-name > span { width: 100%; font-size: 15px; line-height: 1.35; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.rcp-card-fav { position: absolute; top: 8px; left: 8px; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #E0475F; background: #FFFFFF; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); }
+.rcp-fav { width: 100%; margin-top: 8px; }
+.rcp-fav.is-on { color: #FFFFFF; background: #C93A55; border-color: #C93A55; }
+.rcp-sources { margin: 0 0 10px; }
+.rcp-sources a { color: var(--saffron); }
+#rcpSources[hidden] { display: none; }
 #rcpOne[hidden], #rcpBrowse[hidden], .rcp-photo[hidden] { display: none; }
 .rcp-photo { height: 190px; margin: 12px 0 4px; border-radius: 18px; background: rgba(242, 174, 61, 0.14) center / cover no-repeat; }
 .rcp-shop { width: 100%; margin: 8px 0 14px; }

@@ -10,6 +10,8 @@ import { minutesAr } from './timers-common.js';
 
 export const RECIPE_ICON = (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h16a8 8 0 0 1-16 0z"/><path d="M2.5 13h19M9 9c0-1.5 1-1.5 1-3M13 9c0-1.5 1-1.5 1-3"/></svg>`;
 const PAGE = 8;
+const FAV_SHELF = { kind: 'fav', id: 'favs', ar: 'المفضّلة' };
+const HEART = (s, full) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true" fill="${full ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/></svg>`;
 const IDLE_CLOSE = 3 * 3600000; // a recipe left open closes after 3 hours without a touch
 const SENT_FRESH = 15 * 60000; // a recipe sent from a phone opens if it arrived this recently
 
@@ -40,10 +42,11 @@ export function createRecipes({ stage, tab, startTimer }) {
   const LANG_WAIT = 'تُترجم إلى العربية الآن… تظهر هنا بعد لحظات.';
   const cLang = h('div', { class: 'rc-lang', hidden: true });
   const cBack = h('button', { type: 'button', class: 'rc-back' }, 'كل الوصفات');
+  const cFav = h('button', { type: 'button', class: 'rc-fav', 'aria-pressed': 'false' });
   const cook = h('div', { class: 'rc-cook', hidden: true },
     h('div', { class: 'rc-side' }, cPhoto, h('div', { class: 'rc-side-title' }, 'المكوّنات'), cIngr, cShop),
     h('div', { class: 'rc-main' },
-      h('div', { class: 'rc-top' }, cBack, cCount),
+      h('div', { class: 'rc-top' }, cBack, cFav, h('span', { class: 'rc-top-gap' }), cCount),
       cTitle, cStep, cLang,
       h('div', { class: 'rc-actions' }, cNext, cTimer, cPrev),
       cDots));
@@ -53,16 +56,24 @@ export function createRecipes({ stage, tab, startTimer }) {
   stage.append(modal);
 
   let open = false, shelf = RECIPE_SHELVES[0], list = [], page = 0, recipe = null, step = 0, lastTouch = 0, loadTicket = 0;
+  let favs = []; // the family's favourites [{id, name, ar, thumb}], shared with the phones
+  const SHELVES = [FAV_SHELF].concat(RECIPE_SHELVES);
   const touch = () => { lastTouch = Date.now(); };
   modal.addEventListener('pointerdown', touch, { capture: true });
 
   // ----- browsing -----
-  for (const s of RECIPE_SHELVES) {
-    const b = h('button', { type: 'button', class: 'rc-shelf', role: 'tab', 'aria-selected': 'false' }, s.ar);
+  for (const s of SHELVES) {
+    const b = h('button', { type: 'button', class: 'rc-shelf' + (s === FAV_SHELF ? ' rc-shelf-fav' : ''), role: 'tab', 'aria-selected': 'false' });
+    if (s === FAV_SHELF) b.innerHTML = HEART(22, true);
+    b.append(s.ar);
     b.addEventListener('click', () => loadShelf(s));
     shelves.append(b);
   }
-  function drawShelves() { RECIPE_SHELVES.forEach((s, i) => shelves.children[i].setAttribute('aria-selected', String(s === shelf))); }
+  function drawShelves() {
+    SHELVES.forEach((s, i) => shelves.children[i].setAttribute('aria-selected', String(s === shelf)));
+    const on = shelves.children[SHELVES.indexOf(shelf)];
+    if (on && on.scrollIntoView) on.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+  }
   async function loadShelf(s) {
     shelf = s;
     page = 0;
@@ -80,7 +91,33 @@ export function createRecipes({ stage, tab, startTimer }) {
       if (ticket === loadTicket) drawGrid('تعذّر الوصول إلى موقع الوصفات. حاولوا بعد قليل.');
     }
   }
-  const fetchShelf = (s) => DEMO ? demo.recipeList(s) : frameFetch('/api/recipes?' + s.kind + '=' + encodeURIComponent(s.id));
+  async function fetchShelf(s) {
+    if (s === FAV_SHELF) {
+      await loadFavs();
+      return { recipes: favs, note: favs.length ? '' : 'لا وصفات مفضّلة بعد. افتحوا وصفة واضغطوا ♥ لتجدوها هنا.' };
+    }
+    return DEMO ? demo.recipeList(s) : frameFetch('/api/recipes?' + s.kind + '=' + encodeURIComponent(s.id));
+  }
+  async function loadFavs() {
+    try { favs = (DEMO ? demo.recipeFavs() : await frameFetch('/api/recipes/favs')).favs || []; } catch (e) { /* keep what we have */ }
+  }
+  const isFav = (id) => favs.some((f) => f.id === String(id));
+  function drawFav() {
+    const on = !!recipe && isFav(recipe.id);
+    cFav.setAttribute('aria-pressed', String(on));
+    cFav.innerHTML = HEART(26, on);
+    cFav.append(on ? 'في المفضّلة' : 'للمفضّلة');
+  }
+  cFav.addEventListener('click', async () => {
+    if (!recipe) return;
+    const r = recipe, add = !isFav(r.id);
+    const card = list.find((x) => x.id === r.id) || {};
+    const body = { op: add ? 'add' : 'remove', id: r.id, name: card.name || r.title, ar: r.lang === 'ar' ? r.title : (card.ar || ''), thumb: r.thumb || card.thumb || '' };
+    favs = add ? [{ id: body.id, name: body.name, ar: body.ar, thumb: body.thumb, at: Date.now() }].concat(favs) : favs.filter((f) => f.id !== r.id); // at once; the server agrees
+    drawFav();
+    try { const res = DEMO ? demo.recipeFavOp(body) : await frameFetch('/api/recipes/favs', 'POST', body); favs = res.favs || favs; } catch (e) { /* shown already; next open re-reads */ }
+    if (shelf === FAV_SHELF) list = favs.slice();
+  });
   // The shelf came with English names (the Arabic is being written): ask again in a moment and
   // only rename the cards, staying on the same page.
   function namesLater(s, ticket, n) {
@@ -106,7 +143,8 @@ export function createRecipes({ stage, tab, startTimer }) {
     for (const r of list.slice(page * PAGE, page * PAGE + PAGE)) {
       const img = h('span', { class: 'rc-card-img' });
       setThumb(img, r.thumb, true);
-      const card = h('button', { type: 'button', class: 'rc-card' }, img, h('span', { class: 'rc-card-name' }, r.ar || r.name));
+      const card = h('button', { type: 'button', class: 'rc-card' }, img, h('span', { class: 'rc-card-name' }, h('span', null, r.ar || r.name)));
+      if (isFav(r.id)) card.append(h('span', { class: 'rc-card-fav', html: HEART(22, true) }));
       card.addEventListener('click', () => openRecipe(r.id));
       grid.append(card);
     }
@@ -120,6 +158,7 @@ export function createRecipes({ stage, tab, startTimer }) {
   // ----- cooking -----
   async function openRecipe(id) {
     show();
+    if (!favs.length) loadFavs().then(() => { if (recipe) drawFav(); });
     browse.hidden = true;
     cook.hidden = false;
     recipe = null;
@@ -174,6 +213,7 @@ export function createRecipes({ stage, tab, startTimer }) {
     cLang.hidden = r.lang !== 'en';
     cLang.textContent = r.pending ? LANG_WAIT : LANG_EN;
     cLang.classList.toggle('is-wait', !!r.pending);
+    drawFav();
     cook.classList.toggle('is-en', r.lang === 'en');
     cDots.textContent = '';
     r.steps.forEach((_, i) => {
@@ -220,7 +260,10 @@ export function createRecipes({ stage, tab, startTimer }) {
     }
     cShop.textContent = n ? 'أُضيفت ' + n + ' إلى قائمة الشراء ✓' : 'تعذّرت الإضافة';
   });
-  cBack.addEventListener('click', () => { recipe = null; cook.hidden = true; browse.hidden = false; if (!list.length) loadShelf(shelf); });
+  cBack.addEventListener('click', () => {
+    recipe = null; cook.hidden = true; browse.hidden = false;
+    if (!list.length || shelf === FAV_SHELF) loadShelf(shelf); else drawGrid(''); // hearts may have changed
+  });
 
   // ----- open / close -----
   function show() {
@@ -232,6 +275,7 @@ export function createRecipes({ stage, tab, startTimer }) {
   }
   function showShelves() {
     show();
+    loadFavs().then(() => { if (!recipe && !browse.hidden) drawGrid(note.hidden ? '' : note.textContent); });
     if (recipe) return; // back to the recipe being cooked
     browse.hidden = false;
     cook.hidden = true;

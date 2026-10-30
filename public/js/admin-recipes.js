@@ -5,15 +5,25 @@ import * as demo from './demo.js';
 import { RECIPE_SHELVES, setThumb, TRANSLATE_POLL, TRANSLATE_TRIES } from './recipes-common.js';
 import { minutesAr } from './timers-common.js';
 
+const FAV_SHELF = { kind: 'fav', id: 'favs', ar: '♥ المفضّلة' };
+const SHELVES = [FAV_SHELF].concat(RECIPE_SHELVES);
+
 export function initRecipes({ api, send, toast, el, $, DEMO, me, onListsChanged }) {
   let shelf = RECIPE_SHELVES[0], query = '', list = [], recipe = null, loaded = false, ticket = 0;
+  let favs = []; // the family's favourites, shared with the frame
+  const isFav = (id) => favs.some((f) => f.id === String(id));
+  async function loadFavs() {
+    try { favs = (DEMO ? demo.recipeFavs() : await api('/api/recipes/favs')).favs || []; } catch (e) { /* keep */ }
+  }
 
   function drawShelves() {
     const box = $('rcpShelves');
     box.textContent = '';
-    for (const s of RECIPE_SHELVES) {
+    for (const s of SHELVES) {
       const on = !query && s === shelf;
-      box.append(el('button', { type: 'button', class: 'wheel-chip' + (on ? ' is-on' : ''), 'aria-pressed': String(on), onclick: () => { query = ''; $('rcpQ').value = ''; load(s); } }, s.ar));
+      const b = el('button', { type: 'button', class: 'wheel-chip' + (on ? ' is-on' : '') + (s === FAV_SHELF ? ' rcp-chip-fav' : ''), 'aria-pressed': String(on), onclick: () => { query = ''; $('rcpQ').value = ''; load(s); } }, s.ar);
+      box.append(b);
+      if (on && b.scrollIntoView) setTimeout(() => b.scrollIntoView({ inline: 'nearest', block: 'nearest' }), 0);
     }
   }
   function drawGrid(msg) {
@@ -24,7 +34,8 @@ export function initRecipes({ api, send, toast, el, $, DEMO, me, onListsChanged 
     for (const r of list) {
       const img = el('span', { class: 'rcp-card-img' });
       setThumb(img, r.thumb, true);
-      grid.append(el('button', { type: 'button', class: 'rcp-card', onclick: () => openOne(r.id) }, img, el('span', { class: 'rcp-card-name' }, r.ar || r.name)));
+      grid.append(el('button', { type: 'button', class: 'rcp-card', onclick: () => openOne(r.id) }, img, el('span', { class: 'rcp-card-name' }, el('span', null, r.ar || r.name)),
+        isFav(r.id) ? el('span', { class: 'rcp-card-fav', 'aria-label': 'في المفضّلة' }, '♥') : null));
     }
   }
   async function load(s) {
@@ -41,7 +52,11 @@ export function initRecipes({ api, send, toast, el, $, DEMO, me, onListsChanged 
       if (r.pending) namesLater(t, 0);
     } catch (e) { if (t === ticket) drawGrid(e.message || 'تعذّر الوصول إلى موقع الوصفات.'); }
   }
-  function fetchList() {
+  async function fetchList() {
+    if (!query && shelf === FAV_SHELF) {
+      await loadFavs();
+      return { recipes: favs, note: favs.length ? '' : 'لا وصفات مفضّلة بعد. افتح وصفة واضغط «♡ أضفها للمفضّلة».' };
+    }
     if (DEMO) return demo.recipeList(query ? null : shelf, query);
     return api(query ? '/api/recipes?q=' + encodeURIComponent(query) : '/api/recipes?' + shelf.kind + '=' + encodeURIComponent(shelf.id));
   }
@@ -91,9 +106,28 @@ export function initRecipes({ api, send, toast, el, $, DEMO, me, onListsChanged 
     } catch (e) { if (t === ticket) $('rcpTitle').textContent = e.message || 'تعذّر فتح الوصفة.'; }
   }
   const fetchOne = (id) => DEMO ? demo.recipeOne(id) : api('/api/recipes/' + encodeURIComponent(id));
+  function drawFav() {
+    const on = !!recipe && isFav(recipe.id);
+    $('rcpFav').textContent = on ? '♥ في المفضّلة' : '♡ أضفها للمفضّلة';
+    $('rcpFav').setAttribute('aria-pressed', String(on));
+    $('rcpFav').classList.toggle('is-on', on);
+  }
   function drawOne(r) {
     recipe = r;
+    drawFav();
     $('rcpTitle').textContent = r.title;
+    const src = $('rcpSources');
+    src.textContent = '';
+    src.hidden = !(r.sources && r.sources.length);
+    if (r.sources && r.sources.length) {
+      src.append('من وصفات: ');
+      r.sources.forEach((u, i) => {
+        let host = u;
+        try { host = new URL(u).hostname.replace(/^www\./, ''); } catch (e) { /* as is */ }
+        if (i) src.append('، ');
+        src.append(el('a', { href: u, target: '_blank', rel: 'noopener' }, host));
+      });
+    }
     $('rcpLang').hidden = r.lang !== 'en';
     $('rcpLang').textContent = r.pending ? 'تُترجم إلى العربية الآن… تظهر هنا بعد لحظات.' : 'هذه الوصفة بالإنجليزية لأن الترجمة لم تنجح الآن، وستُعاد لاحقاً.';
     $('rcpLang').classList.toggle('is-wait', !!r.pending);
@@ -115,7 +149,23 @@ export function initRecipes({ api, send, toast, el, $, DEMO, me, onListsChanged 
       arabicLater(id, t, n + 1);
     }, TRANSLATE_POLL);
   }
-  $('rcpBack').addEventListener('click', () => { $('rcpOne').hidden = true; $('rcpBrowse').hidden = false; ticket++; });
+  $('rcpBack').addEventListener('click', () => {
+    $('rcpOne').hidden = true; $('rcpBrowse').hidden = false; ticket++;
+    if (shelf === FAV_SHELF && !query) load(); else drawGrid($('rcpNote').hidden ? '' : $('rcpNote').textContent); // hearts may have changed
+  });
+  $('rcpFav').addEventListener('click', async () => {
+    if (!recipe) return;
+    const r = recipe, add = !isFav(r.id);
+    const card = list.find((x) => x.id === r.id) || {};
+    const body = { op: add ? 'add' : 'remove', id: r.id, name: card.name || r.title, ar: r.lang === 'ar' ? r.title : (card.ar || ''), thumb: r.thumb || card.thumb || '' };
+    favs = add ? [{ id: body.id, name: body.name, ar: body.ar, thumb: body.thumb, at: Date.now() }].concat(favs) : favs.filter((f) => f.id !== r.id);
+    drawFav();
+    try {
+      const res = DEMO ? demo.recipeFavOp(body) : await send('/api/recipes/favs', 'POST', body);
+      if (res && res.favs) favs = res.favs;
+      toast(add ? 'أُضيفت إلى المفضّلة، على الإطار أيضاً.' : 'أُزيلت من المفضّلة.');
+    } catch (e) { toast(e.message); }
+  });
   $('rcpShow').addEventListener('click', async () => {
     if (!recipe) return;
     try {
@@ -142,6 +192,6 @@ export function initRecipes({ api, send, toast, el, $, DEMO, me, onListsChanged 
   });
 
   return {
-    shown(v) { if (v && !loaded) { loaded = true; load(); } },
+    shown(v) { if (v && !loaded) { loaded = true; loadFavs().then(() => load()); } },
   };
 }
