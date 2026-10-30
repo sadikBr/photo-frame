@@ -155,6 +155,18 @@
 [data-theme='sahara'] .h-wxm .hw-text { display: flex; flex-direction: column; align-items: center; }
 [data-theme='sahara'] .h-wxm .hw-temp { font: 400 64px/1 var(--kufi); color: var(--s-clay); }
 [data-theme='sahara'] .h-wxm .hw-cond { font-size: 20px; font-weight: 500; }
+/* the weather sentence (same as the original look), under the temperature in the sun */
+[data-theme='sahara'] .s-home .h-wxm { flex-direction: column; align-items: center; }
+[data-theme='sahara'] .h-wxm .hw-tip {
+  margin-top: 8px;
+  font-size: 17px;
+  line-height: 1.45;
+  font-weight: 500;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
 
 /* the prayers across the front dune */
 [data-theme='sahara'] .s-home .h-prayers {

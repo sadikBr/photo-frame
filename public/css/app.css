@@ -1290,6 +1290,7 @@ html.is-ready #boot { opacity: 0; visibility: hidden; }
 .t-art svg { display: block; }
 /* Shown only by the themes (prayer-row.js, the mini weather, the time on the prayer screen). */
 .h-prayers, .h-wxm, .p-tiles, .p-clock { display: none; }
+.p-clock .pc-sun { display: none; } /* shown by the themes whose prayer row has no sunrise */
 .prow-icon svg { display: block; }
 .p-in { display: none; }
 
@@ -1374,7 +1375,6 @@ html.is-ready #boot { opacity: 0; visibility: hidden; }
 [data-theme] .nav .tab-dock-label { display: block; }
 [data-theme] .nav .tab-gap { width: 2px; height: 100px; margin: 0 10px 24px; background: rgba(var(--fg), 0.18); }
 [data-theme] .fun-menu { bottom: calc(var(--dock-bottom, 112px) + var(--door-h, 150px) + 56px); z-index: 10; }
-/* In the themes, as in their mockups: done tasks sit under the list without a header (they can be
-   cleared from the phone), and «اليوم» replaces the repeat icon on a task that came back today. */
-[data-theme] .l-done-head { display: none; }
+/* In the themes, «اليوم» replaces the repeat icon on a task that came back today. The done tasks
+   keep their header and «حذف المنجزة» button in every look, as in the original. */
 [data-theme] .l-today + .l-repeat { display: none; }

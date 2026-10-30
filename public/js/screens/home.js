@@ -34,7 +34,8 @@ export function createHome() {
   const wxCond = h('span', { class: 'hw-cond' });
   const wxNext = h('span', { class: 'hw-next' });
   const wxIcon = h('span', { class: 'hw-icon' });
-  const wxMini = h('div', { class: 'h-wxm' }, wxIcon, h('span', { class: 'hw-text' }, wxTemp, wxCond, wxNext));
+  const wxTip = h('span', { class: 'hw-tip' }); // the same weather sentence as the original look
+  const wxMini = h('div', { class: 'h-wxm' }, wxIcon, h('span', { class: 'hw-text' }, wxTemp, wxCond, wxNext), wxTip);
 
   const el = h('section', { class: 'screen s-home', 'data-screen': 'home', style: '--ground:var(--g-home)' },
     h('div', { class: 'home-grid' },
@@ -112,6 +113,8 @@ export function createHome() {
     // A plain sentence instead of numbers when the day calls for one (from 5 pm, about tomorrow).
     const evening = parts(now()).h >= 17;
     const tip = config.weatherNudge !== false ? weatherNudge(evening ? days[1] : today, evening) : null;
+    setText(wxTip, tip ? tip.text : '');
+    wxTip.className = 'hw-tip' + (tip ? ' k-' + tip.kind : '');
     if (tip) {
       weatherBox.appendChild(h('div', { class: 'w-nudge k-' + tip.kind },
         h('span', { class: 'w-nudge-icon', html: nudgeIcon(tip.kind) }),

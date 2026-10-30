@@ -134,6 +134,18 @@
 [data-theme='riad'] .h-wxm .hw-temp { font-size: 60px; font-weight: 500; line-height: 1; }
 [data-theme='riad'] .h-wxm .hw-cond { margin-top: 6px; font-size: 18px; font-weight: 400; }
 [data-theme='riad'] .h-wxm .hw-next { font-size: 15px; opacity: 0.85; }
+/* the weather sentence (same as the original look), under the temperature inside the window */
+[data-theme='riad'] .s-home .h-wxm { left: 290px; width: 178px; }
+[data-theme='riad'] .h-wxm .hw-tip {
+  margin-top: 10px;
+  font-size: 16px;
+  line-height: 1.45;
+  text-align: right;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
 
 /* ---------- prayer: five windows, one per prayer ---------- */
 [data-theme='riad'] .s-prayer .p-stage { display: none; }
@@ -146,6 +158,7 @@
 [data-theme='riad'] .s-prayer .p-clock { display: flex; flex-direction: column; align-items: flex-start; position: absolute; top: 48px; left: 64px; }
 [data-theme='riad'] .p-clock .pc-time { font-size: 52px; font-weight: 500; line-height: 1; }
 [data-theme='riad'] .p-clock .pc-date { margin-top: 6px; font-size: 20px; color: #9EC7BA; }
+[data-theme='riad'] .p-clock .pc-sun { display: block; margin-top: 2px; font-size: 20px; color: #9EC7BA; }
 [data-theme='riad'] .rd-niches { position: absolute; top: 220px; right: 58px; left: 58px; display: flex; justify-content: space-between; }
 [data-theme='riad'] .rd-niche .rd-frame { stroke: none; }
 [data-theme='riad'] .rd-niche.is-next .rd-frame { stroke: #082A21; }
@@ -246,13 +259,14 @@
 [data-theme='riad'] .l-tile.is-done .l-tile-text { font-size: 26px; color: #9C7F8D; text-decoration-color: #9C7F8D; }
 [data-theme='riad'] .l-foot { padding-top: 26px; font-size: 18px; color: #C9A7B7; }
 [data-theme='riad'] .l-clear { min-height: 52px; padding: 0 22px; border-radius: 26px; border: 1.5px solid #8C5A74; font-size: 18px; }
-[data-theme='riad'] .l-rows { margin-top: 14px; padding-bottom: 0; flex: none; max-height: 420px; border-top: 1px solid #4F2240; }
+[data-theme='riad'] .l-rows { margin-top: 14px; padding-bottom: 0; flex: none; max-height: 480px; border-top: 1px solid #4F2240; }
 [data-theme='riad'] .l-row { min-height: 80px; padding: 0; gap: 18px; border-bottom: 1px solid #4F2240; }
 [data-theme='riad'] .l-circle { width: 32px; height: 32px; margin: 0; border: 2.5px solid #A0718A; }
 [data-theme='riad'] .l-row-text { flex: 1; font-size: 25px; font-weight: 300; }
 [data-theme='riad'] .l-today { display: inline-block; flex: none; padding: 2px 10px; border-radius: 12px; background: #5A2433; color: #F4A3AF; font-size: 15px; }
 [data-theme='riad'] .l-repeat { margin-right: 0; }
-[data-theme='riad'] .l-done-head { display: none; }
+[data-theme='riad'] .l-done-head { margin-top: 12px; padding-bottom: 6px; font-size: 18px; color: #C4B29C; }
+[data-theme='riad'] .l-done-head .l-clear { min-height: 42px; padding: 0 18px; }
 [data-theme='riad'] .l-row.is-done { min-height: 70px; border-bottom: 0; color: #8C6E7E; }
 [data-theme='riad'] .l-row.is-done .l-circle { width: 32px; height: 32px; margin: 0; color: var(--saffron-ink); }
 [data-theme='riad'] .l-row.is-done .l-row-text { font-size: 22px; color: #8C6E7E; }
@@ -384,6 +398,7 @@
 [data-theme='riad'] .c-soon-list { flex: 1; min-height: 0; overflow: hidden; }
 [data-theme='riad'] .c-soon-row { padding: 10px 0; border-top: 1px solid #44331F; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 [data-theme='riad'] .c-soon-row:last-child { border-bottom: 1px solid #44331F; }
+[data-theme='riad'] .c-soon-empty { margin: 0; padding: 12px 0; border-top: 1px solid #44331F; font-size: 19px; line-height: 1.5; color: #C4B29C; }
 [data-theme='riad'] .cs-name { min-width: 0; font-size: 24px; font-weight: 400; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 [data-theme='riad'] .cs-when { flex: none; font-size: 18px; font-weight: 400; color: #E3A646; }
 [data-theme='riad'] .c-soon-row.k-national .cs-when { color: #F2AE3D; }

@@ -1,6 +1,6 @@
 import { h, setText, now, parts, dayKey, startOfDay, hijri, hhmm, MONTHS, HIJRI_MONTHS, WEEKDAYS, DAY } from '../util.js';
 import { state, on } from '../data.js';
-import { occasions, between, upcoming } from '../holidays.js';
+import { occasions, between } from '../holidays.js';
 
 // Monday first, as Moroccan calendars print it.
 const WEEK = ['الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد'];
@@ -109,7 +109,8 @@ export function createCalendar() {
   const nowSub = h('span', { class: 'cn-sub' });
   const nowCard = h('div', { class: 'c-now' }, nowWd, nowD, nowM, nowSub);
   const soonList = h('div', { class: 'c-soon-list' });
-  const soon = h('div', { class: 'c-soon' }, h('div', { class: 'c-soon-title' }, 'القادم'), soonList);
+  const soonTitle = h('div', { class: 'c-soon-title' });
+  const soon = h('div', { class: 'c-soon' }, soonTitle, soonList);
 
   const el = h('section', { class: 'screen s-calendar', 'data-screen': 'calendar', style: '--ground:var(--g-calendar)' },
     h('div', { class: 'cal-layout' },
@@ -179,13 +180,23 @@ export function createCalendar() {
     setText(nowM, MONTHS[p.m - 1]);
     setText(nowSub, (hj ? hj.d + ' ' + HIJRI_MONTHS[hj.m - 1] + ' · ' : '') + hhmm(t));
   }
-  // The theme list: the next occasions, whatever the month.
-  function renderSoon(today) {
+  // The theme list: the same occasions as the original's side panel — the month on screen,
+  // from today on (never the rest of the year).
+  function renderSoon(m, first, last, today) {
     soonList.textContent = '';
-    for (const ev of upcoming(today, 6, family())) {
+    setText(soonTitle, 'مناسبات ' + MONTHS[m - 1]);
+    const monthStart = startOfDay(first), monthEnd = startOfDay(last) + DAY;
+    const from = Math.max(today, monthStart);
+    const inMonth = from < monthEnd ? between(from, monthEnd, family()) : [];
+    if (!inMonth.length) {
+      soonList.appendChild(h('p', { class: 'c-soon-empty' },
+        offset === 0 ? 'لا مناسبات أخرى حتى نهاية ' + MONTHS[m - 1] + '.' : offset < 0 ? 'مضى هذا الشهر.' : 'لا مناسبات في ' + MONTHS[m - 1] + '.'));
+      return;
+    }
+    for (const ev of inMonth) {
       const [ty, tm, td] = isoParts(ev.date);
       const away = Math.round((startOfDay(Date.UTC(ty, tm - 1, td, 12)) - today) / DAY);
-      const when = ev.ongoing ? 'جارية' : away <= 2 || away > 30 ? daysAway(away) : dayMonth(ev.date);
+      const when = ev.ongoing ? 'جارية' : offset === 0 && away <= 2 ? daysAway(away) : dayMonth(ev.start || ev.date);
       soonList.appendChild(h('div', { class: 'c-soon-row k-' + ev.kind },
         h('span', { class: 'cs-name' }, ev.name), h('span', { class: 'cs-when' }, when)));
     }
@@ -312,7 +323,7 @@ export function createCalendar() {
     const today = startOfDay(t);
     if (picked) renderDay(occ.get(picked) || [], today);
     else renderMonth(m, first, last, today);
-    renderSoon(today);
+    renderSoon(m, first, last, today);
 
     legend.textContent = '';
     for (const kd of ['national', 'religious', 'observance', 'family']) {

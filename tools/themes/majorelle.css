@@ -142,6 +142,23 @@
 [data-theme='majorelle'] .h-wxm .hw-text { display: flex; align-items: baseline; gap: 8px; }
 [data-theme='majorelle'] .h-wxm .hw-temp { font-size: 28px; font-weight: 400; }
 [data-theme='majorelle'] .h-wxm .hw-cond { font-size: 28px; font-weight: 400; }
+/* the weather sentence (same as the original look): its own line under the next-prayer line,
+   right-aligned with the column (the weather block's own right edge is measured) */
+[data-theme='majorelle'] .s-home:has(.hw-tip:not(:empty)) .h-next { margin-bottom: 40px; }
+[data-theme='majorelle'] .h-wxm .hw-tip {
+  position: absolute;
+  top: 44px;
+  right: calc(70px - var(--mj-wx-right, 70px));
+  width: 640px;
+  font-size: 25px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: var(--lilac);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+}
 
 /* the five prayers on yellow pots (190 × 104), each pot with its own cactus above it */
 [data-theme='majorelle'] .s-home .h-prayers {
@@ -237,6 +254,7 @@
 [data-theme='majorelle'] .s-prayer .p-clock { display: flex; flex-direction: column; align-items: flex-start; position: absolute; top: 52px; left: 64px; }
 [data-theme='majorelle'] .p-clock .pc-time { font-size: 60px; font-weight: 700; line-height: 1; }
 [data-theme='majorelle'] .p-clock .pc-date { margin-top: 6px; font-size: 22px; color: var(--lilac); }
+[data-theme='majorelle'] .p-clock .pc-sun { display: block; margin-top: 2px; font-size: 22px; color: var(--lilac); }
 [data-theme='majorelle'] .s-prayer .p-tiles {
   display: flex;
   position: absolute;

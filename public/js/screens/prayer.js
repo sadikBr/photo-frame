@@ -76,7 +76,8 @@ export function createPrayer() {
   const tiles = createPrayerRow('p-tiles', { sunrise: true });
   const nowTime = h('bdi', { class: 'pc-time', dir: 'ltr' });
   const nowDate = h('span', { class: 'pc-date' });
-  const nowBox = h('div', { class: 'p-clock' }, nowTime, nowDate);
+  const nowSun = h('span', { class: 'pc-sun' }); // sunrise, for the themes that have no tile for it
+  const nowBox = h('div', { class: 'p-clock' }, nowTime, nowDate, nowSun);
 
   const el = h('section', { class: 'screen s-prayer', 'data-screen': 'prayer', style: '--ground:var(--g-prayer)' },
     rDecor,
@@ -333,6 +334,7 @@ export function createPrayer() {
     tiles.update(t);
     setText(nowTime, hhmm(t));
     { const q = parts(t); setText(nowDate, WEEKDAYS[q.wd] + ' ' + q.d + ' ' + MONTHS_AR[q.m - 1]); }
+    { const dd = displayDay(t); setText(nowSun, dd && dd.times.sunrise ? 'الشروق ' + hhmm(dd.times.sunrise) : ''); }
     const np = nextPrayer(t);
     const key = dd.times.fajr + ':' + (np ? np.k + np.at : '') + ':' + Math.floor(t / (5 * MINUTE));
     if (key !== drawnFor) { drawnFor = key; draw(dd.times, t); }

@@ -168,6 +168,29 @@
 [data-theme='kids'] .h-wxm .hw-temp { font-size: 44px; font-weight: 800; text-align: right; }
 [data-theme='kids'] .h-wxm .hw-cond { font-size: 18px; font-weight: 600; color: #4A5878; white-space: nowrap; }
 [data-theme='kids'] .h-wxm .hw-next { display: none; }
+/* the weather sentence (same as the original look): under the temperature, inside the bubble */
+[data-theme='kids'] .s-home .h-wxm {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-content: center;
+  column-gap: 12px;
+  row-gap: 2px;
+}
+[data-theme='kids'] .h-wxm .hw-icon { grid-row: 1 / span 2; }
+[data-theme='kids'] .h-wxm .hw-text { flex-direction: row; align-items: baseline; gap: 10px; }
+[data-theme='kids'] .h-wxm .hw-tip {
+  max-width: 236px;
+  font-size: 15px;
+  line-height: 1.25;
+  font-weight: 700;
+  color: #4A5878;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+[data-theme='kids'] .h-wxm .hw-tip:empty { display: none; }
 
 /* text drawn by kids.js inside the clock face and the sky */
 [data-theme='kids'] .kd-num { font: 800 28px var(--kufi); }
@@ -306,6 +329,7 @@
   line-height: 1.25;
 }
 [data-theme='kids'] .p-clock .pc-date { margin-top: 8px; font-size: 22px; font-weight: 600; color: var(--k-muted); }
+[data-theme='kids'] .p-clock .pc-sun { display: block; margin-top: 2px; font-size: 22px; font-weight: 600; color: var(--k-muted); }
 
 [data-theme='kids'] .s-prayer .p-tiles { display: contents; }
 [data-theme='kids'] .p-tiles .prow-i {

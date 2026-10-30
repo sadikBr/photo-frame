@@ -320,6 +320,17 @@
 [data-theme='andalus'] .h-wxm .hw-temp { font: 700 74px/1 var(--sans); }
 [data-theme='andalus'] .h-wxm .hw-cond { font-size: 26px; line-height: 1.4; }
 [data-theme='andalus'] .h-wxm .hw-next { font-size: 20px; line-height: 1.4; color: #7A6A55; }
+/* the weather sentence (same as the original look) */
+[data-theme='andalus'] .h-wxm .hw-tip {
+  margin-top: 8px;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #1E4A3B;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
 [data-theme='andalus'] .s-home .h-wxm::after {
   content: '';
   width: 120px;
@@ -390,11 +401,13 @@
   line-height: 1.4;
   color: #7A6A55;
 }
-[data-theme='andalus'] .p-clock::before { content: '·'; order: 3; margin: 0 10px; }
-[data-theme='andalus'] .p-clock .pc-date { order: 2; }
+[data-theme='andalus'] .p-clock::before { content: '·'; order: 4; margin: 0 10px; }
+[data-theme='andalus'] .p-clock .pc-date { order: 3; }
 [data-theme='andalus'] .p-clock .pc-date::after { content: '·'; margin: 0 10px; }
 [data-theme='andalus'] .p-clock .pc-time { order: 1; }
 [data-theme='andalus'] .p-clock .pc-time::after { content: 'الآن'; margin-left: 8px; }
+[data-theme='andalus'] .p-clock .pc-sun { display: inline; order: 2; }
+[data-theme='andalus'] .p-clock .pc-sun::after { content: '·'; margin: 0 10px; }
 [data-theme='andalus'] .s-prayer .p-tiles {
   display: flex;
   position: absolute;

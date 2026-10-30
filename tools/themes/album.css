@@ -251,6 +251,22 @@
 [data-theme='album'] .h-wxm .hw-temp { font-size: 22px; font-weight: 700; }
 [data-theme='album'] .h-wxm .hw-cond { font-size: 18px; opacity: 0.85; }
 [data-theme='album'] .h-wxm .hw-next { display: none; }
+/* the weather sentence (same as the original look): a second pill under the weather */
+[data-theme='album'] .h-wxm .hw-tip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: max-content;
+  max-width: 460px;
+  padding: 7px 20px;
+  border-radius: 20px;
+  background: rgba(20, 16, 40, 0.38);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  font-size: 18px;
+  line-height: 1.45;
+}
+[data-theme='album'] .h-wxm .hw-tip:empty { display: none; }
 
 /* ---------- prayer: the photo blurred, the next prayer big, five glass tiles ---------- */
 [data-theme='album'] .s-prayer .p-stage { display: none; }
