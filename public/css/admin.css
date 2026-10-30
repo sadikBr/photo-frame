@@ -815,10 +815,10 @@ main { padding: 18px max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-
 .qn-head h2 { margin: 0; font: 600 27px/1.25 'Reem Kufi', sans-serif; }
 .qn-lead { margin: 0; font-size: 13px; color: #CDBFB8; }
 #v-quran .qn-now { padding: 20px 18px; border-radius: 20px; background: #2B2650; border: 1px solid #45467A; }
-.qn-rec-card { padding: 0; background: none; border: 0; gap: 8px; }
+#v-quran .qn-rec-card { padding: 0; background: none; border: 0; gap: 8px; }
 .qn-rec-card .row-title h3 { font: 400 13px/1.4 'Readex Pro', sans-serif; color: #CDBFB8; }
 .qn-rec-card .row-title .hint { display: none; }
-.qn-favs-card { padding: 0; border-radius: 18px; border: 1px solid #5A3443; background: none; overflow: hidden; gap: 0; }
+#v-quran .qn-favs-card { padding: 0; border-radius: 18px; border: 1px solid #5A3443; background: none; overflow: hidden; gap: 0; }
 .qn-favs-card .row-title { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
 .qn-favs-card .row-title h3 { margin: 0; font: 600 16px/1.4 'Reem Kufi', sans-serif; }
 .qn-favs-card .row-title .hint { display: none; }
@@ -881,7 +881,7 @@ main { padding: 18px max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-
 #v-settings .back { align-self: flex-start; height: 40px; margin: -4px 0 -12px; }
 .set-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; }
 .set-title-row h2 { margin: 0; font: 600 27px/1.25 'Reem Kufi', sans-serif; }
-.set-sub { margin: -12px 0 0 !important; font-size: 13px; color: #CDBFB8; }
+.set-page-sub { margin: -12px 0 0 !important; font-size: 13px; color: #CDBFB8; }
 .try-btn { height: 40px; padding: 0 16px; border-radius: 20px; border: 1.5px solid var(--saffron); color: var(--saffron); font-size: 14px; display: flex; align-items: center; gap: 6px; }
 .set-note { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #CDBFB8; }
 .savebar[hidden] { display: none !important; }
