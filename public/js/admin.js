@@ -183,6 +183,9 @@ let list = 'shopping';
 const NAMES = { shopping: 'التسوق', tasks: 'المهام' };
 const quickFor = (l) => (l === 'shopping' ? settings.quickShopping || config.quickShopping : settings.quickTasks || config.quickTasks);
 
+// Kept as a reference: while there are done items the button lives inside the list's last row,
+// where emptying the list would otherwise take it out of the page.
+const clearBtn = $('clearDone');
 function renderLists() {
   const lists = board.lists || { tasks: [], shopping: [] };
   $('nShopping').textContent = (lists.shopping || []).filter((x) => !x.done).length || '';
@@ -199,6 +202,7 @@ function renderLists() {
   }
 
   const ul = $('items');
+  ul.after(clearBtn); // take the button out of the list before emptying it (it may sit in the last row)
   ul.textContent = '';
   if (!items.length) ul.append(el('li', { class: 'empty' }, list === 'shopping' ? 'القائمة فارغة.' : 'لا مهام حالياً.'));
   for (const it of items) {
@@ -212,10 +216,9 @@ function renderLists() {
         html: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>' })));
   }
   const done = items.filter((x) => x.done).length;
-  $('clearDone').hidden = !done;
-  $('clearDone').textContent = list === 'shopping' ? 'مسح المشترى' : 'حذف المنجزة';
-  if (done) ul.append(el('li', { class: 'clear-row' }, $('clearDone')));
-  else $('items').after($('clearDone'));
+  clearBtn.hidden = !done;
+  clearBtn.textContent = list === 'shopping' ? 'مسح المشترى' : 'حذف المنجزة';
+  if (done) ul.append(el('li', { class: 'clear-row' }, clearBtn));
   renderRoutines();
 }
 onBoard(renderLists);
@@ -236,7 +239,7 @@ $('addForm').addEventListener('submit', (e) => {
   $('addInput').value = '';
   op({ op: 'add', list, text });
 });
-$('clearDone').addEventListener('click', () => op({ op: 'clearDone', list }));
+clearBtn.addEventListener('click', () => op({ op: 'clearDone', list }));
 
 // ================= repeating tasks =================
 const REPEAT_SVG = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></svg>';
