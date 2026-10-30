@@ -87,6 +87,31 @@ data = await r.json();
 assert.equal(data.lang, 'en');
 assert.equal(data.steps.length, 3);
 
+// On Cloudflare (a ctx): the English answer comes at once, the Arabic follows in the background.
+aiFails = false;
+env.STORE.m.clear();
+const bg = [];
+const ctx = { waitUntil(p) { bg.push(p); } };
+const before = aiCalls;
+const getNow = async (path) => worker.fetch(new Request('https://frame.test' + path), env, ctx);
+data = await (await getNow('/api/recipes/52999')).json();
+assert.equal(data.pending, true);
+assert.equal(data.lang, 'en');
+assert.equal(data.steps.length, 3, 'readable in English meanwhile');
+await getNow('/api/recipes/52999'); // asked again meanwhile: no second translation
+await Promise.all(bg);
+assert.equal(aiCalls - before, 2, 'one translation only (title + one piece of steps)');
+data = await (await getNow('/api/recipes/52999')).json();
+assert.equal(data.lang, 'ar');
+assert.ok(!data.pending);
+data = await (await getNow('/api/recipes?c=Chicken')).json();
+assert.equal(data.pending, true);
+assert.equal(data.recipes[0].ar, '');
+await Promise.all(bg);
+data = await (await getNow('/api/recipes?c=Chicken')).json();
+assert.equal(data.recipes[0].ar, 'طاجين الدجاج');
+assert.ok(!data.pending);
+
 // Open a recipe on the frame.
 const hub = env.PULSE;
 const sock = { got: [], send(m) { this.got.push(JSON.parse(m)); } };

@@ -82,6 +82,14 @@
   --atd-ground: #2F3B2C;
   font-synthesis: none;
 }
+
+[data-theme='atlas'] {
+  /* opaque surfaces for panels over a patterned ground (recipes, timers): cards, buttons, lines, accent */
+  --sheet: #FCF9F5;
+  --sheet-2: #F9F3EB;
+  --sheet-line: #D2CBBD;
+  --sheet-tint: #EEDECF;
+}
 [data-theme='atlas'] #stage { font-weight: 400; }
 [data-theme='atlas'] .screen { background-image: none; }
 [data-theme='atlas'] .band { display: none; }

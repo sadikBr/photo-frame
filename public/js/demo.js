@@ -379,20 +379,55 @@ export function alarmOp(body) {
   return { alarms: r.list, alarm: r.alarm || null };
 }
 
-// «وصفات» on the preview pages: a few recipes already in Arabic (the real ones come from
-// TheMealDB through the server, which translates them).
+// «وصفات» on the preview pages. When the page is served by the real server (wrangler dev, or the
+// deployed frame with ?demo), the real recipes come from it. Otherwise a few Moroccan recipes,
+// already in Arabic, with painted pictures in /demo/recipes.
 const DEMO_RECIPES = [
-  { id: '90001', title: 'حريرة مغربية', area: 'Moroccan', category: 'Soup', thumb: '', lang: 'ar',
+  { id: '90001', thumb: '/demo/recipes/90001.svg', title: 'حريرة مغربية', area: 'Moroccan', category: 'Soup', lang: 'ar',
     ingredients: [{ name: 'لحم غنم مقطّع صغيراً', qty: '250 غ' }, { name: 'حمّص منقوع', qty: 'كأس' }, { name: 'عدس', qty: 'نصف كأس' }, { name: 'طماطم مهروسة', qty: '4 حبات' }, { name: 'بصل مفروم', qty: 'حبة' }, { name: 'كرفس وقزبر ومعدنوس', qty: 'حزمة صغيرة' }, { name: 'دقيق', qty: '3 ملاعق كبيرة' }, { name: 'شعرية', qty: 'حفنة' }, { name: 'زنجبيل وكركم وقرفة', qty: 'ملعقة صغيرة من كلّ' }],
     steps: [{ text: 'ضعوا اللحم والبصل والتوابل مع ملعقة سمن في القدر، وقلّبوا على نار متوسطة.', minutes: 5 }, { text: 'أضيفوا الحمّص والعدس والطماطم والأعشاب المفرومة، ثم ستة لترات من الماء.', minutes: null }, { text: 'غطّوا القدر واتركوه يطهى حتى ينضج الحمّص.', minutes: 45 }, { text: 'اخلطوا الدقيق مع كأس ماء حتى يصير «تدويرة» ناعمة بلا كتل.', minutes: null }, { text: 'أضيفوا الشعرية واتركوها تطهى.', minutes: 5 }, { text: 'صبّوا التدويرة شيئاً فشيئاً مع التحريك الدائم حتى تتماسك الحريرة.', minutes: 10 }, { text: 'قدّموها ساخنة مع التمر والشباكية والحامض.', minutes: null }] },
-  { id: '90002', title: 'طاجين الدجاج بالزيتون والحامض المصيّر', area: 'Moroccan', category: 'Chicken', thumb: '', lang: 'ar',
+  { id: '90002', thumb: '/demo/recipes/90002.svg', title: 'طاجين الدجاج بالزيتون والحامض المصيّر', area: 'Moroccan', category: 'Chicken', lang: 'ar',
     ingredients: [{ name: 'دجاجة مقطّعة', qty: 'حبة' }, { name: 'بصل', qty: '2 حبة' }, { name: 'ثوم', qty: '3 فصوص' }, { name: 'حامض مصيّر', qty: 'حبة' }, { name: 'زيتون أخضر', qty: 'كأس' }, { name: 'زعفران وزنجبيل وكركم', qty: 'رشة من كلّ' }, { name: 'زيت زيتون', qty: '4 ملاعق' }],
     steps: [{ text: 'تبّلوا الدجاج بالثوم والتوابل والزيت، واتركوه يتشرّب.', minutes: 30 }, { text: 'ضعوا البصل المقطّع في الطاجين ثم الدجاج فوقه.', minutes: null }, { text: 'أضيفوا كأس ماء، وغطّوا الطاجين على نار هادئة.', minutes: 45 }, { text: 'أضيفوا الزيتون وقشر الحامض المصيّر.', minutes: 15 }, { text: 'قدّموه مع الخبز.', minutes: null }] },
-  { id: '90003', title: 'كسكس بسبع خضار', area: 'Moroccan', category: 'Lamb', thumb: '', lang: 'ar',
+  { id: '90003', thumb: '/demo/recipes/90003.svg', title: 'كسكس بسبع خضار', area: 'Moroccan', category: 'Lamb', lang: 'ar',
     ingredients: [{ name: 'كسكس', qty: '1 كغ' }, { name: 'لحم غنم', qty: '1 كغ' }, { name: 'خضر: جزر، لفت، كوسة، قرع، ملفوف، باذنجان، فول', qty: '' }, { name: 'حمّص منقوع', qty: 'كأس' }, { name: 'بصل وطماطم', qty: '2 حبة من كلّ' }],
     steps: [{ text: 'ضعوا اللحم والبصل والطماطم والتوابل في الكسكاس مع الماء.', minutes: 30 }, { text: 'رطّبوا الكسكس بالماء والزيت وافركوه، ثم ضعوه فوق البخار.', minutes: 20 }, { text: 'أضيفوا الخضر الصلبة إلى المرق.', minutes: 20 }, { text: 'بخّروا الكسكس مرة ثانية وأضيفوا الخضر الطرية.', minutes: 20 }, { text: 'رتّبوا الكسكس واللحم والخضر في القصعة وسقوه بالمرق.', minutes: null }] },
+  { id: '90005', thumb: '/demo/recipes/90005.svg', title: 'كعب الغزال', area: 'Moroccan', category: 'Dessert', lang: 'ar',
+    ingredients: [{ name: 'لوز مقشّر', qty: '500 غ' }, { name: 'سكر', qty: '250 غ' }, { name: 'ماء الزهر', qty: '4 ملاعق' }, { name: 'زبدة', qty: '2 ملاعق' }, { name: 'دقيق', qty: '300 غ' }, { name: 'بيضة', qty: 'حبة' }, { name: 'قرفة', qty: 'رشة' }],
+    steps: [{ text: 'اطحنوا اللوز مع السكر، ثم أضيفوا الزبدة والقرفة وماء الزهر حتى تصير عجينة لينة.', minutes: null }, { text: 'شكّلوا العجينة أصابع صغيرة واتركوها ترتاح.', minutes: 30 }, { text: 'اعجنوا الدقيق مع البيضة والزبدة وقليل من ماء الزهر حتى تصير عجينة ناعمة، واتركوها ترتاح.', minutes: 20 }, { text: 'افردوا العجينة رقيقة جداً، ولفّوا كل إصبع لوز فيها، وشكّلوه هلالاً.', minutes: null }, { text: 'اخبزوها في فرن متوسط حتى تبيضّ أطرافها دون أن تحمرّ.', minutes: 12 }] },
+  { id: '90006', thumb: '/demo/recipes/90006.svg', title: 'شباكية', area: 'Moroccan', category: 'Dessert', lang: 'ar',
+    ingredients: [{ name: 'دقيق', qty: '1 كغ' }, { name: 'سمسم محمّص ومطحون', qty: '250 غ' }, { name: 'زيت زيتون', qty: 'كأس' }, { name: 'ماء الزهر وخل', qty: 'نصف كأس من كلّ' }, { name: 'زعفران وينسون وقرفة', qty: 'ملعقة من كلّ' }, { name: 'خميرة', qty: 'ملعقة' }, { name: 'عسل', qty: '1 كغ' }],
+    steps: [{ text: 'اخلطوا الدقيق والسمسم والتوابل والخميرة، ثم أضيفوا الزيت والسوائل واعجنوا جيداً.', minutes: 10 }, { text: 'غطّوا العجينة واتركوها ترتاح.', minutes: 15 }, { text: 'افردوها وقطّعوها مستطيلات، اقطعوا في كل واحد خطوطاً ولفّوه وردة.', minutes: null }, { text: 'اقلوها في زيت ساخن حتى يصير لونها بنياً ذهبياً.', minutes: null }, { text: 'اغمسوها مباشرة في العسل الدافئ مع ماء الزهر، ثم رشّوها بالسمسم.', minutes: 5 }] },
+  { id: '90007', thumb: '/demo/recipes/90007.svg', title: 'مسمن', area: 'Moroccan', category: 'Breakfast', lang: 'ar',
+    ingredients: [{ name: 'دقيق', qty: '500 غ' }, { name: 'سميد رقيق', qty: '150 غ' }, { name: 'ملح وسكر', qty: 'ملعقة صغيرة من كلّ' }, { name: 'ماء دافئ', qty: 'حسب الحاجة' }, { name: 'زيت وزبدة', qty: 'للدهن' }],
+    steps: [{ text: 'اخلطوا الدقيق والسميد والملح والسكر، وأضيفوا الماء شيئاً فشيئاً واعجنوا حتى تصير العجينة ناعمة ولينة.', minutes: 10 }, { text: 'قسّموها كرات صغيرة، ادهنوها بالزيت واتركوها ترتاح.', minutes: 15 }, { text: 'افردوا كل كرة رقيقة جداً على سطح مدهون، رشّوا السميد والزبدة، واطووها مربّعاً.', minutes: null }, { text: 'اطهوها في مقلاة ساخنة على الوجهين حتى تحمرّ.', minutes: 4 }, { text: 'قدّموها مع العسل والزبدة أو الأتاي.', minutes: null }] },
+  { id: '90008', thumb: '/demo/recipes/90008.svg', title: 'بغرير', area: 'Moroccan', category: 'Breakfast', lang: 'ar',
+    ingredients: [{ name: 'سميد رقيق', qty: '500 غ' }, { name: 'دقيق', qty: '2 ملاعق' }, { name: 'خميرة', qty: 'ملعقة كبيرة' }, { name: 'خميرة كيميائية', qty: 'ملعقة صغيرة' }, { name: 'ملح وسكر', qty: 'رشة من كلّ' }, { name: 'ماء دافئ', qty: '1 لتر تقريباً' }],
+    steps: [{ text: 'اخلطوا كل المكوّنات في الخلاط مع الماء الدافئ حتى يصير الخليط سائلاً ناعماً.', minutes: 3 }, { text: 'غطّوه واتركوه في مكان دافئ حتى يتكوّن الرغو على سطحه.', minutes: 30 }, { text: 'صبّوا مغرفة في مقلاة ساخنة غير مدهونة، واطهوه من جهة واحدة حتى تظهر الثقوب ويجفّ سطحه.', minutes: 2 }, { text: 'رتّبوه دون أن يتراكب حتى يبرد.', minutes: null }, { text: 'قدّموه بالعسل والزبدة الذائبة.', minutes: null }] },
 ];
-export const recipeList = () => ({ recipes: DEMO_RECIPES.map((r) => ({ id: r.id, name: r.title, ar: r.title, thumb: r.thumb })) });
-export const recipeOne = (id) => DEMO_RECIPES.find((r) => r.id === String(id)) || null;
+const DEMO_NOTE = 'في المعاينة بعض الوصفات المغربية فقط. على الإطار الحقيقي تأتي مئات الوصفات بصورها.';
+async function live(path) {
+  try {
+    const res = await fetch(path, { headers: { accept: 'application/json' } });
+    if (!res.ok) return null;
+    const r = await res.json();
+    return r && (r.recipes ? r.recipes.length : r.steps) ? r : null;
+  } catch (e) { return null; }
+}
+const card = (r) => ({ id: r.id, name: r.title, ar: r.title, thumb: r.thumb });
+export async function recipeList(shelf, q) {
+  const path = q ? '/api/recipes?q=' + encodeURIComponent(q) : shelf ? '/api/recipes?' + shelf.kind + '=' + encodeURIComponent(shelf.id) : '';
+  const real = path && await live(path);
+  if (real) return real;
+  let list;
+  if (q) list = DEMO_RECIPES.filter((r) => r.title.includes(q) || q.includes(r.title));
+  else if (shelf) list = DEMO_RECIPES.filter((r) => (shelf.kind === 'a' ? r.area : r.category) === shelf.id);
+  else list = DEMO_RECIPES;
+  return { recipes: list.map(card), note: list.length ? '' : DEMO_NOTE };
+}
+export async function recipeOne(id) {
+  const mine = DEMO_RECIPES.find((r) => r.id === String(id));
+  return mine || await live('/api/recipes/' + encodeURIComponent(id));
+}
 export const demoRecipe = () => store.get('demo-recipe', null);
 export function sendRecipe(r) { const v = r && r.id ? { id: r.id, title: r.title || '', by: r.by || '', at: Date.now() } : null; store.set('demo-recipe', v); return { recipe: v }; }

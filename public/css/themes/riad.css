@@ -21,6 +21,14 @@
   --naskh: 'Amiri', serif;
 }
 
+[data-theme='riad'] {
+  /* opaque surfaces for panels over a patterned ground (recipes, timers): cards, buttons, lines, accent */
+  --sheet: #16215C;
+  --sheet-2: #1B2A6E;
+  --sheet-line: #2E3F86;
+  --sheet-tint: #2A2F64;
+}
+
 /* the walls: the same lattice on every screen, a shade lighter than the ground */
 [data-theme='riad'] .screen {
   background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2296%22 height=%2296%22%3E%3Cg fill=%22none%22 stroke=%22%23FFFFFF%22 stroke-opacity=%220.055%22 stroke-width=%221.6%22%3E%3Crect x=%2228%22 y=%2228%22 width=%2240%22 height=%2240%22/%3E%3Cpolygon points=%2248,20 76,48 48,76 20,48%22/%3E%3Cpath d=%22M0 0L28 28M96 0L68 28M0 96L28 68M96 96L68 68M48 0V20M96 48H76M48 96V76M0 48H20%22/%3E%3C/g%3E%3C/svg%3E");

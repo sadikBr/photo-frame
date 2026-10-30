@@ -53,6 +53,14 @@
   --glass: rgba(24, 52, 100, 0.43);
   --glass-line: rgba(255, 255, 255, 0.4);
 }
+
+[data-theme='sky'] {
+  /* opaque surfaces for panels over a patterned ground (recipes, timers): cards, buttons, lines, accent */
+  --sheet: #273B64;
+  --sheet-2: #33466D;
+  --sheet-line: #435579;
+  --sheet-tint: #3A4863;
+}
 [data-theme='sky'] #stage { font-weight: 300; text-shadow: var(--k-shadow); }
 [data-theme='sky'] .screen { background-image: none; }
 [data-theme='sky'] .band { display: none; }

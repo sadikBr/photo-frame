@@ -44,6 +44,14 @@
   --door-fun: #2E2490;
   --door-wifi: #2F6B4F;
 }
+
+[data-theme='majorelle'] {
+  /* opaque surfaces for panels over a patterned ground (recipes, timers): cards, buttons, lines, accent */
+  --sheet: #3F3699;
+  --sheet-2: #49409E;
+  --sheet-line: #5850A6;
+  --sheet-tint: #4E3E81;
+}
 [data-theme='majorelle'] #stage { font-weight: 400; }
 
 /* the walls: Majorelle blue with a darker diagonal wash */

@@ -432,7 +432,7 @@ async function board(env, url) {
 
 // ---------- router ----------
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (!url.pathname.startsWith('/api/')) {
       // Photos shared from the phone are normally caught by the control panel's service worker
@@ -455,9 +455,9 @@ export default {
         if (!env.PULSE) return fail(500, 'The PULSE Durable Object is not bound. See wrangler.jsonc and the README.');
         return env.PULSE.get(env.PULSE.idFromName('family')).fetch(request);
       }
-      if (path === '/api/recipes' && method === 'GET') return recipeList(env, url);
+      if (path === '/api/recipes' && method === 'GET') return recipeList(env, url, ctx);
       const rm = /^\/api\/recipes\/(\d{1,10})$/.exec(path);
-      if (rm && method === 'GET') return recipeOne(env, rm[1]);
+      if (rm && method === 'GET') return recipeOne(env, rm[1], ctx);
       if (path === '/api/settings') {
         if (method === 'GET') return json((await needStore(env).get('settings', 'json')) || {});
         if (method === 'PUT') return putSettings(request, env);

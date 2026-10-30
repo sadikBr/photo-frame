@@ -51,6 +51,14 @@
   --k-night: #3D4A8F;
   --k-muted: #5A5F80;
 }
+
+[data-theme='kids'] {
+  /* opaque surfaces for panels over a patterned ground (recipes, timers): cards, buttons, lines, accent */
+  --sheet: #F9FCFF;
+  --sheet-2: #F3FAFF;
+  --sheet-line: #CAD5E1;
+  --sheet-tint: #E3E6FE;
+}
 [data-theme='kids'] #stage { font-weight: 500; }
 
 /* confetti on the plain screens */

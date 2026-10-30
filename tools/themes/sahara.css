@@ -47,6 +47,14 @@
   --s-cream: #FBEBD2;
   font-synthesis: none;
 }
+
+[data-theme='sahara'] {
+  /* opaque surfaces for panels over a patterned ground (recipes, timers): cards, buttons, lines, accent */
+  --sheet: #FCF7EE;
+  --sheet-2: #FAF0DF;
+  --sheet-line: #DAC4A8;
+  --sheet-tint: #EBD7C7;
+}
 [data-theme='sahara'] #stage { font-weight: 400; }
 /* Rakkas has a single weight */
 [data-theme='sahara'] .h-weekday,

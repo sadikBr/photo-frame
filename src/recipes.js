@@ -4,6 +4,12 @@
 //   GET /api/recipes?q=طاجين                     a search (an Arabic query is put into English first)
 //   GET /api/recipes/<id>                        one recipe, in Arabic when the translation works
 //
+// The translation takes a while the first time (the model writes the whole recipe), so nobody
+// waits for it: the first answer is the English straight from TheMealDB with "pending": true,
+// the translation carries on in the background (ctx.waitUntil), and the frame and the panel ask
+// again every few seconds until the Arabic is there. After that it is kept and opens at once.
+// The steps are translated in pieces at the same time, which makes it several times quicker.
+//
 // TheMealDB's free key "1" is for personal and development use, which a family frame is; set the
 // MEALDB_KEY variable to a supporter key if you have one. The translation needs the Workers AI
 // binding ("ai": {"binding": "AI"} in wrangler.jsonc, free daily allowance). Without it (or if a
@@ -15,6 +21,23 @@ export const recipeDeps = { fetch: (...a) => fetch(...a) }; // tests swap this
 const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 const V = 'rcp1:'; // KV key prefix (bump to drop old translations)
 const DAY = 86400;
+const BUSY = 90; // seconds a background translation is given before another may start
+const CHUNK = 5; // steps per translation piece
+
+// Background work: with a ctx (Cloudflare) it carries on after the answer; without one (tests,
+// old callers) it is waited for, so the answer is already complete.
+async function later(ctx, work) {
+  if (ctx && ctx.waitUntil) { ctx.waitUntil(work().catch(() => {})); return true; }
+  await work();
+  return false;
+}
+// One background translation at a time per key.
+async function claim(kv, key) {
+  if (!kv) return true;
+  if (await kv.get(key + ':busy')) return false;
+  await kv.put(key + ':busy', '1', { expirationTtl: BUSY });
+  return true;
+}
 
 const json = (data, status = 200) => new Response(JSON.stringify(data), {
   status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
@@ -52,7 +75,7 @@ async function arabicNames(env, names) {
   return list && list.length === names.length ? list.map((x) => String(x || '').trim().slice(0, 60)) : names.map(() => '');
 }
 
-export async function recipeList(env, url) {
+export async function recipeList(env, url, ctx) {
   const kv = env.STORE;
   const a = url.searchParams.get('a'), c = url.searchParams.get('c');
   let q = (url.searchParams.get('q') || '').trim().slice(0, 60);
@@ -83,13 +106,24 @@ export async function recipeList(env, url) {
     meals = ((await mealdb(env, 'filter.php?' + shelf.kind + '=' + encodeURIComponent(shelf.id))).meals || []).filter((m) => halalName(m.strMeal));
   }
   meals = meals.slice(0, 60);
-  const ar = await arabicNames(env, meals.map((m) => m.strMeal));
-  const out = { recipes: meals.map((m, i) => ({ id: String(m.idMeal), name: m.strMeal, ar: ar[i] || '', thumb: m.strMealThumb })) };
-  if (kv) await kv.put(cacheKey, JSON.stringify(out), { expirationTtl: (ar.some(Boolean) ? 14 : 1) * DAY });
-  return json(out);
+  const shape = (ar) => ({ recipes: meals.map((m, i) => ({ id: String(m.idMeal), name: m.strMeal, ar: ar[i] || '', thumb: m.strMealThumb })) });
+  if (!env.AI || !meals.length) {
+    const out = shape([]);
+    if (kv) await kv.put(cacheKey, JSON.stringify(out), { expirationTtl: DAY });
+    return json(out);
+  }
+  let done = null;
+  const work = async () => {
+    const ar = await arabicNames(env, meals.map((m) => m.strMeal));
+    done = shape(ar);
+    if (kv) await kv.put(cacheKey, JSON.stringify(done), { expirationTtl: (ar.some(Boolean) ? 14 : 1) * DAY });
+  };
+  const busy = !(await claim(kv, cacheKey));
+  if (busy || await later(ctx, work)) return json(Object.assign(shape([]), { pending: true }));
+  return json(done);
 }
 
-export async function recipeOne(env, id) {
+export async function recipeOne(env, id, ctx) {
   const kv = env.STORE;
   const key = V + id;
   const hit = kv && await kv.get(key, 'json');
@@ -98,14 +132,34 @@ export async function recipeOne(env, id) {
   if (!m) return fail(404, 'That recipe is gone.');
   if (!halalMeal(m)) return fail(404, 'That recipe is not shown here.');
   const en = fromMeal(m);
-  const t = await ai(env,
-    'You translate recipes into clear, simple Arabic (فصحى بسيطة) for a Moroccan family cooking from a kitchen screen. ' +
-    'Use metric units when the recipe gives them, keep quantities, and use common Moroccan names for ingredients when they exist. ' +
-    'Keep each step short (one or two sentences) and in order; you may split a long step. For each step, "minutes" is how long it cooks, rests or waits (a number), or null. ' +
-    'Answer with JSON only: {"title": "...", "ingredients": [{"name": "...", "qty": "..."}], "steps": [{"text": "...", "minutes": null}]}',
-    JSON.stringify({ title: en.title, ingredients: en.ingredients, steps: en.steps.map((s) => s.text) }), 3000);
-  const ar = checkTranslation(t, en);
-  const out = ar || en;
-  if (kv) await kv.put(key, JSON.stringify(out), ar ? {} : { expirationTtl: DAY });
-  return json(out);
+  if (!env.AI) return json(en);
+  let done = null;
+  const work = async () => {
+    const ar = await translate(env, en);
+    done = ar || en;
+    if (kv) await kv.put(key, JSON.stringify(done), ar ? {} : { expirationTtl: DAY });
+  };
+  const busy = !(await claim(kv, key));
+  if (busy || await later(ctx, work)) return json(Object.assign({}, en, { pending: true }));
+  return json(done);
+}
+
+// The recipe into Arabic: the title and ingredients in one piece and the steps in pieces of a
+// few, all at the same time (the model's writing time is what is slow, so shorter pieces in
+// parallel finish much sooner than one long answer).
+const RECIPE_RULES = 'You translate recipes into clear, simple Arabic (فصحى بسيطة) for a Moroccan family cooking from a kitchen screen. ' +
+  'Use metric units when the recipe gives them, keep quantities, and use common Moroccan names for ingredients when they exist. ';
+async function translate(env, en) {
+  const pieces = [];
+  for (let i = 0; i < en.steps.length; i += CHUNK) pieces.push(en.steps.slice(i, i + CHUNK));
+  const [head, ...parts] = await Promise.all([
+    ai(env, RECIPE_RULES + 'Translate the title and the ingredients. Answer with JSON only: {"title": "...", "ingredients": [{"name": "...", "qty": "..."}]}',
+      JSON.stringify({ title: en.title, ingredients: en.ingredients }), 1200),
+    ...pieces.map((p) => ai(env, RECIPE_RULES +
+      'Translate these recipe steps, in order. Keep each step short (one or two sentences); you may split a long step. For each step, "minutes" is how long it cooks, rests or waits (a number), or null. ' +
+      'Answer with JSON only: {"steps": [{"text": "...", "minutes": null}]}',
+      JSON.stringify({ title: en.title, steps: p.map((x) => x.text) }), 1500)),
+  ]);
+  if (!head || parts.some((p) => !p || !Array.isArray(p.steps))) return null;
+  return checkTranslation({ title: head.title, ingredients: head.ingredients, steps: parts.flatMap((p) => p.steps) }, en);
 }

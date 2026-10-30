@@ -53,6 +53,14 @@
   --door-wifi: #EAF6F1;
   --door-on: #FFFFFF;
 }
+
+[data-theme='bright'] {
+  /* opaque surfaces for panels over a patterned ground (recipes, timers): cards, buttons, lines, accent */
+  --sheet: #FCFCFE;
+  --sheet-2: #F8FAFD;
+  --sheet-line: #CFD4E2;
+  --sheet-tint: #DAE1F1;
+}
 [data-theme='bright'] #stage { font-weight: 400; }
 
 /* Overlays that are always dark: their own light text (the plaster tokens are recomputed here). */

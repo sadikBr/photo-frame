@@ -48,6 +48,14 @@
   --glass: rgba(20, 16, 40, 0.42);
   --glass-edge: rgba(255, 255, 255, 0.2);
 }
+
+[data-theme='album'] {
+  /* opaque surfaces for panels over a patterned ground (recipes, timers): cards, buttons, lines, accent */
+  --sheet: #2D2841;
+  --sheet-2: #39334B;
+  --sheet-line: #494459;
+  --sheet-tint: #3F333C;
+}
 [data-theme='album'] #stage { font-weight: 400; }
 
 /* no photos (yet): a dusk gradient, like the sky over the sea */

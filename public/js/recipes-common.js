@@ -93,3 +93,23 @@ export function checkTranslation(t, en) {
   if (!title || !arabic(title) || steps.length < Math.min(2, en.steps.length) || !steps.every((x) => arabic(x.text))) return null;
   return Object.assign({}, en, { title, ingredients: ingredients.length ? ingredients : en.ingredients, steps, lang: 'ar' });
 }
+
+// A recipe picture as an element's background. TheMealDB's photos are 700px; in the grids the
+// small copy ("/small", 250px) loads much faster. If that copy fails to load, the full photo is
+// used instead, so a card is never left blank (the older "/preview" copies stopped working).
+export function setThumb(elm, url, small) {
+  elm.style.backgroundImage = '';
+  if (!url) return;
+  const full = String(url).replace(/"/g, '');
+  const want = small && /themealdb\.com\/images\//.test(full) ? full + '/small' : full;
+  const show = (u) => { elm.style.backgroundImage = 'url("' + u + '")'; elm.classList.add('has-img'); };
+  if (typeof Image === 'undefined') return show(want);
+  const probe = new Image();
+  probe.onload = () => show(want);
+  probe.onerror = () => { if (want !== full) show(full); };
+  probe.src = want;
+}
+
+// While the server is still translating a recipe (pending), ask again every few seconds.
+export const TRANSLATE_POLL = 4000;
+export const TRANSLATE_TRIES = 30;

@@ -2,7 +2,7 @@
 // server), read one, and open it on the frame («اعرضها على الإطار»), where it is cooked step by
 // step; its ingredients can go to the shopping list.
 import * as demo from './demo.js';
-import { RECIPE_SHELVES } from './recipes-common.js';
+import { RECIPE_SHELVES, setThumb, TRANSLATE_POLL, TRANSLATE_TRIES } from './recipes-common.js';
 import { minutesAr } from './timers-common.js';
 
 export function initRecipes({ api, send, toast, el, $, DEMO, me, onListsChanged }) {
@@ -23,7 +23,7 @@ export function initRecipes({ api, send, toast, el, $, DEMO, me, onListsChanged 
     $('rcpNote').textContent = msg || '';
     for (const r of list) {
       const img = el('span', { class: 'rcp-card-img' });
-      if (r.thumb) img.style.backgroundImage = 'url("' + r.thumb.replace(/"/g, '') + '")';
+      setThumb(img, r.thumb, true);
       grid.append(el('button', { type: 'button', class: 'rcp-card', onclick: () => openOne(r.id) }, img, el('span', { class: 'rcp-card-name' }, r.ar || r.name)));
     }
   }
@@ -34,12 +34,34 @@ export function initRecipes({ api, send, toast, el, $, DEMO, me, onListsChanged 
     drawGrid('جاري التحميل…');
     const t = ++ticket;
     try {
-      const path = query ? '/api/recipes?q=' + encodeURIComponent(query) : '/api/recipes?' + shelf.kind + '=' + encodeURIComponent(shelf.id);
-      const r = DEMO ? demo.recipeList(shelf) : await api(path);
+      const r = await fetchList();
       if (t !== ticket) return;
       list = r.recipes || [];
       drawGrid(r.note || (list.length ? '' : query ? 'لم نجد وصفة بهذا الاسم. جرّب كلمة أخرى (أو بالإنجليزية).' : 'لا وصفات هنا الآن.'));
+      if (r.pending) namesLater(t, 0);
     } catch (e) { if (t === ticket) drawGrid(e.message || 'تعذّر الوصول إلى موقع الوصفات.'); }
+  }
+  function fetchList() {
+    if (DEMO) return demo.recipeList(query ? null : shelf, query);
+    return api(query ? '/api/recipes?q=' + encodeURIComponent(query) : '/api/recipes?' + shelf.kind + '=' + encodeURIComponent(shelf.id));
+  }
+  // English names for now (the Arabic is being written): rename the cards when it is ready.
+  function namesLater(t, n) {
+    if (n >= TRANSLATE_TRIES / 3) return;
+    setTimeout(async () => {
+      if (t !== ticket) return;
+      try {
+        const r = await fetchList();
+        if (t !== ticket) return;
+        const ar = new Map((r.recipes || []).map((x) => [x.id, x.ar]));
+        list.forEach((x, i) => {
+          x.ar = ar.get(x.id) || x.ar;
+          const name = $('rcpGrid').children[i] && $('rcpGrid').children[i].querySelector('.rcp-card-name');
+          if (name) name.textContent = x.ar || x.name;
+        });
+        if (r.pending) namesLater(t, n + 1);
+      } catch (e) { namesLater(t, n + 1); }
+    }, TRANSLATE_POLL);
   }
   $('rcpSearch').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -59,16 +81,39 @@ export function initRecipes({ api, send, toast, el, $, DEMO, me, onListsChanged 
     window.scrollTo(0, 0);
     const t = ++ticket;
     try {
-      const r = DEMO ? demo.recipeOne(id) : await api('/api/recipes/' + encodeURIComponent(id));
+      const r = await fetchOne(id);
       if (t !== ticket) return;
-      recipe = r;
-      $('rcpTitle').textContent = r.title;
-      $('rcpPhoto').style.backgroundImage = r.thumb ? 'url("' + r.thumb.replace(/"/g, '') + '")' : '';
+      if (!r) throw new Error('تعذّر فتح الوصفة.');
+      drawOne(r);
+      setThumb($('rcpPhoto'), r.thumb, false);
       $('rcpPhoto').hidden = !r.thumb;
-      $('rcpLang').hidden = r.lang !== 'en';
-      for (const x of r.ingredients) $('rcpIngr').append(el('li', null, el('span', null, x.name), x.qty ? el('small', null, x.qty) : null));
-      for (const s of r.steps) $('rcpSteps').append(el('li', { dir: r.lang === 'en' ? 'ltr' : 'rtl' }, s.text, s.minutes ? el('span', { class: 'rcp-min' }, '⏱ ' + minutesAr(s.minutes)) : null));
+      if (r.pending) arabicLater(id, t, 0);
     } catch (e) { if (t === ticket) $('rcpTitle').textContent = e.message || 'تعذّر فتح الوصفة.'; }
+  }
+  const fetchOne = (id) => DEMO ? demo.recipeOne(id) : api('/api/recipes/' + encodeURIComponent(id));
+  function drawOne(r) {
+    recipe = r;
+    $('rcpTitle').textContent = r.title;
+    $('rcpLang').hidden = r.lang !== 'en';
+    $('rcpLang').textContent = r.pending ? 'تُترجم إلى العربية الآن… تظهر هنا بعد لحظات.' : 'هذه الوصفة بالإنجليزية لأن الترجمة لم تنجح الآن، وستُعاد لاحقاً.';
+    $('rcpLang').classList.toggle('is-wait', !!r.pending);
+    $('rcpIngr').textContent = '';
+    $('rcpSteps').textContent = '';
+    for (const x of r.ingredients) $('rcpIngr').append(el('li', null, el('span', null, x.name), x.qty ? el('small', null, x.qty) : null));
+    for (const s of r.steps) $('rcpSteps').append(el('li', { dir: r.lang === 'en' ? 'ltr' : 'rtl' }, s.text, s.minutes ? el('span', { class: 'rcp-min' }, '⏱ ' + minutesAr(s.minutes)) : null));
+  }
+  // Shown in English while the Arabic is being written; swapped when it is ready.
+  function arabicLater(id, t, n) {
+    if (n >= TRANSLATE_TRIES) { drawOne(Object.assign({}, recipe, { pending: false })); return; }
+    setTimeout(async () => {
+      if (t !== ticket) return;
+      try {
+        const r = await fetchOne(id);
+        if (t !== ticket) return;
+        if (r && !r.pending) { drawOne(r); return; }
+      } catch (e) { /* again */ }
+      arabicLater(id, t, n + 1);
+    }, TRANSLATE_POLL);
   }
   $('rcpBack').addEventListener('click', () => { $('rcpOne').hidden = true; $('rcpBrowse').hidden = false; ticket++; });
   $('rcpShow').addEventListener('click', async () => {

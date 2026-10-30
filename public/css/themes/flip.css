@@ -71,6 +71,14 @@
   --door-quran: #2E2E33;
   font-synthesis: none;
 }
+
+[data-theme='flip'] {
+  /* opaque surfaces for panels over a patterned ground (recipes, timers): cards, buttons, lines, accent */
+  --sheet: #262526;
+  --sheet-2: #313031;
+  --sheet-line: #403F3F;
+  --sheet-tint: #382E1C;
+}
 [data-theme='flip'] #stage { font-weight: 400; }
 
 /* the board: a charcoal panel with four rivets, on every screen but the photos */

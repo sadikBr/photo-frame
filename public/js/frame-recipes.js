@@ -5,7 +5,7 @@
 import { h } from './util.js';
 import { frameFetch, frameListOp, DEMO } from './data.js';
 import * as demo from './demo.js';
-import { RECIPE_SHELVES } from './recipes-common.js';
+import { RECIPE_SHELVES, setThumb, TRANSLATE_POLL, TRANSLATE_TRIES } from './recipes-common.js';
 import { minutesAr } from './timers-common.js';
 
 export const RECIPE_ICON = (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h16a8 8 0 0 1-16 0z"/><path d="M2.5 13h19M9 9c0-1.5 1-1.5 1-3M13 9c0-1.5 1-1.5 1-3"/></svg>`;
@@ -36,7 +36,9 @@ export function createRecipes({ stage, tab, startTimer }) {
   const cPrev = h('button', { type: 'button', class: 'rc-nav rc-prev' }, 'السابق');
   const cNext = h('button', { type: 'button', class: 'rc-nav rc-next' }, 'التالي');
   const cDots = h('div', { class: 'rc-dots' });
-  const cLang = h('div', { class: 'rc-lang', hidden: true }, 'هذه الوصفة بالإنجليزية لأن الترجمة لم تنجح الآن، وستُعاد لاحقاً.');
+  const LANG_EN = 'هذه الوصفة بالإنجليزية لأن الترجمة لم تنجح الآن، وستُعاد لاحقاً.';
+  const LANG_WAIT = 'تُترجم إلى العربية الآن… تظهر هنا بعد لحظات.';
+  const cLang = h('div', { class: 'rc-lang', hidden: true });
   const cBack = h('button', { type: 'button', class: 'rc-back' }, 'كل الوصفات');
   const cook = h('div', { class: 'rc-cook', hidden: true },
     h('div', { class: 'rc-side' }, cPhoto, h('div', { class: 'rc-side-title' }, 'المكوّنات'), cIngr, cShop),
@@ -69,13 +71,31 @@ export function createRecipes({ stage, tab, startTimer }) {
     drawGrid('جاري التحميل…');
     const ticket = ++loadTicket;
     try {
-      const r = DEMO ? demo.recipeList(s) : await frameFetch('/api/recipes?' + s.kind + '=' + encodeURIComponent(s.id));
+      const r = await fetchShelf(s);
       if (ticket !== loadTicket) return;
       list = r.recipes || [];
-      drawGrid(list.length ? '' : 'لا وصفات هنا الآن.');
+      drawGrid(r.note || (list.length ? '' : 'لا وصفات هنا الآن.'));
+      if (r.pending) namesLater(s, ticket, 0);
     } catch (e) {
       if (ticket === loadTicket) drawGrid('تعذّر الوصول إلى موقع الوصفات. حاولوا بعد قليل.');
     }
+  }
+  const fetchShelf = (s) => DEMO ? demo.recipeList(s) : frameFetch('/api/recipes?' + s.kind + '=' + encodeURIComponent(s.id));
+  // The shelf came with English names (the Arabic is being written): ask again in a moment and
+  // only rename the cards, staying on the same page.
+  function namesLater(s, ticket, n) {
+    if (n >= TRANSLATE_TRIES / 3) return;
+    setTimeout(async () => {
+      if (ticket !== loadTicket || !open) return;
+      try {
+        const r = await fetchShelf(s);
+        if (ticket !== loadTicket) return;
+        const ar = new Map((r.recipes || []).map((x) => [x.id, x.ar]));
+        list = list.map((x) => Object.assign({}, x, { ar: ar.get(x.id) || x.ar }));
+        if (!browse.hidden) drawGrid('');
+        if (r.pending) namesLater(s, ticket, n + 1);
+      } catch (e) { namesLater(s, ticket, n + 1); }
+    }, TRANSLATE_POLL);
   }
   function drawGrid(msg) {
     grid.textContent = '';
@@ -85,7 +105,7 @@ export function createRecipes({ stage, tab, startTimer }) {
     page = Math.min(page, pages - 1);
     for (const r of list.slice(page * PAGE, page * PAGE + PAGE)) {
       const img = h('span', { class: 'rc-card-img' });
-      if (r.thumb) img.style.backgroundImage = 'url("' + r.thumb.replace(/"/g, '') + '/preview")';
+      setThumb(img, r.thumb, true);
       const card = h('button', { type: 'button', class: 'rc-card' }, img, h('span', { class: 'rc-card-name' }, r.ar || r.name));
       card.addEventListener('click', () => openRecipe(r.id));
       grid.append(card);
@@ -111,26 +131,49 @@ export function createRecipes({ stage, tab, startTimer }) {
     cTimer.hidden = true;
     const ticket = ++loadTicket;
     try {
-      const r = DEMO ? demo.recipeOne(id) : await frameFetch('/api/recipes/' + encodeURIComponent(id));
+      const r = await fetchOne(id);
       if (ticket !== loadTicket) return;
       if (!r || !r.steps || !r.steps.length) throw new Error('empty');
       recipe = r;
       step = 0;
       drawRecipe();
+      if (r.pending) arabicLater(id, ticket, 0);
     } catch (e) {
       if (ticket === loadTicket) cStep.textContent = 'تعذّر فتح الوصفة. حاولوا بعد قليل.';
     }
   }
-  function drawRecipe() {
+  const fetchOne = (id) => DEMO ? demo.recipeOne(id) : frameFetch('/api/recipes/' + encodeURIComponent(id));
+  // Opened in English while the Arabic is being written: swap it in when it is ready, on the
+  // same step.
+  function arabicLater(id, ticket, n) {
+    if (n >= TRANSLATE_TRIES) { cLang.textContent = LANG_EN; return; }
+    setTimeout(async () => {
+      if (ticket !== loadTicket || !recipe || recipe.id !== String(id)) return;
+      try {
+        const r = await fetchOne(id);
+        if (ticket !== loadTicket || !recipe || recipe.id !== String(id)) return;
+        if (r && !r.pending && r.steps && r.steps.length) {
+          recipe = r;
+          step = Math.min(step, r.steps.length - 1);
+          drawRecipe(true);
+          return;
+        }
+      } catch (e) { /* again */ }
+      arabicLater(id, ticket, n + 1);
+    }, TRANSLATE_POLL);
+  }
+  function drawRecipe(keepStep) {
     const r = recipe;
     cTitle.textContent = r.title;
-    cPhoto.style.backgroundImage = r.thumb ? 'url("' + r.thumb.replace(/"/g, '') + '")' : '';
+    if (!keepStep) setThumb(cPhoto, r.thumb, false);
     cPhoto.classList.toggle('is-empty', !r.thumb);
     cIngr.textContent = '';
     for (const x of r.ingredients) cIngr.append(h('li', null, h('span', { class: 'rc-ingr-name' }, x.name), x.qty ? h('span', { class: 'rc-ingr-qty' }, x.qty) : null));
     cShop.disabled = false;
     cShop.textContent = 'أضيفوا المكوّنات إلى قائمة الشراء';
     cLang.hidden = r.lang !== 'en';
+    cLang.textContent = r.pending ? LANG_WAIT : LANG_EN;
+    cLang.classList.toggle('is-wait', !!r.pending);
     cook.classList.toggle('is-en', r.lang === 'en');
     cDots.textContent = '';
     r.steps.forEach((_, i) => {

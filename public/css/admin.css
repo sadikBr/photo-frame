@@ -978,3 +978,4 @@ main { padding: 18px max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-
 .rcp-ingr small { color: var(--plaster-3); text-align: left; }
 .rcp-steps { margin: 0; padding-inline-start: 22px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.6; }
 .rcp-min { display: inline-block; margin-inline-start: 8px; padding: 0 8px; border-radius: 10px; font-size: 13px; color: var(--saffron); background: rgba(242, 174, 61, 0.14); }
+#rcpLang.is-wait { color: var(--saffron); }

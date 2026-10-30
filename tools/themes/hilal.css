@@ -63,6 +63,14 @@
   font-synthesis: none;
 }
 
+[data-theme='hilal'] {
+  /* opaque surfaces for panels over a patterned ground (recipes, timers): cards, buttons, lines, accent */
+  --sheet: #1D2137;
+  --sheet-2: #282C40;
+  --sheet-line: #383B4D;
+  --sheet-tint: #2F2D33;
+}
+
 /* ---------- the night on every screen: stars and a soft milky way, a faint khatam lattice ---------- */
 [data-theme='hilal'] .screen:not(.s-photos) {
   background-color: #0A0F27;
