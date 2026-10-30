@@ -19,6 +19,7 @@ import { createColoring } from './frame-color.js';
 import { createQuran } from './frame-quran.js';
 import { createWifi, WIFI_ICON } from './frame-wifi.js';
 import { setScreen } from './screen.js';
+import { initTheme, previewTheme, themeTick } from './theme.js';
 import { BOOK } from './quran-common.js';
 import * as demo from './demo.js';
 
@@ -39,13 +40,39 @@ const screens = [createHome(), createPrayer(), adhkarScreen, createCalendar(), c
 const byName = Object.fromEntries(screens.map((s) => [s.name, s]));
 let index = 0;
 
+// Icons for the screen tabs (the themes show them in the dock; the original look hides them).
+const TAB_ICON = {
+  home: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  prayer: '<path d="M5 20V11a7 7 0 0 1 14 0v9M3 20h18M12 4V2"/>',
+  adhkar: '<polygon points="12,2.5 14.6,6.2 19,5 18,9.4 21.5,12 18,14.6 19,19 14.6,17.8 12,21.5 9.4,17.8 5,19 6,14.6 2.5,12 6,9.4 5,5 9.4,6.2"/>',
+  calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  lists: '<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>',
+  photos: '<rect x="3" y="4.5" width="18" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9"/>',
+};
 for (const sc of screens) {
   track.appendChild(sc.el);
-  const tab = h('button', { class: 'tab', type: 'button', 'data-for': sc.name }, sc.label);
-  tab.addEventListener('click', () => { if (config.touchNavigation) go(sc.name, true); });
+  const tab = h('button', { class: 'tab', type: 'button', 'data-for': sc.name },
+    h('span', { class: 'tab-icon', html: '<svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + (TAB_ICON[sc.name] || '') + '</svg>' }),
+    h('span', { class: 'tab-label' }, sc.label));
+  tab.addEventListener('click', () => { if (config.touchNavigation) { go(sc.name, true); closeDock(); } });
   nav.appendChild(tab);
 }
-stage.append(track, nav, status, adhanBar, night);
+// The dock (themes): the tabs stay hidden until someone taps the screen, then rise over a dimmed
+// screen as a row of doors; a tap elsewhere, or a few seconds, puts them away.
+const dockScrim = h('div', { class: 'dock-scrim' }, h('span', { class: 'dock-hint' }, 'اختر شاشة، أو المس أي مكان للرجوع'));
+let dockTimer = 0;
+const themed = () => document.documentElement.hasAttribute('data-theme');
+function openDock() {
+  stage.classList.add('dock-open');
+  clearTimeout(dockTimer);
+  dockTimer = setTimeout(closeDock, 9000);
+}
+function closeDock() {
+  clearTimeout(dockTimer);
+  stage.classList.remove('dock-open');
+}
+dockScrim.addEventListener('click', (e) => { e.stopPropagation(); closeDock(); });
+stage.append(track, dockScrim, nav, status, adhanBar, night);
 
 // The door and the wheel open from two buttons at the end of the screen tabs.
 const knockTab = h('button', { class: 'tab tab-fun', type: 'button', 'aria-label': 'الدقّة السرية', html: '<svg width="24" height="28" viewBox="0 0 24 28" aria-hidden="true"><path d="M3 28V11a9 9 0 0 1 18 0v17z" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="12" cy="17" r="3.4" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>' }, 'دقّة');
@@ -56,16 +83,16 @@ const colorTab = h('button', { class: 'tab tab-fun', type: 'button', 'aria-label
 const funTab = h('button', { class: 'tab tab-fun', type: 'button', 'aria-expanded': 'false', html: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.2 5.6L20 9l-5.8 1.5L12 16l-2.2-5.5L4 9l5.8-1.4z" fill="currentColor"/><path d="M19 15l.9 2.1 2.1.9-2.1.9L19 21l-.9-2.1-2.1-.9 2.1-.9z" fill="currentColor"/></svg>' }, 'مرح');
 const funMenu = h('div', { class: 'fun-menu', hidden: true }, knockTab, wheelTab, colorTab);
 const closeMenu = () => { funMenu.hidden = true; funTab.setAttribute('aria-expanded', 'false'); };
-funTab.addEventListener('click', (e) => { e.stopPropagation(); touched(); funMenu.hidden = !funMenu.hidden; funTab.setAttribute('aria-expanded', String(!funMenu.hidden)); clearTimeout(funTab.t); if (!funMenu.hidden) funTab.t = setTimeout(closeMenu, 12000); });
-knockTab.addEventListener('click', () => { closeMenu(); touched(); knock.open(); });
-wheelTab.addEventListener('click', () => { closeMenu(); touched(); wheel.open(); });
-colorTab.addEventListener('click', () => { closeMenu(); touched(); coloring.open(); });
+funTab.addEventListener('click', (e) => { e.stopPropagation(); touched(); if (stage.classList.contains('dock-open')) openDock(); funMenu.hidden = !funMenu.hidden; funTab.setAttribute('aria-expanded', String(!funMenu.hidden)); clearTimeout(funTab.t); if (!funMenu.hidden) funTab.t = setTimeout(closeMenu, 12000); });
+knockTab.addEventListener('click', () => { closeMenu(); closeDock(); touched(); knock.open(); });
+wheelTab.addEventListener('click', () => { closeMenu(); closeDock(); touched(); wheel.open(); });
+colorTab.addEventListener('click', () => { closeMenu(); closeDock(); touched(); coloring.open(); });
 stage.addEventListener('pointerdown', (e) => { if (!funMenu.hidden && !funMenu.contains(e.target) && !funTab.contains(e.target)) closeMenu(); });
 const quranTab = h('button', { class: 'tab tab-fun tab-quran', type: 'button', html: BOOK(24) }, 'القرآن');
-quranTab.addEventListener('click', () => { closeMenu(); touched(); quran.open(); });
+quranTab.addEventListener('click', () => { closeMenu(); closeDock(); touched(); quran.open(); });
 // Guest Wi-Fi: a round button, only once a network is set in the control panel.
-const wifiTab = h('button', { class: 'tab tab-fun tab-wifi', type: 'button', hidden: true, 'aria-label': 'الواي فاي للضيوف', html: WIFI_ICON(26) });
-wifiTab.addEventListener('click', () => { closeMenu(); touched(); wifi.open(); });
+const wifiTab = h('button', { class: 'tab tab-fun tab-wifi', type: 'button', hidden: true, 'aria-label': 'الواي فاي للضيوف', html: WIFI_ICON(26) + '<span class="tab-dock-label">الواي فاي</span>' });
+wifiTab.addEventListener('click', () => { closeMenu(); closeDock(); touched(); wifi.open(); });
 nav.append(h('span', { class: 'tab-gap' }), quranTab, funTab, wifiTab);
 stage.appendChild(funMenu);
 // Small cards at the top of the clock screen: the next match, and what everyone is up to.
@@ -93,6 +120,8 @@ const pulse = createPulse({
 });
 
 stage.insertBefore(night, null); // keep the night layer last
+// The look picked in the control panel (a layer behind each screen for its pictures).
+initTheme(screens, stage);
 
 // Screens are stacked; only the one shown and the one sliding in are visible. The order loops:
 // after the last screen comes the first. RTL: the next screen comes in from the left.
@@ -138,6 +167,7 @@ function go(name, byUser, dir, fromDrag) {
   hideOthersLater();
   screens[index].show();
   for (const b of nav.children) b.classList.toggle('is-on', b.getAttribute('data-for') === name);
+  stage.dataset.screen = name; // lets the themes place things per screen
 }
 
 // ---------- touch & swipe ----------
@@ -198,6 +228,7 @@ function endDrag(e) {
   if (!active) return;
   swipedAt = e.timeStamp;
   // RTL: the next screen sits to the left, so dragging right reveals it. It loops around.
+  closeDock();
   if (dx > 110) go(screens[nextOf(index)].name, true, 'next', true);
   else if (dx < -110) go(screens[prevOf(index)].name, true, 'prev', true);
   else { touched(); snapBack(nb, dx); }
@@ -208,6 +239,12 @@ stage.addEventListener('pointercancel', (e) => {
   drag = null;
 });
 stage.addEventListener('contextmenu', (e) => e.preventDefault());
+// A tap on nothing in particular (not a button, a tile or a panel) opens the dock in the themes.
+stage.addEventListener('click', (e) => {
+  if (!themed() || !config.touchNavigation || stage.classList.contains('dock-open')) return;
+  if (e.target.closest('button, a, input, [role="button"], .fun-modal, .match, .pl-layer, .c-cell, .fun-menu, .top-chips')) return;
+  openDock();
+});
 
 // ---------- rotation, prayer focus, night ----------
 function isNight(t) {
@@ -303,6 +340,7 @@ on('preview', () => {
   if (!p || p.until <= now()) {
     setRamadanPreview(0);
     adhkarScreen.force(0);
+    previewTheme(null);
     lastPreview = null;
     return;
   }
@@ -314,11 +352,17 @@ on('preview', () => {
   if (p.what === 'adhkar') go('adhkar');
   if (p.what === 'adhan') adhan.play('dhuhr');
   if (p.what === 'wifi') { touched(); wifi.open(); }
+  previewTheme(p.what === 'theme' ? p.theme : null, Date.now() + (p.until - now()));
+  if (p.what === 'theme') { touched(); go('home'); }
 });
 window.addEventListener('frame:go', (e) => { lastTouch = -Infinity; awakeUntil = 0; resumed = true; rotIndex = 0; go(e.detail || 'home'); });
 // The preview page (?demo) has buttons for these.
 if (DEMO) {
+  // ?demo&theme=kids shows the preview page in a theme.
+  const qt = new URLSearchParams(location.search).get('theme');
+  if (qt) previewTheme(qt, Infinity);
   window.frameDemo = {
+    theme(id) { previewTheme(id, Infinity); },
     ramadan(on) { setRamadanPreview(on ? Infinity : 0); go('prayer', true); },
     adhkar() { adhkarScreen.force(now() + 10 * MINUTE); go('adhkar', true); },
     // A moment as if sent from a phone: a tap ('love', 'miss', 'morning', 'night', 'way', 'news')
@@ -360,6 +404,7 @@ function loop() {
   try { statuses.tick(screens[index].name); } catch (e) { console.error(e); }
   try { quran.tick(t); } catch (e) { console.error(e); }
   try { schedule(t); } catch (e) { console.error(e); }
+  try { themeTick(t, screens[index].name); } catch (e) { console.error(e); }
   setTimeout(loop, 1000 - (Date.now() % 1000) + 5);
 }
 

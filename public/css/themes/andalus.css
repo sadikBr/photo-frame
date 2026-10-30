@@ -1,0 +1,568 @@
+/* Built by tools/build-themes.py from tools/themes/andalus.css — edit that file, not this one. */
+@font-face { font-family: 'Amiri'; font-weight: 400; font-display: block; src: url('../../fonts/themes/amiri-arabic-400-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Amiri'; font-weight: 400; font-display: block; src: url('../../fonts/themes/amiri-latin-400-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Amiri'; font-weight: 700; font-display: block; src: url('../../fonts/themes/amiri-arabic-700-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Amiri'; font-weight: 700; font-display: block; src: url('../../fonts/themes/amiri-latin-700-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Aref Ruqaa'; font-weight: 400; font-display: block; src: url('../../fonts/themes/aref-ruqaa-arabic-400-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Aref Ruqaa'; font-weight: 400; font-display: block; src: url('../../fonts/themes/aref-ruqaa-latin-400-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Aref Ruqaa'; font-weight: 700; font-display: block; src: url('../../fonts/themes/aref-ruqaa-arabic-700-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Aref Ruqaa'; font-weight: 700; font-display: block; src: url('../../fonts/themes/aref-ruqaa-latin-700-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+/* fonts: amiri, aref-ruqaa */
+/* «أندلسي»: Alhambra plaster. A cream sebka lattice, a Nasrid-green alfiz with a polylobed arch
+   round the clock, Ruqaa titles, a green calligraphy band and a strip of alicatado tiles. */
+
+[data-theme='andalus'] {
+  --fg: 43, 33, 24;
+  --plaster: rgb(var(--fg));
+  --plaster-2: rgba(var(--fg), 0.7);
+  --plaster-3: rgba(var(--fg), 0.52);
+  --hair: rgba(var(--fg), 0.14);
+  --shade: 30, 74, 59;
+  /* the accent is Nasrid green, with gold-cream text on it */
+  --saffron: #1E4A3B;
+  --accent-rgb: 30, 74, 59;
+  --saffron-ink: #F2DFA6;
+  --garnet: #1E4A3B;
+  --garnet-deep: #F4ECDB;
+  --sky: #2C5F7C;
+  --sky-2: #24506A;
+  --sky-rgb: 44, 95, 124;
+  --mint: #96701F;
+  --mint-rgb: 150, 112, 31;
+  --rose: #A63D4A;
+  --rose-rgb: 166, 61, 74;
+  --deep-rgb: 247, 241, 228;
+  --deep2-rgb: 238, 229, 211;
+  --modal: #EEE5D3;
+  --menu: rgba(247, 241, 228, 0.97);
+  --banner: rgba(247, 241, 228, 0.97);
+  --chip-bg: #F7F1E4;
+  --g-home: #EEE5D3;
+  --g-prayer: #EEE5D3;
+  --g-lists: #1E4A3B;
+  --g-calendar: #EEE5D3;
+  --g-adhkar-m: #EEE5D3;
+  --g-adhkar-e: #E8DDC7;
+  --g-photos: #0E0E10;
+  --kufi: 'Aref Ruqaa', 'Amiri', serif;
+  --sans: 'Amiri', serif;
+  --ruqaa: 'Aref Ruqaa', 'Amiri', serif;
+  /* the dock: plaster doors over a green veil */
+  --dock-bottom: 64px;
+  --dock-scrim: rgba(16, 40, 32, 0.88);
+  --dock-hint: #E6CF95;
+  --door: #F7F1E4;
+  --door-home: #F7F1E4;
+  --door-prayer: #F7F1E4;
+  --door-adhkar: #F7F1E4;
+  --door-calendar: #F7F1E4;
+  --door-lists: #F7F1E4;
+  --door-quran: #F7F1E4;
+  --door-fun: #F7F1E4;
+  --door-wifi: #F7F1E4;
+  --door-on: #F2DFA6;
+}
+[data-theme='andalus'] #stage { font-weight: 400; }
+
+/* Overlays that are always dark: their own light text (the plaster tokens are recomputed here). */
+[data-theme='andalus'] .match,
+[data-theme='andalus'] .s-photos,
+[data-theme='andalus'] .pl-beat,
+[data-theme='andalus'] .pl-scrim,
+[data-theme='andalus'] .ph-caption {
+  --plaster: rgb(var(--fg));
+  --plaster-2: rgba(var(--fg), 0.68);
+  --plaster-3: rgba(var(--fg), 0.42);
+  --hair: rgba(var(--fg), 0.13);
+  --saffron: #E6CF95;
+  --saffron-ink: #1E4A3B;
+  --accent-rgb: 230, 207, 149;
+  color: var(--plaster);
+}
+
+/* the plaster: a sebka lattice */
+[data-theme='andalus'] .screen {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2290%22%3E%3Cpath d=%22M0 45 L30 0 L60 45 L30 90 Z%22 fill=%22none%22 stroke=%22%23DCCDAE%22 stroke-width=%221.6%22/%3E%3Cpath d=%22M30 18 L46 45 L30 72 L14 45 Z%22 fill=%22none%22 stroke=%22%23E4D7BC%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%2230%22 cy=%2245%22 r=%222.4%22 fill=%22%23D2C09A%22/%3E%3C/svg%3E");
+}
+/* the lists sit on green, with gold rosettes */
+[data-theme='andalus'] .s-lists {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2244%22 height=%2244%22%3E%3Cg transform=%22translate(22 22)%22 fill=%22none%22 stroke=%22%23B8913A%22 stroke-width=%221.1%22 stroke-opacity=%220.55%22%3E%3Crect x=%22-7%22 y=%22-7%22 width=%2214%22 height=%2214%22/%3E%3Crect x=%22-7%22 y=%22-7%22 width=%2214%22 height=%2214%22 transform=%22rotate(45)%22/%3E%3C/g%3E%3C/svg%3E");
+}
+[data-theme='andalus'] .s-photos { background-image: none; }
+
+/* the band: a gold rule and a strip of alicatado (all screens) … */
+[data-theme='andalus'] .band {
+  height: 44px;
+  border: 0;
+  background-color: #1E4A3B;
+  background-position: left top;
+  background-repeat: repeat-x;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2244%22%3E%3Crect width=%2240%22 height=%2244%22 fill=%22%231E4A3B%22/%3E%3Crect y=%220%22 width=%2240%22 height=%221.5%22 fill=%22%23C9A45A%22/%3E%3Crect y=%224%22 width=%2240%22 height=%2240%22 fill=%22%23EEE5D3%22/%3E%3Cpolygon points=%2220,8 36,24 20,40 4,24%22 fill=%22%231E4A3B%22/%3E%3Cpolygon points=%2220,17 27,24 20,31 13,24%22 fill=%22%23C9A45A%22/%3E%3Crect x=%220%22 y=%224%22 width=%224%22 height=%224%22 fill=%22%232B2118%22/%3E%3Crect x=%2236%22 y=%224%22 width=%224%22 height=%224%22 fill=%22%232B2118%22/%3E%3Crect x=%220%22 y=%2240%22 width=%224%22 height=%224%22 fill=%22%232B2118%22/%3E%3Crect x=%2236%22 y=%2240%22 width=%224%22 height=%224%22 fill=%22%232B2118%22/%3E%3C/svg%3E");
+}
+/* … and on the clock and prayer screens a green calligraphy band above it (700–800) */
+[data-theme='andalus'] .s-home .band,
+[data-theme='andalus'] .s-prayer:not(.is-ramadan) .band {
+  height: 100px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%22100%22%3E%3Crect width=%2240%22 height=%2260%22 fill=%22%231E4A3B%22/%3E%3Crect y=%224%22 width=%2240%22 height=%221.5%22 fill=%22%23C9A45A%22/%3E%3Crect y=%2254%22 width=%2240%22 height=%221.5%22 fill=%22%23C9A45A%22/%3E%3Crect y=%2260%22 width=%2240%22 height=%2240%22 fill=%22%23EEE5D3%22/%3E%3Cpolygon points=%2220,64 36,80 20,96 4,80%22 fill=%22%231E4A3B%22/%3E%3Cpolygon points=%2220,73 27,80 20,87 13,80%22 fill=%22%23C9A45A%22/%3E%3Crect x=%220%22 y=%2260%22 width=%224%22 height=%224%22 fill=%22%232B2118%22/%3E%3Crect x=%2236%22 y=%2260%22 width=%224%22 height=%224%22 fill=%22%232B2118%22/%3E%3Crect x=%220%22 y=%2296%22 width=%224%22 height=%224%22 fill=%22%232B2118%22/%3E%3Crect x=%2236%22 y=%2296%22 width=%224%22 height=%224%22 fill=%22%232B2118%22/%3E%3C/svg%3E");
+}
+[data-theme='andalus'] .s-prayer:not(.is-ramadan) .band::before {
+  content: '«أرحنا بها يا بلال»';
+  position: absolute;
+  top: 6px;
+  left: 0;
+  right: 0;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 400 28px/1 var(--sans);
+  color: #E6CF95;
+}
+
+/* the dock doors */
+[data-theme='andalus'] .nav .tab,
+[data-theme='andalus'] .nav .tab-fun { border-color: #C9A45A; color: #2B2118; }
+[data-theme='andalus'] .nav .tab-dock-label, [data-theme='andalus'] .nav .tab-label { font-family: var(--sans); font-size: 20px; }
+[data-theme='andalus'] .nav .tab.is-on { border-color: #A8812F; border-width: 4px; color: #1E4A3B; }
+[data-theme='andalus'] .nav .tab[data-for='home'] .tab-icon { color: #1E4A3B; }
+[data-theme='andalus'] .nav .tab[data-for='prayer'] .tab-icon { color: #1E4A3B; }
+[data-theme='andalus'] .nav .tab[data-for='adhkar'] .tab-icon { color: #A8812F; }
+[data-theme='andalus'] .nav .tab[data-for='calendar'] .tab-icon { color: #A8812F; }
+[data-theme='andalus'] .nav .tab[data-for='lists'] .tab-icon { color: #A63D4A; }
+[data-theme='andalus'] .nav .tab-fun:not(.tab-quran):not(.tab-wifi) svg { color: #A8812F; }
+[data-theme='andalus'] .nav .tab-gap { background: rgba(230, 207, 149, 0.4); }
+[data-theme='andalus'] .fun-menu { border-color: #C9A45A; box-shadow: 0 16px 40px rgba(43, 33, 24, 0.3); }
+[data-theme='andalus'] .fun-menu .tab { background: #EEE5D3; color: #2B2118; border-color: #D2C09A; }
+[data-theme='andalus'] .fun-menu .tab-fun { color: #1E4A3B; }
+[data-theme='andalus'] .status { color: #8E2F22; }
+[data-theme='andalus'] .status::before { background: #C0482F; }
+
+/* chips at the top (match, Quran, family): plaster cards with a gold edge */
+[data-theme='andalus'] .st-chip,
+[data-theme='andalus'] .match-chip,
+[data-theme='andalus'] .qr-chip {
+  background: #F7F1E4;
+  border: 1px solid #C9A45A;
+}
+[data-theme='andalus'] .st-chip b { color: #1E4A3B; }
+[data-theme='andalus'] .st-chip small { color: #7A6A55; }
+
+/* ---------- clock: the alfiz in the middle, prayers right, weather and family left ---------- */
+[data-theme='andalus'] .s-home .home-grid,
+[data-theme='andalus'] .s-home .h-main,
+[data-theme='andalus'] .s-home .h-dates { display: contents; }
+[data-theme='andalus'] .s-home .rule,
+[data-theme='andalus'] .s-home .h-weather { display: none; }
+
+[data-theme='andalus'] .s-home .h-weekday {
+  position: absolute;
+  left: 340px;
+  top: 104px;
+  width: 600px;
+  text-align: center;
+  font: 700 62px/1.3 var(--ruqaa);
+  color: #1E4A3B;
+}
+[data-theme='andalus'] .s-home .h-clock,
+[data-theme='andalus'] .s-home.has-msg .h-clock {
+  position: absolute;
+  left: 340px;
+  top: 188px;
+  width: 600px;
+  margin: 0;
+  text-align: center;
+  font: 700 196px/1 var(--sans);
+  letter-spacing: 0;
+  color: #2B2118;
+}
+[data-theme='andalus'] .s-home .h-greg {
+  position: absolute;
+  left: 340px;
+  top: 408px;
+  width: 600px;
+  margin: 0;
+  text-align: center;
+  font-size: 34px;
+  line-height: 1.5;
+  color: #2B2118;
+}
+[data-theme='andalus'] .s-home .h-hijri {
+  position: absolute;
+  left: 340px;
+  top: 466px;
+  width: 600px;
+  margin: 0;
+  text-align: center;
+  font-size: 28px;
+  line-height: 1.5;
+  color: #A8812F;
+}
+[data-theme='andalus'] .s-home .h-next {
+  position: absolute;
+  left: 340px;
+  top: 566px;
+  width: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  font: 700 40px/1.5 var(--ruqaa);
+  color: #1E4A3B;
+}
+[data-theme='andalus'] .s-home .h-next-icon,
+[data-theme='andalus'] .s-home .h-next-time { display: none; }
+[data-theme='andalus'] .s-home .h-next-name { margin-left: 0.3em; color: #1E4A3B; font-weight: 700; }
+[data-theme='andalus'] .s-home .h-next::before,
+[data-theme='andalus'] .s-home .h-next::after {
+  content: '';
+  flex: none;
+  width: 22px;
+  height: 22px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2222%22 height=%2222%22%3E%3Cg fill=%22%23A8812F%22%3E%3Crect x=%225%22 y=%225%22 width=%2212%22 height=%2212%22/%3E%3Crect x=%225%22 y=%225%22 width=%2212%22 height=%2212%22 transform=%22rotate(45 11 11)%22/%3E%3C/g%3E%3C/svg%3E");
+}
+[data-theme='andalus'] .s-home .h-next::before { margin-left: 18px; }
+[data-theme='andalus'] .s-home .h-next::after { margin-right: 18px; }
+[data-theme='andalus'] .s-home .h-next-in { font-family: var(--ruqaa); }
+
+/* the family's message: inside the arch, under the next prayer */
+[data-theme='andalus'] .s-home .h-msg {
+  position: absolute;
+  left: 370px;
+  top: 616px;
+  width: 540px;
+  max-width: none;
+  justify-content: center;
+  font-size: 26px;
+  line-height: 1.4;
+  text-align: center;
+  color: #2B2118;
+}
+[data-theme='andalus'] .s-home.has-msg .h-next { top: 536px; }
+[data-theme='andalus'] .s-home .h-msg-icon { display: none; }
+/* the verse: written in the green band */
+[data-theme='andalus'] .s-home .h-verse {
+  position: absolute;
+  left: 40px;
+  right: 40px;
+  top: 706px;
+  height: 48px;
+  max-width: none;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  z-index: 1;
+}
+[data-theme='andalus'] .s-home .h-verse-text,
+[data-theme='andalus'] .s-home .h-verse.is-verse .h-verse-text {
+  font: 400 30px/1.5 var(--sans);
+  color: #E6CF95;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  min-width: 0;
+}
+[data-theme='andalus'] .s-home .h-verse-ref { flex: none; font-size: 18px; color: #C9A45A; }
+
+/* right: today's prayers, the next one on green */
+[data-theme='andalus'] .s-home .h-prayers {
+  position: absolute;
+  right: 36px;
+  top: 70px;
+  width: 230px;
+  display: flex;
+  flex-direction: column;
+}
+[data-theme='andalus'] .h-prayers .prow-i {
+  height: 72px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #D2C09A;
+  color: #2B2118;
+}
+[data-theme='andalus'] .h-prayers .prow-icon,
+[data-theme='andalus'] .h-prayers .prow-in { display: none; }
+[data-theme='andalus'] .h-prayers .prow-name { font-size: 26px; }
+[data-theme='andalus'] .h-prayers .prow-time { font-size: 32px; font-weight: 700; }
+[data-theme='andalus'] .h-prayers .is-past { color: #9C8C74; }
+[data-theme='andalus'] .h-prayers .is-next { background: #1E4A3B; color: #F2DFA6; }
+[data-theme='andalus'] .h-prayers .is-next .prow-name { font-weight: 700; }
+[data-theme='andalus'] .an-sunrise {
+  position: absolute;
+  right: 36px;
+  top: 444px;
+  width: 230px;
+  text-align: center;
+  font: 400 20px/1.5 var(--sans);
+  color: #7A6A55;
+}
+
+/* left: the weather, an ornament, the family */
+[data-theme='andalus'] .s-home .h-wxm {
+  position: absolute;
+  left: 36px;
+  top: 70px;
+  width: 230px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: #1E4A3B;
+  --accent: #C9A45A;
+  --ground: #F7F1E4;
+}
+[data-theme='andalus'] .h-wxm .hw-icon { display: flex; }
+[data-theme='andalus'] .h-wxm .hw-icon svg { width: 84px; height: 84px; }
+[data-theme='andalus'] .h-wxm .hw-text { display: flex; flex-direction: column; align-items: center; color: #2B2118; }
+[data-theme='andalus'] .h-wxm .hw-temp { font: 700 74px/1 var(--sans); }
+[data-theme='andalus'] .h-wxm .hw-cond { font-size: 26px; line-height: 1.4; }
+[data-theme='andalus'] .h-wxm .hw-next { font-size: 20px; line-height: 1.4; color: #7A6A55; }
+[data-theme='andalus'] .s-home .h-wxm::after {
+  content: '';
+  width: 120px;
+  height: 16px;
+  margin-top: 26px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%2216%22%3E%3Cpath d=%22M0 8 H48 M72 8 H120%22 stroke=%22%23C9A45A%22 stroke-width=%221.5%22/%3E%3Cg fill=%22%23A8812F%22 transform=%22translate(60 8)%22%3E%3Crect x=%22-5%22 y=%22-5%22 width=%2210%22 height=%2210%22/%3E%3Crect x=%22-5%22 y=%22-5%22 width=%2210%22 height=%2210%22 transform=%22rotate(45)%22/%3E%3C/g%3E%3C/svg%3E");
+}
+[data-theme='andalus'] #stage[data-tscreen='home'] .top-chips {
+  top: 372px;
+  left: 36px;
+  right: auto;
+  transform: none;
+  width: 230px;
+  max-width: 230px;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+[data-theme='andalus'] #stage[data-tscreen='home'] .status-chips { flex-direction: column; align-items: center; gap: 14px; }
+[data-theme='andalus'] #stage[data-tscreen='home'] .st-chip,
+[data-theme='andalus'] #stage[data-tscreen='home'] .match-chip {
+  height: auto;
+  padding: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 6px;
+  white-space: normal;
+  text-align: center;
+  background: transparent;
+  border: 0;
+  font-size: 24px;
+  line-height: 1.35;
+  color: #2B2118;
+}
+[data-theme='andalus'] #stage[data-tscreen='home'] .st-emoji { display: none; }
+[data-theme='andalus'] #stage[data-tscreen='home'] .st-chip b { font-weight: 400; color: #2B2118; }
+[data-theme='andalus'] #stage[data-tscreen='home'] .st-chip small { flex-basis: 100%; margin: 0; font-size: 19px; color: #7A6A55; }
+[data-theme='andalus'] #stage[data-tscreen='home'] .qr-chip { height: auto; flex-wrap: wrap; justify-content: center; padding: 6px; background: transparent; border: 0; }
+[data-theme='andalus'] #stage[data-tscreen='home'] .qr-open { height: auto; flex-wrap: wrap; justify-content: center; font-size: 24px; color: #2B2118; white-space: normal; }
+[data-theme='andalus'] #stage[data-tscreen='home'] .qr-icon svg { color: #1E4A3B; }
+[data-theme='andalus'] #stage[data-tscreen='home'] .qr-btn { background: #E4D7BC; color: #1E4A3B; }
+
+/* ---------- prayer: a big Ruqaa name and five lobed niches ---------- */
+[data-theme='andalus'] .s-prayer .p-stage,
+[data-theme='andalus'] .s-prayer .p-cd { display: none; }
+/* the heading is centred: name and countdown on one line, then «يُرفع الأذان…» · date · time.
+   The screen itself becomes the flex box (its other parts are absolutely placed). */
+[data-theme='andalus'] .s-prayer:not(.is-ramadan) {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: flex-start;
+  align-items: baseline;
+  padding-top: 26px;
+}
+[data-theme='andalus'] .s-prayer:not(.is-ramadan) .p-head,
+[data-theme='andalus'] .s-prayer:not(.is-ramadan) .p-next { display: contents; }
+[data-theme='andalus'] .s-prayer .p-name-row { display: flex; align-items: baseline; justify-content: center; gap: 30px; }
+[data-theme='andalus'] .s-prayer:not(.is-ramadan) .p-name-row { flex-basis: 100%; }
+[data-theme='andalus'] .s-prayer .p-name { font: 700 150px/1.2 var(--ruqaa); color: #1E4A3B; }
+[data-theme='andalus'] .s-prayer .p-in { display: inline; font: 700 54px/1.2 var(--sans); color: #A8812F; }
+[data-theme='andalus'] .s-prayer .p-at { margin-top: 0; font-size: 26px; line-height: 1.4; color: #7A6A55; }
+[data-theme='andalus'] .s-prayer .p-clock {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: baseline;
+  font-size: 26px;
+  line-height: 1.4;
+  color: #7A6A55;
+}
+[data-theme='andalus'] .p-clock::before { content: '·'; order: 3; margin: 0 10px; }
+[data-theme='andalus'] .p-clock .pc-date { order: 2; }
+[data-theme='andalus'] .p-clock .pc-date::after { content: '·'; margin: 0 10px; }
+[data-theme='andalus'] .p-clock .pc-time { order: 1; }
+[data-theme='andalus'] .p-clock .pc-time::after { content: 'الآن'; margin-left: 8px; }
+[data-theme='andalus'] .s-prayer .p-tiles {
+  display: flex;
+  position: absolute;
+  z-index: 1;
+  top: 340px;
+  right: 64px;
+  left: 64px;
+  justify-content: space-between;
+}
+[data-theme='andalus'] .p-tiles .prow-i {
+  width: 200px;
+  height: 340px;
+  padding-top: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #2B2118;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22340%22%3E%3Crect width=%22200%22 height=%22340%22 fill=%22%231E4A3B%22/%3E%3Crect x=%226%22 y=%226%22 width=%22188%22 height=%22334%22 fill=%22none%22 stroke=%22%23C9A45A%22 stroke-width=%221.5%22/%3E%3Cpath transform=%22translate(18 26)%22 d=%22M0 314 L0 42.5 A11.3 11.3 0 0 1 8.1 23.6 A14.9 14.9 0 0 1 30.8 8.5 A18.4 18.4 0 0 1 63.7 0.1 A20 20 0 0 1 100.3 0.1 A18.4 18.4 0 0 1 133.2 8.5 A14.9 14.9 0 0 1 155.9 23.6 A11.3 11.3 0 0 1 164 42.5 L164 314 Z%22 fill=%22%23F7F1E4%22 stroke=%22%23C9A45A%22 stroke-width=%222.5%22/%3E%3C/svg%3E");
+}
+[data-theme='andalus'] .p-tiles .prow-i.is-minor,
+[data-theme='andalus'] .p-tiles .prow-in { display: none; }
+[data-theme='andalus'] .p-tiles .prow-icon { color: #1E4A3B; }
+[data-theme='andalus'] .p-tiles .prow-name { margin-top: 10px; font: 700 34px/1.4 var(--ruqaa); }
+[data-theme='andalus'] .p-tiles .prow-time { font-size: 50px; font-weight: 700; line-height: 1.2; }
+[data-theme='andalus'] .p-tiles .is-past { opacity: 0.55; }
+[data-theme='andalus'] .p-tiles .is-next {
+  color: #1E4A3B;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22340%22%3E%3Crect width=%22200%22 height=%22340%22 fill=%22%23A8812F%22/%3E%3Crect x=%226%22 y=%226%22 width=%22188%22 height=%22334%22 fill=%22none%22 stroke=%22%23C9A45A%22 stroke-width=%221.5%22/%3E%3Cpath transform=%22translate(18 26)%22 d=%22M0 314 L0 42.5 A11.3 11.3 0 0 1 8.1 23.6 A14.9 14.9 0 0 1 30.8 8.5 A18.4 18.4 0 0 1 63.7 0.1 A20 20 0 0 1 100.3 0.1 A18.4 18.4 0 0 1 133.2 8.5 A14.9 14.9 0 0 1 155.9 23.6 A11.3 11.3 0 0 1 164 42.5 L164 314 Z%22 fill=%22%23F2DFA6%22 stroke=%22%23C9A45A%22 stroke-width=%222.5%22/%3E%3C/svg%3E");
+}
+[data-theme='andalus'] .p-tiles .is-next .prow-icon { color: #A8812F; }
+[data-theme='andalus'] .s-prayer.is-ramadan .p-tiles,
+[data-theme='andalus'] .s-prayer.is-ramadan .p-clock,
+[data-theme='andalus'] .s-prayer.is-ramadan .p-in { display: none; }
+[data-theme='andalus'] .s-prayer.is-ramadan .p-head { right: 76px; left: 76px; justify-content: space-between; }
+[data-theme='andalus'] .s-prayer.is-ramadan .p-next { align-items: flex-start; }
+[data-theme='andalus'] .s-prayer.is-ramadan .p-name { font-size: 116px; line-height: 1.25; }
+[data-theme='andalus'] .s-prayer.is-ramadan .p-cd { display: block; }
+[data-theme='andalus'] .s-prayer.is-ramadan .p-count { font: 700 110px/1 var(--sans); color: #2B2118; }
+[data-theme='andalus'] .s-prayer.is-ramadan .r-stage { bottom: 60px; }
+[data-theme='andalus'] .s-prayer.is-ramadan .p-at { margin-top: 14px; }
+[data-theme='andalus'] .r-tile { background: #F7F1E4; border: 1px solid #D2C09A; border-radius: 4px; }
+[data-theme='andalus'] .r-tile.is-key { background: #F2DFA6; border-color: #A8812F; }
+[data-theme='andalus'] .r-tile.is-key .r-t-name { color: #1E4A3B; }
+[data-theme='andalus'] .r-tile.is-next { box-shadow: inset 0 0 0 3px #1E4A3B; }
+[data-theme='andalus'] .r-t-time { font-family: var(--sans); font-weight: 700; }
+[data-theme='andalus'] .r-day { font-family: var(--ruqaa); color: #1E4A3B; }
+
+/* ---------- lists: a two-page ruled manuscript ---------- */
+[data-theme='andalus'] .lists-layout { top: 76px; right: 140px; left: 140px; bottom: 124px; grid-template-columns: 1fr 0 1fr; column-gap: 60px; }
+[data-theme='andalus'] .lists-layout .rule { background: transparent; }
+[data-theme='andalus'] .l-head { height: auto; justify-content: center; }
+[data-theme='andalus'] .l-title { font: 700 58px/1.3 var(--ruqaa); color: #1E4A3B; }
+[data-theme='andalus'] .l-meta-box,
+[data-theme='andalus'] .l-tasks .l-meta,
+[data-theme='andalus'] .l-spacer { display: none; }
+[data-theme='andalus'] .l-tiles {
+  margin-top: 8px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-rows: 58px;
+  gap: 0;
+  padding-bottom: 0;
+}
+[data-theme='andalus'] .l-tile {
+  padding: 0;
+  gap: 16px;
+  border: 0;
+  border-bottom: 1px solid #D9C69C;
+  border-radius: 0;
+  background: transparent;
+  color: #2B2118;
+}
+[data-theme='andalus'] .l-tile .l-tick,
+[data-theme='andalus'] .l-circle {
+  display: flex;
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  border: 2px solid #A8812F;
+  border-radius: 50%;
+  background: transparent;
+}
+[data-theme='andalus'] .l-tile-text { flex: 1; min-width: 0; font-size: 32px; line-height: 1.3; -webkit-line-clamp: 1; }
+[data-theme='andalus'] .l-who { display: block; flex: none; max-width: 150px; font-size: 18px; color: #9C8C74; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-theme='andalus'] .l-tile.is-done { border: 0; border-bottom: 1px solid #D9C69C; background: transparent; }
+[data-theme='andalus'] .l-tile.is-done .l-tick,
+[data-theme='andalus'] .l-row.is-done .l-circle { width: 30px; height: 30px; margin: 0; background: #1E4A3B; border-color: #1E4A3B; color: #F4ECDB; }
+[data-theme='andalus'] .l-tick svg, [data-theme='andalus'] .l-circle svg { width: 16px; height: 16px; }
+[data-theme='andalus'] .l-tile.is-done .l-tile-text,
+[data-theme='andalus'] .l-row.is-done .l-row-text { color: #9C8C74; text-decoration-color: #9C8C74; }
+[data-theme='andalus'] .l-empty { color: #7A6A55; text-align: center; }
+[data-theme='andalus'] .l-foot { padding-top: 8px; font-size: 19px; color: #7A6A55; }
+[data-theme='andalus'] .l-clear { min-height: 40px; padding: 0 18px; border: 1px solid #A8812F; background: transparent; color: #1E4A3B; font-size: 20px; }
+[data-theme='andalus'] .l-clear.is-armed { background: #1E4A3B; border-color: #1E4A3B; color: #F2DFA6; }
+[data-theme='andalus'] .l-rows { flex: 0 1 auto; margin-top: 8px; }
+[data-theme='andalus'] .l-row { min-height: 76px; padding: 6px 0; gap: 16px; border-bottom: 1px solid #D9C69C; }
+[data-theme='andalus'] .l-row-text { flex: 1; font-size: 32px; line-height: 1.3; font-weight: 400; }
+[data-theme='andalus'] .l-row.is-done { min-height: 76px; }
+[data-theme='andalus'] .l-row.is-done .l-row-text { font-size: 28px; }
+[data-theme='andalus'] .l-today { display: inline; flex: none; font: 400 22px/1 var(--ruqaa); color: #A8812F; }
+[data-theme='andalus'] .l-repeat { color: #A8812F; margin-right: 0; }
+[data-theme='andalus'] .l-done-head { margin-top: 10px; padding-bottom: 4px; font-size: 19px; color: #7A6A55; }
+[data-theme='andalus'] .l-done-head .l-clear { min-height: 40px; padding: 0 16px; font-size: 18px; }
+[data-theme='andalus'] .l-now { display: block; margin-top: 30px; text-align: center; font-size: 24px; color: #7A6A55; }
+[data-theme='andalus'] .l-now .ln-time { font-weight: 700; color: #2B2118; }
+[data-theme='andalus'] .l-now .ln-time::before { content: '\a0\b7\a0'; font-weight: 400; color: #7A6A55; }
+
+/* ---------- the rest: calendar, adhkar, overlays ---------- */
+[data-theme='andalus'] .cal-layout { top: 34px; bottom: 64px; }
+[data-theme='andalus'] .c-month { font: 700 64px/1.2 var(--ruqaa); color: #1E4A3B; }
+[data-theme='andalus'] .c-hijri { color: #A8812F; font-size: 26px; }
+[data-theme='andalus'] .c-week { font-size: 21px; }
+[data-theme='andalus'] .c-cell { border-top: 1px solid #D2C09A; }
+[data-theme='andalus'] .c-cell.is-weekend { background: rgba(201, 164, 90, 0.12); }
+[data-theme='andalus'] .c-d { font: 700 30px/1 var(--sans); }
+[data-theme='andalus'] .c-cell.is-today .c-d { background: #1E4A3B; color: #F2DFA6; }
+[data-theme='andalus'] .c-cell.is-hstart .c-h { color: #A8812F; }
+[data-theme='andalus'] .c-side-title { font-family: var(--ruqaa); color: #1E4A3B; }
+[data-theme='andalus'] .c-side-sub { color: #A8812F; }
+[data-theme='andalus'] .c-up-d { font: 700 30px/1 var(--sans); }
+[data-theme='andalus'] .c-up-row, [data-theme='andalus'] .c-up-more, [data-theme='andalus'] .c-legend { border-top: 1px solid #D2C09A; }
+[data-theme='andalus'] .c-nav, [data-theme='andalus'] .c-close { border: 1px solid #A8812F; background: #F7F1E4; color: #1E4A3B; }
+[data-theme='andalus'] .rule { background: #D2C09A; }
+
+[data-theme='andalus'] .a-head { top: 40px; }
+[data-theme='andalus'] .a-title { font: 700 58px/1.3 var(--ruqaa); color: #1E4A3B; }
+[data-theme='andalus'] .a-body { top: 170px; bottom: 96px; }
+[data-theme='andalus'] .a-dots { bottom: 66px; }
+[data-theme='andalus'] .a-card { border-radius: 6px; background: #F7F1E4; border: 1px solid #C9A45A; box-shadow: inset 0 0 0 6px #F7F1E4, inset 0 0 0 7px #D9C69C; }
+[data-theme='andalus'] .a-text { font-family: var(--sans); color: #2B2118; }
+[data-theme='andalus'] .a-card-title { font-family: var(--ruqaa); font-size: 26px; color: #A8812F; }
+[data-theme='andalus'] .a-left { font-family: var(--sans); font-weight: 700; }
+[data-theme='andalus'] .a-close, [data-theme='andalus'] .a-again { background: #F7F1E4; border: 1px solid #A8812F; color: #1E4A3B; }
+[data-theme='andalus'] .a-audio { background: #F7F1E4; border: 1px solid #C9A45A; }
+[data-theme='andalus'] .a-done-title { font-family: var(--ruqaa); color: #1E4A3B; }
+[data-theme='andalus'] .ph-empty { inset: 0 0 44px; }
+
+[data-theme='andalus'] .fun-scrim,
+[data-theme='andalus'] .qr .fun-scrim,
+[data-theme='andalus'] .wf .fun-scrim {
+  background-color: var(--modal);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2290%22%3E%3Cpath d=%22M0 45 L30 0 L60 45 L30 90 Z%22 fill=%22none%22 stroke=%22%23DCCDAE%22 stroke-width=%221.6%22/%3E%3Cpath d=%22M30 18 L46 45 L30 72 L14 45 Z%22 fill=%22none%22 stroke=%22%23E4D7BC%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%2230%22 cy=%2245%22 r=%222.4%22 fill=%22%23D2C09A%22/%3E%3C/svg%3E");
+}
+[data-theme='andalus'] .fun-close { background: #F7F1E4; border: 1px solid #A8812F; color: #1E4A3B; }
+[data-theme='andalus'] .fun-title { font-weight: 700; color: #1E4A3B; }
+[data-theme='andalus'] .fun-btn.ghost { border: 1px solid #A8812F; background: #F7F1E4; color: #1E4A3B; }
+[data-theme='andalus'] .fw-chip { background: #F7F1E4; border: 1px solid #D2C09A; color: #2B2118; }
+[data-theme='andalus'] .fw-chip.is-on { background: #1E4A3B; border-color: #1E4A3B; color: #F2DFA6; }
+[data-theme='andalus'] .fw-hub { border-color: #2B2118; }
+[data-theme='andalus'] .fw-result { background: #1E4A3B; color: #F2DFA6; }
+[data-theme='andalus'] .zc-swatch.is-on { border-color: #2B2118; }
+[data-theme='andalus'] .qr-fav { border-radius: 6px; background: #F7F1E4; border: 1px solid #C9A45A; }
+[data-theme='andalus'] .qr-fav.is-on { border-color: #1E4A3B; box-shadow: 0 0 0 3px rgba(30, 74, 59, 0.35); }
+[data-theme='andalus'] .qr-fav-n { font-family: var(--sans); }
+[data-theme='andalus'] .qr-rec { background: #F7F1E4; border: 1px solid #D2C09A; color: #2B2118; }
+[data-theme='andalus'] .qr-rec.is-on { background: #1E4A3B; border-color: #1E4A3B; color: #F2DFA6; }
+[data-theme='andalus'] .qr-rec.is-on small { background: rgba(242, 223, 166, 0.2); color: #F2DFA6; }
+[data-theme='andalus'] .qr-s { background: #F7F1E4; border: 1px solid #D9C69C; }
+[data-theme='andalus'] .qr-np { border-radius: 6px; background: #F7F1E4; border: 1px solid #C9A45A; }
+[data-theme='andalus'] .qr-mid { background: #E4D7BC; color: #1E4A3B; }
+[data-theme='andalus'] .wf-row { background: #F7F1E4; border: 1px solid #D2C09A; }
+[data-theme='andalus'] .wf-qr { border: 1px solid #C9A45A; box-shadow: 0 10px 30px rgba(43, 33, 24, 0.2); }
+[data-theme='andalus'] .pl-banner { border: 2px solid #C9A45A; box-shadow: 0 18px 50px rgba(43, 33, 24, 0.3); }
+[data-theme='andalus'] .pl-icon { background: #EEE5D3; }
+[data-theme='andalus'] .pl-from { color: #A8812F; }
+[data-theme='andalus'] .pl-listen { background: #EEE5D3; border-color: #D2C09A; }
+[data-theme='andalus'] .pl-banner .pl-reply { background: #1E4A3B; color: #F2DFA6; box-shadow: none; }
+[data-theme='andalus'] .pl-dusk { background: linear-gradient(180deg, rgba(10, 24, 18, 0.9) 0%, rgba(22, 55, 44, 0.8) 55%, rgba(30, 74, 59, 0.55) 100%); }
+[data-theme='andalus'] .adhan-bar { background: #1E4A3B; color: #F2DFA6; border: 1px solid #C9A45A; }
+[data-theme='andalus'] .adhan-bar-dot { background: #F2DFA6; }
+[data-theme='andalus'] .adhan-bar-stop { background: rgba(242, 223, 166, 0.16); }
+[data-theme='andalus'] .s-home .h-msg-text { -webkit-line-clamp: 3; }

@@ -17,7 +17,7 @@
 //   PUT  /api/audio/<name>         upload a recording (name: adhan | adhan-fajr | adhkar-morning |
 //                                  adhkar-evening; body = audio bytes)
 //   GET  /api/audio/<name>         the audio file;  DELETE removes it
-//   POST /api/preview              {what:"ramadan"|"adhkar"|"adhan"|"wifi"|"none", minutes?}  show it on the frame now
+//   POST /api/preview              {what:"ramadan"|"adhkar"|"adhan"|"wifi"|"theme"|"none", minutes?, theme?}  show it on the frame now
 //   /api/pulse…                    «نبضة»: moments from phones to the frame (see pulse-hub.js)
 //   GET  /api/photos               photo index
 //   POST /api/photos               upload one JPEG (body = image bytes)
@@ -25,7 +25,7 @@
 //   DELETE /api/photos/<id>
 // If the ACCESS_KEY secret is set, every /api call except /api/time needs ?key= or an x-key header.
 
-import { sanitizeSettings, clean, num } from './settings.js';
+import { sanitizeSettings, clean, num, THEMES } from './settings.js';
 import { dueFrom, addDays } from '../public/js/routines.js';
 
 export { dueFrom };
@@ -237,9 +237,11 @@ async function putPreview(request, env) {
   let body;
   try { body = await request.json(); } catch (e) { return fail(400, 'Body must be JSON.'); }
   if (body.what === 'none') { await needStore(env).delete('preview'); return json(null); }
-  if (!['ramadan', 'adhkar', 'adhan', 'wifi'].includes(body.what)) return fail(400, 'Unknown preview.');
+  if (!['ramadan', 'adhkar', 'adhan', 'wifi', 'theme'].includes(body.what)) return fail(400, 'Unknown preview.');
+  if (body.what === 'theme' && !THEMES.includes(body.theme)) return fail(400, 'Unknown theme.');
   const minutes = num(body.minutes, 1, 60) || 10;
   const p = { id: crypto.randomUUID().slice(0, 8), what: body.what, until: Date.now() + minutes * 60000 };
+  if (body.what === 'theme') p.theme = body.theme;
   await needStore(env).put('preview', JSON.stringify(p));
   return json(p);
 }
@@ -256,7 +258,8 @@ async function updateLists(request, env) {
     if (!text) return fail(400, 'text is empty.');
     if (items.length >= MAX_ITEMS) return fail(400, 'This list is full. Clear done items first.');
     const dup = items.find((x) => !x.done && x.text === text);
-    if (!dup) items.unshift({ id: crypto.randomUUID().slice(0, 8), text, done: false, ts: Date.now() });
+    const by = String(body.by || '').replace(/\s+/g, ' ').trim().slice(0, 24); // who asked for it (shown on the frame)
+    if (!dup) items.unshift(Object.assign({ id: crypto.randomUUID().slice(0, 8), text, done: false, ts: Date.now() }, by ? { by } : {}));
   } else if (op === 'toggle') {
     const it = items.find((x) => x.id === id);
     if (it) { it.done = !it.done; it.ts = Date.now(); }

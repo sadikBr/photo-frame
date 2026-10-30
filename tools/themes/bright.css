@@ -1,0 +1,519 @@
+/* fonts: ibm-plex-sans-arabic, amiri */
+/* «فاتح»: Fes porcelain. A white ground, cobalt line-work and a saffron sun: the clock is a
+   painted plate whose rim is the 24-hour day, and a band of cobalt scallops runs along the bottom. */
+
+[data-theme='bright'] {
+  --fg: 18, 32, 92;
+  --plaster: rgb(var(--fg));
+  --plaster-2: rgba(var(--fg), 0.68);
+  --plaster-3: rgba(var(--fg), 0.5);
+  --hair: rgba(var(--fg), 0.13);
+  --shade: 31, 72, 168;
+  /* the accent is cobalt (filled = cobalt, text on it white); saffron is for the sun */
+  --saffron: #1F48A8;
+  --accent-rgb: 31, 72, 168;
+  --saffron-ink: #FFFFFF;
+  --garnet: #1F48A8;
+  --garnet-deep: #FFFFFF;
+  --sky: #3463C9;
+  --sky-2: #234FAF;
+  --sky-rgb: 52, 99, 201;
+  --mint: #17795A;
+  --mint-rgb: 23, 121, 90;
+  --rose: #B23A55;
+  --rose-rgb: 178, 58, 85;
+  --deep-rgb: 255, 255, 255;
+  --deep2-rgb: 233, 239, 250;
+  --modal: #F3F6FB;
+  --menu: rgba(255, 255, 255, 0.97);
+  --banner: rgba(255, 255, 255, 0.97);
+  --chip-bg: #FFFFFF;
+  --g-home: #F3F6FB;
+  --g-prayer: #F3F6FB;
+  --g-lists: #F3F6FB;
+  --g-calendar: #F3F6FB;
+  --g-adhkar-m: #F3F6FB;
+  --g-adhkar-e: #EEF1F9;
+  --g-photos: #0E0E10;
+  --kufi: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif;
+  --sans: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif;
+  --naskh: 'Amiri', serif;
+  /* the dock: white porcelain doors over a cobalt veil */
+  --dock-bottom: 64px;
+  --dock-scrim: rgba(18, 32, 92, 0.84);
+  --dock-hint: #DCE4F3;
+  --door: #FFFFFF;
+  --door-home: #FFFFFF;
+  --door-prayer: #FFFFFF;
+  --door-adhkar: #FFFFFF;
+  --door-calendar: #FFFFFF;
+  --door-lists: #FFFFFF;
+  --door-quran: #FFFFFF;
+  --door-fun: #FFF6E4;
+  --door-wifi: #EAF6F1;
+  --door-on: #FFFFFF;
+}
+[data-theme='bright'] #stage { font-weight: 400; }
+
+/* Overlays that are always dark: their own light text (the plaster tokens are recomputed here). */
+[data-theme='bright'] .match,
+[data-theme='bright'] .s-photos,
+[data-theme='bright'] .pl-beat,
+[data-theme='bright'] .pl-scrim,
+[data-theme='bright'] .ph-caption {
+  --plaster: rgb(var(--fg));
+  --plaster-2: rgba(var(--fg), 0.68);
+  --plaster-3: rgba(var(--fg), 0.42);
+  --hair: rgba(var(--fg), 0.13);
+  --saffron: #F2B84B;
+  --saffron-ink: #12205C;
+  --accent-rgb: 242, 184, 75;
+  color: var(--plaster);
+}
+
+[data-theme='bright'] .screen { background-image: none; }
+
+/* the band: a cobalt rule, then a row of painted scallops (as in the mockups: 752–800) */
+[data-theme='bright'] .band {
+  height: 48px;
+  border: 0;
+  background-color: #1F48A8;
+  background-position: left top;
+  background-repeat: repeat-x;
+  background-image: svg(<svg width="44" height="48"><rect width="44" height="48" fill="#1F48A8"/><rect y="2" width="44" height="6" fill="#F3F6FB"/><path d="M0 48 A22 22 0 0 1 44 48" fill="none" stroke="#F3F6FB" stroke-width="2"/><circle cx="22" cy="20" r="3" fill="#F3F6FB"/><path d="M6 48 A16 16 0 0 1 38 48" fill="none" stroke="#9DB3E6" stroke-width="1.5"/></svg>);
+}
+
+/* the dock doors: ink on porcelain, the open screen ringed in saffron */
+[data-theme='bright'] .nav .tab,
+[data-theme='bright'] .nav .tab-fun { border-color: #C9D4EC; color: #12205C; box-shadow: 0 -2px 0 rgba(255, 255, 255, 0.4) inset; }
+[data-theme='bright'] .nav .tab.is-on { border-color: #F2B84B; border-width: 4px; color: #12205C; }
+[data-theme='bright'] .nav .tab[data-for='home'] .tab-icon { color: #1F48A8; }
+[data-theme='bright'] .nav .tab[data-for='prayer'] .tab-icon { color: #17795A; }
+[data-theme='bright'] .nav .tab[data-for='adhkar'] .tab-icon { color: #6A4FB0; }
+[data-theme='bright'] .nav .tab[data-for='calendar'] .tab-icon { color: #B7771B; }
+[data-theme='bright'] .nav .tab[data-for='lists'] .tab-icon { color: #B23A55; }
+[data-theme='bright'] .nav .tab-fun:not(.tab-quran):not(.tab-wifi) svg { color: #B7771B; }
+[data-theme='bright'] .nav .tab-gap { background: rgba(255, 255, 255, 0.35); }
+[data-theme='bright'] .fun-menu { border-color: #C9D4EC; box-shadow: 0 16px 40px rgba(18, 32, 92, 0.22); }
+[data-theme='bright'] .fun-menu .tab { background: #EEF2F9; color: #12205C; border-color: #DCE4F3; }
+[data-theme='bright'] .fun-menu .tab-fun { color: #A86A12; }
+[data-theme='bright'] .status { color: #A33A1E; }
+[data-theme='bright'] .status::before { background: #D9573A; }
+
+/* chips at the top (match, Quran, family): white porcelain */
+[data-theme='bright'] .st-chip,
+[data-theme='bright'] .match-chip,
+[data-theme='bright'] .qr-chip {
+  background: #FFFFFF;
+  border: 1px solid #DCE4F3;
+  box-shadow: 0 2px 0 #DCE4F3;
+}
+[data-theme='bright'] .st-chip b { color: #1F48A8; }
+[data-theme='bright'] .st-chip small { color: #5B6690; }
+
+/* ---------- clock: the plate on the left, the day on the right ---------- */
+[data-theme='bright'] .s-home .home-grid,
+[data-theme='bright'] .s-home .h-main,
+[data-theme='bright'] .s-home .h-dates { display: contents; }
+[data-theme='bright'] .s-home .rule,
+[data-theme='bright'] .s-home .h-weather { display: none; }
+
+[data-theme='bright'] .s-home .h-weekday {
+  position: absolute;
+  left: 140px;
+  top: 238px;
+  width: 440px;
+  text-align: center;
+  font: 600 34px/1.3 var(--sans);
+  color: #1F48A8;
+}
+[data-theme='bright'] .s-home .h-clock,
+[data-theme='bright'] .s-home.has-msg .h-clock {
+  position: absolute;
+  left: 110px;
+  top: 286px;
+  width: 500px;
+  margin: 0;
+  text-align: center;
+  font: 600 148px/1 var(--sans);
+  letter-spacing: -0.02em;
+  color: #12205C;
+}
+[data-theme='bright'] .s-home .h-greg {
+  position: absolute;
+  left: 140px;
+  top: 442px;
+  width: 440px;
+  margin: 0;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #12205C;
+}
+[data-theme='bright'] .s-home .h-hijri {
+  position: absolute;
+  left: 140px;
+  top: 479px;
+  width: 440px;
+  margin: 0;
+  text-align: center;
+  font-size: 19px;
+  line-height: 1.5;
+  color: #5B6690;
+}
+
+/* right column: weather, the next prayer, today's prayers, the family, the verse */
+[data-theme='bright'] .s-home .h-wxm {
+  position: absolute;
+  right: 64px;
+  top: 52px;
+  width: 480px;
+  padding-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border-bottom: 2px solid #E3E9F6;
+  color: #1F48A8;
+  --accent: #F2B84B;
+  --ground: #FFFFFF;
+}
+[data-theme='bright'] .h-wxm .hw-icon { display: flex; flex: none; }
+[data-theme='bright'] .h-wxm .hw-icon svg { width: 72px; height: 72px; }
+[data-theme='bright'] .h-wxm .hw-text {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 18px;
+  align-items: center;
+  min-width: 0;
+  color: #12205C;
+}
+[data-theme='bright'] .h-wxm .hw-temp { grid-row: 1 / span 2; font: 600 66px/1 var(--sans); }
+[data-theme='bright'] .h-wxm .hw-cond { align-self: end; font-size: 22px; font-weight: 500; line-height: 1.4; }
+[data-theme='bright'] .h-wxm .hw-next { align-self: start; font-size: 18px; line-height: 1.4; color: #5B6690; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+[data-theme='bright'] .s-home .h-next {
+  position: absolute;
+  right: 64px;
+  top: 172px;
+  width: 480px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 18px;
+  font-size: 30px;
+}
+[data-theme='bright'] .s-home .h-next-icon { display: none; }
+[data-theme='bright'] .s-home .h-next-name { font: 700 76px/1.1 var(--sans); color: #1F48A8; }
+[data-theme='bright'] .s-home .h-next-time { font-size: 40px; font-weight: 600; color: #12205C; }
+[data-theme='bright'] .s-home .h-next-in { flex-basis: 100%; font-size: 30px; font-weight: 600; line-height: 1.45; color: #B7771B; }
+
+[data-theme='bright'] .s-home .h-prayers {
+  position: absolute;
+  right: 64px;
+  top: 316px;
+  width: 480px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid #E3E9F6;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  text-align: center;
+}
+[data-theme='bright'] .h-prayers .prow-i { display: flex; flex-direction: column; align-items: center; min-width: 0; line-height: 1.5; }
+[data-theme='bright'] .h-prayers .prow-icon,
+[data-theme='bright'] .h-prayers .prow-in { display: none; }
+[data-theme='bright'] .h-prayers .prow-name { font-size: 16px; color: #5B6690; white-space: nowrap; }
+[data-theme='bright'] .h-prayers .prow-time { font-size: 22px; font-weight: 600; line-height: 1.3; color: #12205C; }
+[data-theme='bright'] .h-prayers .is-next .prow-name { color: #B7771B; }
+[data-theme='bright'] .h-prayers .is-next .prow-time { color: #B7771B; font-weight: 700; }
+
+/* on the clock screen the cards (family, match, Quran) are lines in the right column */
+[data-theme='bright'] #stage[data-tscreen='home'] .top-chips {
+  top: 418px;
+  right: 64px;
+  left: auto;
+  transform: none;
+  width: 480px;
+  max-width: 480px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+[data-theme='bright'] #stage[data-tscreen='home'] .top-chips:has(.st-chip, .match-chip:not([hidden]), .qr-chip:not([hidden])) {
+  padding-bottom: 18px;
+  border-bottom: 2px solid #E3E9F6;
+}
+[data-theme='bright'] #stage[data-tscreen='home'] .status-chips { flex-direction: column; align-items: flex-start; gap: 10px; }
+[data-theme='bright'] #stage[data-tscreen='home'] .st-chip,
+[data-theme='bright'] #stage[data-tscreen='home'] .match-chip,
+[data-theme='bright'] #stage[data-tscreen='home'] .qr-chip {
+  height: 34px;
+  max-width: 480px;
+  padding: 0;
+  gap: 12px;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  font-size: 21px;
+  color: #12205C;
+  align-self: flex-start;
+}
+[data-theme='bright'] #stage[data-tscreen='home'] .st-emoji {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FCE1E6;
+  font-size: 18px;
+}
+[data-theme='bright'] #stage[data-tscreen='home'] .st-chip b { color: #12205C; font-weight: 500; }
+[data-theme='bright'] #stage[data-tscreen='home'] .st-chip small { font-size: 21px; color: #5B6690; }
+[data-theme='bright'] #stage[data-tscreen='home'] .qr-open { height: 34px; padding: 0; gap: 12px; font-size: 21px; color: #12205C; }
+[data-theme='bright'] #stage[data-tscreen='home'] .qr-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #E3E9F6;
+}
+[data-theme='bright'] #stage[data-tscreen='home'] .qr-icon svg { color: #1F48A8; width: 18px; height: 18px; }
+[data-theme='bright'] #stage[data-tscreen='home'] .qr-btn { width: 34px; height: 34px; background: #E3E9F6; color: #1F48A8; }
+
+[data-theme='bright'] .s-home .h-verse,
+[data-theme='bright'] .s-home .h-msg {
+  position: absolute;
+  right: 64px;
+  top: 532px;
+  width: 480px;
+  max-width: none;
+}
+[data-theme='bright'] #stage:not(:has(.st-chip, .match-chip:not([hidden]), .qr-chip:not([hidden]))) .s-home .h-verse,
+[data-theme='bright'] #stage:not(:has(.st-chip, .match-chip:not([hidden]), .qr-chip:not([hidden]))) .s-home .h-msg { top: 418px; }
+[data-theme='bright'] .s-home .h-verse { display: block; }
+[data-theme='bright'] .s-home .h-verse[hidden] { display: none; }
+[data-theme='bright'] .s-home .h-verse-text { display: inline; font-size: 26px; font-weight: 500; line-height: 1.5; color: #12205C; }
+[data-theme='bright'] .s-home .h-verse.is-verse .h-verse-text { font: 400 32px/1.6 var(--naskh); color: #1F48A8; }
+[data-theme='bright'] .s-home .h-verse-ref { display: inline; margin-right: 10px; font-size: 15px; color: #5B6690; white-space: nowrap; }
+[data-theme='bright'] .s-home .h-msg {
+  padding: 16px 20px;
+  border-radius: 18px;
+  background: #FFFFFF;
+  border: 2px solid #C9D4EC;
+  box-shadow: 0 4px 0 #DCE4F3;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #12205C;
+}
+[data-theme='bright'] .s-home .h-msg-icon svg { fill: #E9A23B; }
+
+/* ---------- prayer: the day as a line, six tiles ---------- */
+[data-theme='bright'] .s-prayer .p-stage,
+[data-theme='bright'] .s-prayer .p-cd { display: none; }
+[data-theme='bright'] .s-prayer .p-head { top: 40px; right: 64px; left: auto; }
+[data-theme='bright'] .s-prayer .p-name-row { display: flex; align-items: baseline; gap: 26px; }
+[data-theme='bright'] .s-prayer .p-name { font: 700 132px/1.1 var(--sans); color: #1F48A8; }
+[data-theme='bright'] .s-prayer .p-in { display: inline; font-size: 56px; font-weight: 600; color: #B7771B; }
+[data-theme='bright'] .s-prayer .p-at { margin-top: 0; font-size: 24px; line-height: 1.5; color: #5B6690; }
+[data-theme='bright'] .s-prayer .p-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  position: absolute;
+  top: 56px;
+  left: 64px;
+}
+[data-theme='bright'] .p-clock .pc-time { font: 600 58px/1 var(--sans); color: #12205C; }
+[data-theme='bright'] .p-clock .pc-date { margin-top: 6px; font-size: 20px; line-height: 1.5; color: #5B6690; }
+
+[data-theme='bright'] .br-plate-t { font: 400 16px var(--sans); fill: #5B6690; }
+[data-theme='bright'] .br-plate-t.is-next { font-weight: 700; fill: #B7771B; }
+[data-theme='bright'] .br-line-t { font: 400 15px var(--sans); fill: #5B6690; }
+[data-theme='bright'] .br-line-t.is-next { font-weight: 700; fill: #B7771B; }
+[data-theme='bright'] .br-line-now { font: 600 15px var(--sans); fill: #12205C; }
+
+[data-theme='bright'] .s-prayer .p-tiles {
+  display: grid;
+  position: absolute;
+  z-index: 1;
+  top: 420px;
+  right: 64px;
+  left: 64px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 18px;
+}
+[data-theme='bright'] .p-tiles .prow-i {
+  height: 290px;
+  padding: 24px 4px 20px;
+  border-radius: 16px;
+  background: #FFFFFF;
+  border: 2px solid #C9D4EC;
+  color: #12205C;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+[data-theme='bright'] .p-tiles .prow-icon { color: #1F48A8; }
+[data-theme='bright'] .p-tiles .prow-icon svg { width: 46px; height: 46px; }
+[data-theme='bright'] .p-tiles .prow-name { font-size: 26px; font-weight: 600; line-height: 1.5; white-space: nowrap; }
+[data-theme='bright'] .p-tiles .prow-time { font-size: 50px; font-weight: 700; line-height: 1.1; }
+[data-theme='bright'] .p-tiles .prow-in { font-size: 18px; line-height: 1.5; text-align: center; }
+[data-theme='bright'] .p-tiles .is-past { background: #EAEFF7; border-color: #EAEFF7; color: #8A94BC; }
+[data-theme='bright'] .p-tiles .is-past .prow-icon { color: #A9B3D3; }
+[data-theme='bright'] .p-tiles .is-past::after { content: 'مضت'; font-size: 18px; line-height: 1.5; color: #8A94BC; }
+[data-theme='bright'] .p-tiles .is-next { background: #1F48A8; border-color: #1F48A8; color: #FFFFFF; }
+[data-theme='bright'] .p-tiles .is-next .prow-icon,
+[data-theme='bright'] .p-tiles .is-next .prow-in { color: #FCE3B0; }
+[data-theme='bright'] .s-prayer.is-ramadan .p-tiles,
+[data-theme='bright'] .s-prayer.is-ramadan .t-art,
+[data-theme='bright'] .s-prayer.is-ramadan .p-clock,
+[data-theme='bright'] .s-prayer.is-ramadan .p-in { display: none; }
+[data-theme='bright'] .s-prayer.is-ramadan .p-head { right: 76px; left: 76px; }
+[data-theme='bright'] .s-prayer.is-ramadan .p-cd { display: block; }
+[data-theme='bright'] .s-prayer.is-ramadan .p-count { color: #12205C; font-weight: 400; }
+[data-theme='bright'] .s-prayer.is-ramadan .r-stage { bottom: 64px; }
+[data-theme='bright'] .r-tile { background: #FFFFFF; border: 2px solid #C9D4EC; }
+[data-theme='bright'] .r-tile.is-key { background: #EAF0FB; border-color: #9DB3E6; }
+[data-theme='bright'] .r-tile.is-next { box-shadow: inset 0 0 0 3px #1F48A8; }
+[data-theme='bright'] .r-t-time { font-weight: 600; }
+
+/* ---------- lists: shopping on painted plates, tasks on a ruled list ---------- */
+[data-theme='bright'] .lists-layout { top: 40px; right: 64px; left: 64px; bottom: 60px; grid-template-columns: 1fr 0 380px; column-gap: 16px; }
+[data-theme='bright'] .lists-layout .rule { background: transparent; }
+[data-theme='bright'] .l-head { height: auto; align-items: baseline; justify-content: space-between; }
+[data-theme='bright'] .l-spacer { display: none; }
+[data-theme='bright'] .l-title { font: 700 62px/1.2 var(--sans); color: #1F48A8; }
+[data-theme='bright'] .l-tasks .l-title { font-size: 46px; line-height: 1.6; color: #12205C; }
+[data-theme='bright'] .l-tasks .l-meta { display: none; }
+[data-theme='bright'] .l-meta-box { padding-top: 0; font-size: 20px; color: #5B6690; }
+[data-theme='bright'] .l-meta-box .l-meta { font-size: 20px; color: #5B6690; }
+[data-theme='bright'] .l-hint { display: inline; }
+[data-theme='bright'] .l-tiles {
+  margin-top: 26px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: 180px;
+  gap: 18px 0;
+  justify-items: center;
+  padding-bottom: 12px;
+}
+[data-theme='bright'] .l-tile {
+  position: relative;
+  width: 172px;
+  height: 172px;
+  padding: 0 20px;
+  border-radius: 50%;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+  color: #12205C;
+  border: 4px solid #1F48A8;
+  background-color: #FFFFFF;
+  background-image: svg(<svg width="164" height="164"><circle cx="82" cy="82" r="70" fill="none" stroke="#1F48A8" stroke-width="3" stroke-dasharray="1 9" stroke-linecap="round"/><circle cx="82" cy="82" r="60" fill="none" stroke="#1F48A8" stroke-opacity="0.5" stroke-width="1"/></svg>);
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 8px 0 #DCE4F3;
+}
+[data-theme='bright'] .l-tile:active { transform: translateY(3px); box-shadow: 0 5px 0 #DCE4F3; }
+[data-theme='bright'] .l-tile:not(.is-done) .l-tick { display: none; }
+[data-theme='bright'] .l-tile-text { font-size: 30px; font-weight: 600; line-height: 1.25; text-align: center; }
+[data-theme='bright'] .l-who { max-width: 120px; font-size: 14px; line-height: 1.35; color: #5B6690; text-align: center; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+[data-theme='bright'] .l-who:empty { display: none; }
+[data-theme='bright'] .l-tile.is-done {
+  border: 4px solid #B9C5E3;
+  background-color: #EEF2F9;
+  background-image: svg(<svg width="164" height="164"><circle cx="82" cy="82" r="70" fill="none" stroke="#B9C5E3" stroke-width="3" stroke-dasharray="1 9" stroke-linecap="round"/><circle cx="82" cy="82" r="60" fill="none" stroke="#B9C5E3" stroke-width="1"/></svg>);
+}
+[data-theme='bright'] .l-tile.is-done .l-tick { width: 34px; height: 34px; border: 0; background: #1F48A8; color: #FFFFFF; }
+[data-theme='bright'] .l-tile.is-done .l-tick svg { width: 18px; height: 18px; }
+[data-theme='bright'] .l-tile.is-done .l-tile-text { color: #8A94BC; text-decoration-color: #8A94BC; }
+[data-theme='bright'] .l-empty { color: #5B6690; }
+[data-theme='bright'] .l-foot { color: #5B6690; }
+[data-theme='bright'] .l-clear { border: 2px solid #C9D4EC; color: #1F48A8; font-weight: 600; background: #FFFFFF; }
+[data-theme='bright'] .l-clear.is-armed { background: #1F48A8; border-color: #1F48A8; color: #FFFFFF; }
+
+[data-theme='bright'] .l-rows { flex: 0 1 auto; margin-top: 16px; }
+[data-theme='bright'] .l-row { min-height: 84px; padding: 8px 0; gap: 16px; border-top: 2px solid #E3E9F6; border-bottom: 0; }
+[data-theme='bright'] .l-row:last-child { border-bottom: 2px solid #E3E9F6; }
+[data-theme='bright'] .l-row.is-done { min-height: 76px; }
+[data-theme='bright'] .l-circle {
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  border-radius: 10px;
+  border: 3px solid #1F48A8;
+  background: #FFFFFF;
+}
+[data-theme='bright'] .l-row.is-done .l-circle { width: 36px; height: 36px; margin: 0; border: 0; background: #1F48A8; color: #FFFFFF; }
+[data-theme='bright'] .l-row.is-done .l-circle svg { width: 18px; height: 18px; }
+[data-theme='bright'] .l-row-text { flex: 1; font-size: 26px; font-weight: 500; }
+[data-theme='bright'] .l-row.is-done .l-row-text { font-size: 22px; font-weight: 400; color: #8A94BC; text-decoration-color: #8A94BC; }
+[data-theme='bright'] .l-today { display: inline-block; flex: none; padding: 2px 10px; border-radius: 12px; background: #FDEBD0; color: #9A5F12; font-size: 15px; font-weight: 600; }
+[data-theme='bright'] .l-repeat { color: #5B6690; margin-right: 0; }
+[data-theme='bright'] .l-done-head { margin-top: 14px; padding-bottom: 10px; font-size: 18px; color: #5B6690; }
+[data-theme='bright'] .l-done-head .l-clear { min-height: 44px; font-size: 18px; padding: 0 18px; }
+[data-theme='bright'] .l-now { display: block; margin-top: 22px; font-size: 22px; color: #5B6690; }
+[data-theme='bright'] .l-now .ln-time { margin-left: 10px; font-weight: 600; color: #12205C; }
+
+/* ---------- the rest: calendar, adhkar, photos, overlays ---------- */
+[data-theme='bright'] .cal-layout { top: 40px; bottom: 72px; right: 64px; left: 64px; }
+[data-theme='bright'] .c-month { font-weight: 700; color: #1F48A8; }
+[data-theme='bright'] .c-hijri { color: #B7771B; font-weight: 500; }
+[data-theme='bright'] .c-cell { border-top: 2px solid #E3E9F6; }
+[data-theme='bright'] .c-cell.is-weekend { background: #EAEFF7; }
+[data-theme='bright'] .c-cell.is-today .c-d { background: #1F48A8; color: #FFFFFF; }
+[data-theme='bright'] .c-cell.is-hstart .c-h { color: #B7771B; }
+[data-theme='bright'] .c-up-row, [data-theme='bright'] .c-up-more, [data-theme='bright'] .c-legend { border-top: 2px solid #E3E9F6; }
+[data-theme='bright'] .c-side-sub { color: #B7771B; }
+[data-theme='bright'] .c-nav, [data-theme='bright'] .c-close { border: 2px solid #C9D4EC; background: #FFFFFF; color: #1F48A8; }
+[data-theme='bright'] .rule { background: #E3E9F6; width: 2px; }
+
+[data-theme='bright'] .a-body { bottom: 96px; }
+[data-theme='bright'] .a-dots { bottom: 68px; }
+[data-theme='bright'] .a-title { font-weight: 700; color: #1F48A8; }
+[data-theme='bright'] .a-card { background: #FFFFFF; border: 2px solid #C9D4EC; box-shadow: 0 8px 0 #DCE4F3; }
+[data-theme='bright'] .a-text { font-family: var(--naskh); color: #12205C; }
+[data-theme='bright'] .a-card-title { color: #B7771B; }
+[data-theme='bright'] .a-close, [data-theme='bright'] .a-again { background: #FFFFFF; border: 2px solid #C9D4EC; color: #1F48A8; }
+[data-theme='bright'] .a-audio { background: #FFFFFF; border: 2px solid #C9D4EC; }
+[data-theme='bright'] .a-done-title { color: #1F48A8; }
+[data-theme='bright'] .ph-empty { inset: 0 0 48px; }
+
+[data-theme='bright'] .fun-scrim,
+[data-theme='bright'] .qr .fun-scrim,
+[data-theme='bright'] .wf .fun-scrim { background: var(--modal); }
+[data-theme='bright'] .fun-close { background: #FFFFFF; border: 2px solid #C9D4EC; color: #1F48A8; }
+[data-theme='bright'] .fun-title { font-weight: 700; color: #1F48A8; }
+[data-theme='bright'] .fun-btn.ghost { border: 2px solid #C9D4EC; background: #FFFFFF; color: #1F48A8; }
+[data-theme='bright'] .fw-chip { background: #FFFFFF; border: 2px solid #DCE4F3; color: #12205C; }
+[data-theme='bright'] .fw-chip.is-on { background: #1F48A8; border-color: #1F48A8; color: #FFFFFF; }
+[data-theme='bright'] .fw-hub { border-color: #12205C; }
+[data-theme='bright'] .fw-result { background: #1F48A8; color: #FFFFFF; }
+[data-theme='bright'] .zc-swatch.is-on { border-color: #12205C; }
+[data-theme='bright'] .qr-fav { background: #FFFFFF; border: 2px solid #C9D4EC; box-shadow: 0 4px 0 #DCE4F3; }
+[data-theme='bright'] .qr-fav.is-on { border-color: #1F48A8; box-shadow: 0 0 0 3px rgba(31, 72, 168, 0.3); }
+[data-theme='bright'] .qr-rec { background: #FFFFFF; border: 2px solid #DCE4F3; color: #12205C; }
+[data-theme='bright'] .qr-rec.is-on { background: #1F48A8; border-color: #1F48A8; color: #FFFFFF; }
+[data-theme='bright'] .qr-rec.is-on small { background: rgba(255, 255, 255, 0.2); color: #FFFFFF; }
+[data-theme='bright'] .qr-s { background: #FFFFFF; border: 1px solid #DCE4F3; }
+[data-theme='bright'] .qr-np { background: #FFFFFF; border: 2px solid #C9D4EC; box-shadow: 0 6px 0 #DCE4F3; }
+[data-theme='bright'] .qr-mid { background: #EEF2F9; color: #1F48A8; }
+[data-theme='bright'] .wf-row { background: #FFFFFF; border: 2px solid #DCE4F3; }
+[data-theme='bright'] .wf-qr { box-shadow: 0 10px 0 #DCE4F3; border: 2px solid #C9D4EC; }
+[data-theme='bright'] .pl-banner { border: 2px solid #1F48A8; box-shadow: 0 18px 50px rgba(18, 32, 92, 0.25); }
+[data-theme='bright'] .pl-icon { background: #EEF2F9; }
+[data-theme='bright'] .pl-listen { background: #EEF2F9; border-color: #C9D4EC; }
+[data-theme='bright'] .pl-banner .pl-reply { background: #F2B84B; color: #12205C; box-shadow: 0 6px 18px rgba(233, 162, 59, 0.3); }
+[data-theme='bright'] .pl-dusk { background: linear-gradient(180deg, rgba(10, 14, 48, 0.9) 0%, rgba(18, 32, 92, 0.78) 55%, rgba(31, 72, 168, 0.55) 100%); }
+[data-theme='bright'] .adhan-bar { background: #F2B84B; color: #12205C; box-shadow: 0 10px 30px rgba(18, 32, 92, 0.3); }
+[data-theme='bright'] .adhan-bar-dot { background: #12205C; }
+[data-theme='bright'] .s-home .h-msg-text { -webkit-line-clamp: 3; }
+[data-theme='bright'] .l-tile.is-long .l-tile-text { font-size: 24px; }

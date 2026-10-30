@@ -141,7 +141,9 @@ export function createKnock({ stage }) {
     // Twice, so the rhythm is recognised.
     await playRhythm(r, jolt).done;
     await new Promise((ok) => setTimeout(ok, 600));
-    title.textContent = 'دقّة من ' + p.from;
+    // (Two spans, so a theme can set the name on a line of its own.)
+    title.textContent = '';
+    title.append(h('span', { class: 'fk-t1' }, 'دقّة من '), h('span', { class: 'fk-t2' }, p.from));
     sub.textContent = words(r);
     dots.innerHTML = rhythmDots(r, 360);
     if (replyBtn) extra.appendChild(replyBtn);

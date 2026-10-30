@@ -77,6 +77,7 @@ function applySettings(s) {
   config.prayerFocus = Object.assign({}, DEFAULTS.prayerFocus, typeof s.prayerFocus === 'boolean' ? { enabled: s.prayerFocus } : null);
   config.touchNavigation = typeof s.touchNavigation === 'boolean' ? s.touchNavigation : DEFAULTS.touchNavigation;
   config.photoSeconds = s.photoSeconds || DEFAULTS.photoSeconds;
+  config.theme = s.theme || DEFAULTS.theme;
   config.adhan = Object.assign({}, DEFAULTS.adhan, s.adhan, { prayers: Object.assign({}, DEFAULTS.adhan.prayers, s.adhan && s.adhan.prayers) });
   config.ramadan = Object.assign({}, DEFAULTS.ramadan, s.ramadan);
   config.adhkar = Object.assign({}, DEFAULTS.adhkar, s.adhkar);

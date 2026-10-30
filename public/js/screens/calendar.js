@@ -1,6 +1,6 @@
-import { h, setText, now, parts, dayKey, startOfDay, hijri, MONTHS, HIJRI_MONTHS, WEEKDAYS, DAY } from '../util.js';
+import { h, setText, now, parts, dayKey, startOfDay, hijri, hhmm, MONTHS, HIJRI_MONTHS, WEEKDAYS, DAY } from '../util.js';
 import { state, on } from '../data.js';
-import { occasions, between } from '../holidays.js';
+import { occasions, between, upcoming } from '../holidays.js';
 
 // Monday first, as Moroccan calendars print it.
 const WEEK = ['الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد'];
@@ -102,8 +102,16 @@ export function createCalendar() {
   const closeDay = h('button', { class: 'c-close', type: 'button', 'aria-label': 'عرض الشهر', html: CLOSE });
   const legend = h('div', { class: 'c-legend' });
   const note = h('p', { class: 'c-note' });
+  // Theme-only (hidden in the original look): today on a card, and the next occasions in any month.
+  const nowWd = h('span', { class: 'cn-wd' });
+  const nowD = h('span', { class: 'cn-d' });
+  const nowM = h('span', { class: 'cn-m' });
+  const nowSub = h('span', { class: 'cn-sub' });
+  const nowCard = h('div', { class: 'c-now' }, nowWd, nowD, nowM, nowSub);
+  const soonList = h('div', { class: 'c-soon-list' });
+  const soon = h('div', { class: 'c-soon' }, h('div', { class: 'c-soon-title' }, 'القادم'), soonList);
 
-  const el = h('section', { class: 'screen s-calendar', 'data-screen': 'calendar', style: '--ground:#2C1F14' },
+  const el = h('section', { class: 'screen s-calendar', 'data-screen': 'calendar', style: '--ground:var(--g-calendar)' },
     h('div', { class: 'cal-layout' },
       h('div', { class: 'c-main' },
         h('div', { class: 'c-head' },
@@ -115,6 +123,8 @@ export function createCalendar() {
       ),
       h('div', { class: 'rule' }),
       h('aside', { class: 'c-side' },
+        nowCard,
+        soon,
         h('div', { class: 'c-side-head' }, h('div', { class: 'c-side-titles' }, sideTitle, sideSub), closeDay),
         upList,
         h('div', { class: 'c-side-foot' }, legend, note),
@@ -157,8 +167,36 @@ export function createCalendar() {
     }
   }
 
+  // The theme card: today's date, the Hijri date and the time (once a minute).
+  let nowShown = '';
+  function renderNow(t) {
+    const k = Math.floor(t / 60000);
+    if (k === nowShown) return;
+    nowShown = k;
+    const p = parts(t), hj = hijri(t);
+    setText(nowWd, WEEKDAYS[p.wd]);
+    setText(nowD, String(p.d));
+    setText(nowM, MONTHS[p.m - 1]);
+    setText(nowSub, (hj ? hj.d + ' ' + HIJRI_MONTHS[hj.m - 1] + ' · ' : '') + hhmm(t));
+  }
+  // The theme list: the next occasions, whatever the month.
+  function renderSoon(today) {
+    soonList.textContent = '';
+    for (const ev of upcoming(today, 6, family())) {
+      const [ty, tm, td] = isoParts(ev.date);
+      const away = Math.round((startOfDay(Date.UTC(ty, tm - 1, td, 12)) - today) / DAY);
+      const when = ev.ongoing ? 'جارية' : away <= 2 || away > 30 ? daysAway(away) : dayMonth(ev.date);
+      soonList.appendChild(h('div', { class: 'c-soon-row k-' + ev.kind },
+        h('span', { class: 'cs-name' }, ev.name), h('span', { class: 'cs-when' }, when)));
+    }
+    // Only whole rows: drop the ones that don't fit.
+    const room = soonList.clientHeight;
+    while (room && soonList.childElementCount > 1 && soonList.scrollHeight > room + 1) soonList.lastChild.remove();
+  }
+
   function render(force) {
     const t = now();
+    renderNow(t);
     const tp = parts(t);
     let y = tp.y, m = tp.m + offset;
     while (m < 1) { m += 12; y--; }
@@ -274,6 +312,7 @@ export function createCalendar() {
     const today = startOfDay(t);
     if (picked) renderDay(occ.get(picked) || [], today);
     else renderMonth(m, first, last, today);
+    renderSoon(today);
 
     legend.textContent = '';
     for (const kd of ['national', 'religious', 'observance', 'family']) {
@@ -355,7 +394,7 @@ export function createCalendar() {
   return {
     name: 'calendar', label: 'التقويم', el,
     tick() { render(false); },
-    show() { render(true); },
+    show() { nowShown = ''; render(true); },
     hide() { offset = 0; picked = null; },
   };
 }

@@ -6,6 +6,7 @@ import { nextPrayer } from '../prayer-times.js';
 import { weatherNudge } from '../nudge.js';
 import { verseOfDay } from '../adhkar-data.js';
 import { ramadanInfo } from '../ramadan.js';
+import { createPrayerRow } from '../prayer-row.js';
 
 const deg = (v) => Math.round(v) + '°';
 
@@ -28,7 +29,14 @@ export function createHome() {
   const verseRef = h('span', { class: 'h-verse-ref' });
   const verse = h('div', { class: 'h-verse', hidden: true }, verseText, verseRef);
 
-  const el = h('section', { class: 'screen s-home', 'data-screen': 'home', style: '--ground:#18205A' },
+  const prow = createPrayerRow('h-prayers');
+  const wxTemp = h('bdi', { class: 'hw-temp', dir: 'ltr' });
+  const wxCond = h('span', { class: 'hw-cond' });
+  const wxNext = h('span', { class: 'hw-next' });
+  const wxIcon = h('span', { class: 'hw-icon' });
+  const wxMini = h('div', { class: 'h-wxm' }, wxIcon, h('span', { class: 'hw-text' }, wxTemp, wxCond, wxNext));
+
+  const el = h('section', { class: 'screen s-home', 'data-screen': 'home', style: '--ground:var(--g-home)' },
     h('div', { class: 'home-grid' },
       h('div', { class: 'h-main' },
         h('div', { class: 'h-dates' }, weekday, greg, hij),
@@ -36,10 +44,12 @@ export function createHome() {
         verse,
         h('div', { class: 'h-clock' }, clock),
         next,
+        prow.el, // themes only: today's prayers in a row
       ),
       h('div', { class: 'rule' }),
       weatherBox,
     ),
+    wxMini, // themes only: the weather in two lines
     h('div', { class: 'band' }),
   );
 
@@ -65,6 +75,7 @@ export function createHome() {
       else if (t < today.imsak) target = { ar: 'الإمساك', at: today.imsak };
       else if (t >= today.maghrib + 30 * 60000) { const tm = prayerDay(t + DAY); if (tm) target = { ar: 'الإمساك', at: tm.imsak }; }
     }
+    prow.update(t);
     const np = target || nextPrayer(t);
     next.style.visibility = np ? 'visible' : 'hidden';
     if (np) {
@@ -87,6 +98,10 @@ export function createHome() {
     const days = w.daily.filter((x) => x.date >= todayKey);
     const today = days[0];
     const ahead = days.slice(1, 6);
+    wxIcon.innerHTML = weatherIcon(d.kind, c.isDay, 64);
+    setText(wxTemp, deg(c.temp));
+    setText(wxCond, d.ar);
+    setText(wxNext, days[1] ? 'غداً ' + deg(days[1].max) + ' · ' + describeWeather(days[1].code).ar : '');
 
     weatherBox.appendChild(h('div', { class: 'w-city' }, config.city));
     weatherBox.appendChild(h('div', { class: 'w-now' },
@@ -155,7 +170,7 @@ export function createHome() {
 
   on('weather', () => { lastMinute = -1; });
   on('settings', () => { lastMinute = -1; });
-  on('prayer', () => tick(now()));
+  on('prayer', () => { prow.reset(); tick(now()); });
 
   return { name: 'home', label: 'الساعة', el, tick, show() { lastMinute = -1; tick(now()); } };
 }

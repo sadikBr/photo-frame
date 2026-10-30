@@ -6,7 +6,7 @@
 // Delivery: a WebSocket to the pulse hub brings each moment at once; if it is down, the frame
 // asks every 8 seconds. Moments it has already shown are remembered, so nothing plays twice.
 import config from './config.js';
-import { h, now, startOfDay, store, hhmm, MINUTE, HOUR } from './util.js';
+import { h, now, parts, startOfDay, store, hhmm, WEEKDAYS, MINUTE, HOUR } from './util.js';
 import { accessKey, DEMO } from './data.js';
 import * as demo from './demo.js';
 import { starPoints } from './icons.js';
@@ -249,7 +249,9 @@ export function createPulse({ stage, isNight, hold, fun, onSocket }) {
     const el = h('div', { class: 'pl-banner k-' + (p.tap || p.kind) },
       h('div', { class: 'pl-icon', html: icon }),
       h('div', { class: 'pl-text' }, gift(p), h('div', { class: 'pl-title' }, title), h('div', { class: 'pl-from' }, fromLine(p)), extra || null),
-      replyButton(p));
+      replyButton(p),
+      // Theme-only (hidden in the original look): the time, for a moment shown full screen.
+      h('div', { class: 'pl-now' }, h('bdi', { dir: 'ltr' }, hhmm(now())), ' ' + WEEKDAYS[parts(now()).wd]));
     layer.appendChild(el);
     el.animate([{ opacity: 0, transform: 'translate(-50%, -24px) scale(.94)' }, { opacity: 1, transform: 'translate(-50%, 0) scale(1)' }],
       { duration: 600, easing: 'cubic-bezier(.2,.9,.3,1.2)', fill: 'both' });

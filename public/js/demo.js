@@ -39,19 +39,21 @@ export function prayerMonth(y, m) {
 
 const DEFAULT_LISTS = {
   tasks: [
-    { id: 't1', text: 'أداء فاتورة الكهرباء', done: false, rid: 'r2' },
-    { id: 't2', text: 'حجز موعد التلقيح للصغيرة', done: false },
+    { id: 't1', text: 'أداء فاتورة الكهرباء', done: false, rid: 'r2', ts: Date.now() },
+    { id: 't2', text: 'موعد تلقيح الصغيرة', done: false },
     { id: 't3', text: 'إرجاع كتب المكتبة', done: false },
     { id: 't5', text: 'سقي النباتات', done: false, rid: 'r1' },
     { id: 't4', text: 'شراء هدية سلمى', done: true },
   ],
   shopping: [
-    { id: 's1', text: 'خبز', done: false },
-    { id: 's2', text: 'نعناع', done: false },
-    { id: 's3', text: 'حليب', done: false },
-    { id: 's4', text: 'زيت الزيتون', done: false },
-    { id: 's5', text: 'طماطم', done: true },
-    { id: 's6', text: 'بيض', done: false },
+    { id: 's1', text: 'خبز', done: false, by: 'من الإطار' },
+    { id: 's3', text: 'حليب', done: false, by: 'ماما' },
+    { id: 's2', text: 'نعناع', done: false, by: 'بابا' },
+    { id: 's6', text: 'بيض', done: false, by: 'ماما' },
+    { id: 's4', text: 'زيت الزيتون', done: false, by: 'سلمى' },
+    { id: 's7', text: 'سكر', done: false, by: 'ماما' },
+    { id: 's8', text: 'صابون', done: false, by: 'بابا' },
+    { id: 's5', text: 'طماطم', done: true, by: 'بابا' },
   ],
 };
 
@@ -62,7 +64,7 @@ export function lists() {
 export function listOp(body) {
   const data = lists();
   const items = data[body.list] || [];
-  if (body.op === 'add') items.unshift({ id: 'd' + Date.now().toString(36), text: body.text, done: false });
+  if (body.op === 'add') items.unshift({ id: 'd' + Date.now().toString(36), text: body.text, done: false, by: body.by });
   if (body.op === 'toggle') { const it = items.find((x) => x.id === body.id); if (it) it.done = !it.done; }
   if (body.op === 'remove') data[body.list] = items.filter((x) => x.id !== body.id);
   else if (body.op === 'clearDone') data[body.list] = items.filter((x) => !x.done);

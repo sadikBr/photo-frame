@@ -11,6 +11,16 @@ const NAMES = ['ماما', 'بابا', 'جدتي', 'جدي', 'خالتي', 'عم
 const MAX_REC = 15; // seconds
 const MAX_POINTS = 7800; // the server keeps 8000
 
+// Small flat icons for the six taps in the control panel (the frame keeps its big drawings).
+const PANEL_TAP = {
+  love: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="#E86C7E"/></svg>',
+  miss: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="none" stroke="#F2AE3D" stroke-width="2"/></svg>',
+  morning: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="#F2AE3D"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="#F2AE3D" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  night: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="#BFD7FF"/></svg>',
+  way: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h14M7 17l1.5-6h7L17 17M9 8h6" fill="none" stroke="#7FD3B5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  news: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.2 5.6L20 9l-5.8 1.5L12 16l-2.2-5.5L4 9l5.8-1.4z" fill="#F2AE3D"/></svg>',
+};
+
 export function initPulse({ api, send, toast, el, $, key, DEMO, showView, playKnock, offset }) {
   let me = store.get('pulse-from', '');
   let visible = false;
@@ -124,7 +134,7 @@ export function initPulse({ api, send, toast, el, $, key, DEMO, showView, playKn
   const taps = $('taps');
   for (const t of TAPS) {
     const b = el('button', { type: 'button', class: 'tap', 'data-tap': t.key },
-      el('span', { class: 'tap-icon', html: tapIcon(t.key, 46) }),
+      el('span', { class: 'tap-icon', html: PANEL_TAP[t.key] || tapIcon(t.key, 46) }),
       el('span', { class: 'tap-label' }, t.button),
       el('span', { class: 'tap-done', html: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' }));
     b.addEventListener('click', async () => {

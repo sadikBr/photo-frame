@@ -1,0 +1,470 @@
+/* Built by tools/build-themes.py from tools/themes/album.css — edit that file, not this one. */
+@font-face { font-family: 'Almarai'; font-weight: 300; font-display: block; src: url('../../fonts/themes/almarai-arabic-300-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Almarai'; font-weight: 300; font-display: block; src: url('../../fonts/themes/almarai-latin-300-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Almarai'; font-weight: 400; font-display: block; src: url('../../fonts/themes/almarai-arabic-400-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Almarai'; font-weight: 400; font-display: block; src: url('../../fonts/themes/almarai-latin-400-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Almarai'; font-weight: 700; font-display: block; src: url('../../fonts/themes/almarai-arabic-700-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Almarai'; font-weight: 700; font-display: block; src: url('../../fonts/themes/almarai-latin-700-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Almarai'; font-weight: 800; font-display: block; src: url('../../fonts/themes/almarai-arabic-800-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Almarai'; font-weight: 800; font-display: block; src: url('../../fonts/themes/almarai-latin-800-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+/* fonts: almarai */
+/* «ألبوم العائلة»: the family's own photos behind every screen — full-bleed on the clock, blurred
+   elsewhere — with frosted-glass panels and white text. The photos come from album.js; with no
+   photos at all the screens fall back to a dusk gradient. */
+
+[data-theme='album'] {
+  --fg: 255, 255, 255;
+  --plaster: rgb(var(--fg));
+  --plaster-2: rgba(var(--fg), 0.78);
+  --plaster-3: rgba(var(--fg), 0.56);
+  --hair: rgba(var(--fg), 0.18);
+  --shade: 20, 16, 40;
+  --saffron: #FFD27A;
+  --accent-rgb: 255, 210, 122;
+  --saffron-ink: #2A1F4A;
+  --garnet-deep: #2A1F4A;
+  --sky: #9DC3FF;
+  --sky-2: #CFE0FF;
+  --sky-rgb: 157, 195, 255;
+  --mint: #8FE3B5;
+  --mint-rgb: 143, 227, 181;
+  --rose: #FF8FA3;
+  --rose-rgb: 255, 143, 163;
+  --deep-rgb: 27, 21, 48;
+  --deep2-rgb: 52, 40, 92;
+  --modal: #1B1530;
+  --menu: rgba(27, 21, 48, 0.94);
+  --banner: rgba(27, 21, 48, 0.94);
+  --chip-bg: #2A2148;
+  --g-home: #1B1530;
+  --g-prayer: #1B1530;
+  --g-lists: #1B1530;
+  --g-calendar: #1B1530;
+  --g-adhkar-m: #1B1530;
+  --g-adhkar-e: #1B1530;
+  --kufi: 'Almarai', 'Readex Pro', sans-serif;
+  --sans: 'Almarai', 'Readex Pro', sans-serif;
+  --ink: #2A1F4A;
+  --glass: rgba(20, 16, 40, 0.42);
+  --glass-edge: rgba(255, 255, 255, 0.2);
+}
+[data-theme='album'] #stage { font-weight: 400; }
+
+/* no photos (yet): a dusk gradient, like the sky over the sea */
+[data-theme='album'] .screen:not(.s-photos) {
+  background-image: linear-gradient(165deg, #2E3A6B 0%, #5B4A8A 38%, #B8687E 72%, #E99A6E 100%);
+}
+[data-theme='album'] .s-adhkar { background-image: linear-gradient(165deg, #22305E 0%, #3E4B86 45%, #6E6AA8 100%); }
+
+/* the photo layers (album.js) */
+[data-theme='album'] .al-photo { position: absolute; inset: 0; }
+[data-theme='album'] .al-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1500ms ease;
+}
+[data-theme='album'] .al-img.is-on { opacity: 1; }
+[data-theme='album'] .al-scrim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 420px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.7));
+}
+[data-theme='album'] .al-blur {
+  position: absolute;
+  left: -40px;
+  top: -40px;
+  width: 1360px;
+  height: 880px;
+  opacity: 0;
+  transition: opacity 1200ms ease;
+}
+[data-theme='album'] .al-on .al-blur { opacity: 1; }
+[data-theme='album'] .t-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 12, 30, 0.3);
+}
+[data-theme='album'] .s-home .t-art::after { display: none; }
+[data-theme='album'] .s-calendar .t-art::after { background: rgba(15, 12, 30, 0.38); }
+
+/* frosted glass: a translucent fill always, plus a blur of what's behind where it's supported */
+[data-theme='album'] .al-chip {
+  position: absolute;
+  top: 36px;
+  right: 40px;
+  z-index: 2;
+  max-width: 620px;
+  height: 48px;
+  padding: 0 20px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 400 20px/1 var(--sans);
+  color: #FFFFFF;
+  white-space: nowrap;
+  background: rgba(20, 16, 40, 0.38);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+[data-theme='album'] .al-chip b { font-weight: 700; }
+[data-theme='album'] .al-chip svg { display: block; }
+
+/* the band: nothing but a soft shadow (the tabs live in the dock) */
+[data-theme='album'] {
+  --dock-scrim: rgba(15, 12, 30, 0.72);
+  --dock-hint: rgba(255, 255, 255, 0.8);
+  --door: #241C3E;
+  --door-photos: #121214;
+  --door-fun: #3A2A12;
+  --door-wifi: #0F3B33;
+  --door-quran: #1B1530;
+  --dock-bottom: 60px;
+}
+[data-theme='album'] .nav .tab[data-for] { --door: #241C3E; }
+[data-theme='album'] .nav .tab[data-for='photos'] { --door: #121214; }
+[data-theme='album'] .band { height: 0; border: 0; background: none; }
+[data-theme='album'] .st-chip,
+[data-theme='album'] .match-chip,
+[data-theme='album'] .qr-chip { background: rgba(20, 16, 40, 0.5); border-color: rgba(255, 255, 255, 0.2); }
+
+/* ---------- clock: the photo, the time big in the corner, the prayers on a glass card ---------- */
+[data-theme='album'] .al-count { font-style: normal; font-weight: 400; }
+[data-theme='album'] .al-dots { position: absolute; left: 0; right: 0; bottom: 20px; z-index: 2; display: flex; justify-content: center; gap: 8px; direction: ltr; }
+[data-theme='album'] .al-dots i { width: 8px; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.5); }
+[data-theme='album'] .al-dots i.is-on { width: 26px; background: #FFFFFF; }
+[data-theme='album'] .s-home .home-grid { display: contents; }
+[data-theme='album'] .s-home .rule,
+[data-theme='album'] .s-home .h-weather { display: none; }
+[data-theme='album'] .s-home .h-main { position: absolute; inset: 0; display: block; }
+/* the glass card behind the next prayer and the day's times */
+[data-theme='album'] .s-home .h-main::before {
+  content: '';
+  position: absolute;
+  left: 40px;
+  bottom: 54px;
+  width: 470px;
+  height: 148px;
+  border-radius: 28px;
+  background: rgba(20, 16, 40, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+[data-theme='album'] .s-home .h-clock {
+  position: absolute;
+  right: 56px;
+  bottom: 54px;
+  margin: 0;
+  font: 800 190px/1 var(--kufi);
+  letter-spacing: -4px;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.35);
+}
+[data-theme='album'] .s-home .h-dates {
+  position: absolute;
+  right: 56px;
+  bottom: 244px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: 30px;
+  line-height: 1.3;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+[data-theme='album'] .s-home .h-weekday { font: 700 30px/1.3 var(--sans); }
+[data-theme='album'] .s-home .h-greg { margin: 0; font-size: 30px; font-weight: 700; color: #FFFFFF; }
+[data-theme='album'] .s-home .h-hijri { margin: 0; font-size: 30px; font-weight: 300; color: rgba(255, 255, 255, 0.85); }
+[data-theme='album'] .s-home .h-hijri::before { content: '·'; margin-left: 8px; }
+[data-theme='album'] .s-home .h-hijri:empty { display: none; }
+[data-theme='album'] .s-home .h-msg,
+[data-theme='album'] .s-home .h-verse {
+  position: absolute;
+  right: 56px;
+  bottom: 296px;
+  width: 640px;
+  max-width: none;
+  font-size: 26px;
+  line-height: 1.45;
+  font-weight: 700;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+[data-theme='album'] .s-home .h-verse { align-items: flex-start; gap: 2px; }
+[data-theme='album'] .s-home .h-verse-text,
+[data-theme='album'] .s-home .h-verse.is-verse .h-verse-text { font: 700 26px/1.45 var(--sans); }
+[data-theme='album'] .s-home .h-verse-ref { font-size: 18px; font-weight: 400; color: rgba(255, 255, 255, 0.85); }
+[data-theme='album'] .s-home .h-msg-icon svg { fill: var(--saffron); }
+
+[data-theme='album'] .s-home .h-next {
+  position: absolute;
+  left: 66px;
+  bottom: 152px;
+  width: 418px;
+  height: 48px;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 40px;
+  line-height: 48px;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+[data-theme='album'] .h-next .h-next-icon { display: none; }
+[data-theme='album'] .h-next .h-next-name,
+[data-theme='album'] .h-next .h-next-time { color: #FFFFFF; font-weight: 800; }
+[data-theme='album'] .h-next .h-next-in { margin-right: auto; font-size: 22px; font-weight: 700; color: var(--saffron); white-space: nowrap; }
+[data-theme='album'] .s-home .h-prayers {
+  position: absolute;
+  left: 66px;
+  bottom: 76px;
+  width: 418px;
+  display: flex;
+  justify-content: space-between;
+}
+[data-theme='album'] .h-prayers .prow-i { display: flex; flex-direction: column; align-items: center; line-height: 1.2; }
+[data-theme='album'] .h-prayers .prow-icon,
+[data-theme='album'] .h-prayers .prow-in { display: none; }
+[data-theme='album'] .h-prayers .prow-name { font-size: 16px; }
+[data-theme='album'] .h-prayers .prow-time { font-size: 22px; font-weight: 700; }
+[data-theme='album'] .h-prayers .is-past { opacity: 0.55; }
+[data-theme='album'] .h-prayers .is-next { color: var(--saffron); }
+
+/* the weather, a glass chip in the top-left corner */
+[data-theme='album'] .s-home .h-wxm {
+  position: absolute;
+  left: 40px;
+  top: 36px;
+  height: 48px;
+  padding: 0 20px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #FFFFFF;
+  background: rgba(20, 16, 40, 0.38);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  --ground: #FFFFFF;
+  --accent: #9DC3FF;
+}
+[data-theme='album'] .h-wxm .hw-icon { display: flex; }
+[data-theme='album'] .h-wxm .hw-icon svg { width: 26px; height: 26px; }
+[data-theme='album'] .h-wxm .hw-text { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+[data-theme='album'] .h-wxm .hw-temp { font-size: 22px; font-weight: 700; }
+[data-theme='album'] .h-wxm .hw-cond { font-size: 18px; opacity: 0.85; }
+[data-theme='album'] .h-wxm .hw-next { display: none; }
+
+/* ---------- prayer: the photo blurred, the next prayer big, five glass tiles ---------- */
+[data-theme='album'] .s-prayer .p-stage { display: none; }
+[data-theme='album'] .s-prayer:not(.is-ramadan) .p-cd { display: none; }
+[data-theme='album'] .s-prayer:not(.is-ramadan) .p-head {
+  top: 56px;
+  left: 0;
+  right: 0;
+  justify-content: center;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+/* «الصلاة القادمة», the name, then «بعد 47 دقيقة · على الساعة 15:27» on one line */
+[data-theme='album'] .s-prayer:not(.is-ramadan) .p-next { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; width: 1100px; text-align: center; }
+[data-theme='album'] .s-prayer:not(.is-ramadan) .p-next::before { content: 'الصلاة القادمة'; flex: 0 0 100%; font-size: 26px; font-weight: 300; line-height: 1.3; opacity: 0.9; }
+[data-theme='album'] .s-prayer.is-now .p-next::before { content: 'حان الآن وقت'; }
+[data-theme='album'] .s-prayer:not(.is-ramadan) .p-name-row { display: contents; }
+[data-theme='album'] .s-prayer:not(.is-ramadan) .p-name { flex: 0 0 100%; }
+[data-theme='album'] .s-prayer .p-name { font: 800 150px/1.15 var(--kufi); color: #FFFFFF; }
+[data-theme='album'] .s-prayer:not(.is-ramadan) .p-in { display: block; font-size: 44px; font-weight: 700; color: var(--saffron); }
+[data-theme='album'] .s-prayer:not(.is-ramadan) .p-at { margin: 0; font-size: 44px; font-weight: 700; color: var(--saffron); }
+[data-theme='album'] .s-prayer:not(.is-ramadan):not(.is-now) .p-at::before { content: '·'; margin: 0 12px; }
+[data-theme='album'] .s-prayer.is-now .p-in { display: none; }
+[data-theme='album'] .s-prayer .p-tiles {
+  display: grid;
+  position: absolute;
+  z-index: 1;
+  top: 450px;
+  left: 64px;
+  right: 64px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 18px;
+}
+[data-theme='album'] .p-tiles .prow-i {
+  height: 220px;
+  border-radius: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(20, 16, 40, 0.36);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+[data-theme='album'] .p-tiles .prow-icon svg { width: 40px; height: 40px; }
+[data-theme='album'] .p-tiles .prow-in { display: none; }
+[data-theme='album'] .p-tiles .prow-name { font-size: 28px; font-weight: 700; }
+[data-theme='album'] .p-tiles .prow-time { font-size: 50px; font-weight: 800; line-height: 1; }
+[data-theme='album'] .p-tiles .is-past { opacity: 0.6; }
+[data-theme='album'] .p-tiles .is-next { background: rgba(255, 255, 255, 0.92); color: var(--ink); opacity: 1; }
+/* along the bottom: the time now, the date, and sunrise */
+[data-theme='album'] .s-prayer .p-clock {
+  display: flex;
+  position: absolute;
+  right: 468px;
+  bottom: 34px;
+  gap: 28px;
+  align-items: baseline;
+  font-size: 20px;
+  opacity: 0.9;
+  white-space: nowrap;
+}
+[data-theme='album'] .p-clock .pc-time,
+[data-theme='album'] .p-clock .pc-date { font-size: 20px; font-weight: 400; }
+[data-theme='album'] .p-tiles .prow-i.is-minor {
+  position: absolute;
+  right: 636px;
+  bottom: -96px;
+  height: auto;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 6px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  font-size: 20px;
+  opacity: 0.9;
+  white-space: nowrap;
+}
+[data-theme='album'] .p-tiles .is-minor .prow-icon { display: none; }
+[data-theme='album'] .p-tiles .is-minor .prow-name,
+[data-theme='album'] .p-tiles .is-minor .prow-time { font-size: 20px; font-weight: 400; line-height: 1.3; }
+[data-theme='album'] .s-prayer.is-ramadan .p-tiles,
+[data-theme='album'] .s-prayer.is-ramadan .p-clock { display: none; }
+[data-theme='album'] .s-prayer.is-ramadan .p-name { font-size: 120px; line-height: 1.1; color: var(--saffron); }
+[data-theme='album'] .s-prayer.is-ramadan .p-head { text-shadow: 0 3px 18px rgba(0, 0, 0, 0.3); }
+[data-theme='album'] .s-prayer .r-stage { bottom: 40px; }
+[data-theme='album'] .r-tile { background: rgba(20, 16, 40, 0.42); border-color: rgba(255, 255, 255, 0.2); }
+[data-theme='album'] .r-tile.is-key { background: rgba(255, 210, 122, 0.18); border-color: rgba(255, 210, 122, 0.55); }
+
+/* ---------- lists: a dark glass card of white pills, a white glass card of tasks ---------- */
+[data-theme='album'] .lists-layout { top: 40px; right: 40px; left: 40px; bottom: 40px; grid-template-columns: minmax(0, 1fr) 520px; column-gap: 40px; }
+[data-theme='album'] .s-lists .rule { display: none; }
+[data-theme='album'] .l-panel { position: relative; border-radius: 34px; }
+[data-theme='album'] .l-head { height: auto; justify-content: space-between; align-items: baseline; }
+[data-theme='album'] .l-title { font: 800 52px/1.3 var(--kufi); }
+[data-theme='album'] .l-shop {
+  padding: 30px 34px 26px;
+  background: rgba(20, 16, 40, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+[data-theme='album'] .l-meta-box { padding: 0; }
+[data-theme='album'] .l-shop .l-meta { font-size: 20px; color: rgba(255, 255, 255, 0.8); }
+[data-theme='album'] .l-hint { display: inline; font-size: 20px; color: rgba(255, 255, 255, 0.8); }
+[data-theme='album'] .l-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 14px;
+  margin-top: 14px;
+  padding-bottom: 0;
+}
+[data-theme='album'] .l-tile {
+  max-width: 100%;
+  height: 76px;
+  padding: 0 26px;
+  gap: 12px;
+  border: 0;
+  border-radius: 38px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.92);
+}
+[data-theme='album'] .l-tile .l-tick { display: none; }
+[data-theme='album'] .l-tile-text { font-size: 30px; font-weight: 700; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-theme='album'] .l-who { display: block; flex: none; font-size: 16px; opacity: 0.7; white-space: nowrap; }
+[data-theme='album'] .l-tile.is-done { background: rgba(255, 255, 255, 0.14); border: 0; color: rgba(255, 255, 255, 0.7); }
+[data-theme='album'] .l-tile.is-done .l-tick { display: flex; width: 22px; height: 22px; border: 0; background: none; color: inherit; }
+[data-theme='album'] .l-tile.is-done .l-tick svg { width: 22px; height: 22px; }
+[data-theme='album'] .l-tile.is-done .l-tile-text { color: rgba(255, 255, 255, 0.7); text-decoration-color: rgba(255, 255, 255, 0.7); }
+[data-theme='album'] .l-shop .l-foot { font-size: 18px; color: rgba(255, 255, 255, 0.75); }
+[data-theme='album'] .l-shop .l-clear { min-height: 48px; border-color: rgba(255, 255, 255, 0.4); font-size: 18px; }
+[data-theme='album'] .l-shop .l-empty { color: rgba(255, 255, 255, 0.8); }
+
+[data-theme='album'] .l-tasks {
+  --fg: 42, 31, 74;
+  --plaster: rgb(var(--fg));
+  --plaster-2: rgba(var(--fg), 0.72);
+  --plaster-3: rgba(var(--fg), 0.55);
+  --hair: #E4E0EE;
+  color: var(--plaster);
+  padding: 30px 32px 96px;
+  background: rgba(255, 255, 255, 0.88);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+[data-theme='album'] .l-tasks .l-meta { display: none; }
+[data-theme='album'] .l-tasks .l-rows { margin-top: 10px; padding-bottom: 0; }
+[data-theme='album'] .l-row { min-height: 84px; padding: 8px 0; gap: 16px; border-bottom: 1px solid var(--hair); }
+[data-theme='album'] .l-rows > .l-row:last-child { border-bottom: 0; }
+[data-theme='album'] .l-row-text { flex: 1; font-size: 27px; font-weight: 700; line-height: 1.25; }
+[data-theme='album'] .l-circle { width: 32px; height: 32px; margin: 0; border: 3px solid var(--ink); }
+[data-theme='album'] .l-row.is-done { min-height: 84px; }
+[data-theme='album'] .l-row.is-done .l-circle { width: 32px; height: 32px; margin: 0; background: var(--ink); border-color: var(--ink); color: #FFFFFF; }
+[data-theme='album'] .l-row.is-done .l-circle svg { width: 18px; height: 18px; }
+[data-theme='album'] .l-row.is-done .l-row-text { font-size: 24px; color: #8F88A8; font-weight: 400; text-decoration-color: #8F88A8; }
+[data-theme='album'] .l-today { display: inline-block; flex: none; padding: 2px 12px; border-radius: 14px; background: #FFD27A; color: var(--ink); font-size: 16px; font-weight: 700; }
+[data-theme='album'] .l-repeat { color: #6B6488; }
+[data-theme='album'] .l-done-head { margin-top: 10px; color: #8F88A8; font-size: 18px; }
+[data-theme='album'] .l-tasks .l-clear { min-height: 44px; padding: 0 18px; border: 2px solid var(--ink); color: var(--ink); font-size: 18px; font-weight: 700; }
+[data-theme='album'] .l-clear.is-armed,
+[data-theme='album'] .l-tasks .l-clear.is-armed { background: var(--saffron); border-color: var(--saffron); color: var(--ink); }
+/* the time at the foot of the tasks card */
+[data-theme='album'] .l-now {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  position: absolute;
+  left: 32px;
+  right: 32px;
+  bottom: 26px;
+}
+[data-theme='album'] .ln-time { font-size: 44px; font-weight: 800; }
+[data-theme='album'] .ln-next { font-size: 20px; color: #6B6488; }
+
+/* ---------- calendar and adhkar on glass ---------- */
+[data-theme='album'] .cal-layout {
+  top: 30px;
+  right: 40px;
+  left: 40px;
+  bottom: 40px;
+  padding: 20px 30px 18px 22px;
+  border-radius: 32px;
+  background: rgba(20, 16, 40, 0.5);
+  border: 1px solid var(--glass-edge);
+}
+[data-theme='album'] .c-month { font-weight: 800; }
+[data-theme='album'] .c-cell.is-weekend { background: rgba(255, 255, 255, 0.05); }
+[data-theme='album'] .c-cell.is-today .c-d { background: #FFFFFF; color: var(--ink); }
+[data-theme='album'] .a-head { text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35); }
+[data-theme='album'] .a-title { font-weight: 800; }
+[data-theme='album'] .a-body { bottom: 96px; }
+[data-theme='album'] .a-dots { bottom: 60px; }
+[data-theme='album'] .a-card { background: rgba(20, 16, 40, 0.5); border: 1px solid var(--glass-edge); border-radius: 32px; }
+[data-theme='album'] .a-text { font-weight: 700; }
+[data-theme='album'] .a-close { background: rgba(20, 16, 40, 0.4); }
+
+/* ---------- overlays ---------- */
+[data-theme='album'] .ph-empty { inset: 0; }
+[data-theme='album'] .fun-scrim,
+[data-theme='album'] .qr .fun-scrim,
+[data-theme='album'] .wf .fun-scrim { background: linear-gradient(165deg, #1F1838 0%, #2A2148 55%, #3A2A55 100%); }
+[data-theme='album'] .fun-menu { border-color: rgba(255, 255, 255, 0.25); }
+[data-theme='album'] .pl-banner { border-color: rgba(255, 255, 255, 0.35); }
+/* the match overlay: a pitch (repeated here so it never shows the screen through) */
+[data-theme='album'] .match {
+  background:
+    linear-gradient(180deg, rgba(4, 18, 12, 0.88) 0%, rgba(4, 18, 12, 0.15) 30%, rgba(4, 18, 12, 0.2) 70%, rgba(4, 18, 12, 0.9) 100%),
+    repeating-linear-gradient(90deg, #0F5E3B 0 80px, #0C5233 80px 160px);
+}

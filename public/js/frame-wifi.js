@@ -23,6 +23,13 @@ export function createWifi({ stage, tab }) {
         h('div', { class: 'wf-icon', html: WIFI_ICON(44) }),
         h('div', { class: 'fun-title' }, 'الواي فاي للضيوف'),
         h('div', { class: 'fun-sub' }, 'افتحوا كاميرا الهاتف ووجّهوها إلى الرمز، ثم المسوا الإشعار للاتصال.'),
+        // Theme-only (hidden in the original look): a welcome and the steps, one per line.
+        h('div', { class: 'wf-hello' }, 'أهلاً بضيوفنا'),
+        h('div', { class: 'wf-lead' }, 'اتصلوا بشبكة البيت بمسح الرمز'),
+        h('ol', { class: 'wf-steps' },
+          h('li', null, h('span', null, '1'), 'افتحوا كاميرا الهاتف'),
+          h('li', null, h('span', null, '2'), 'وجّهوها إلى الرمز المربع'),
+          h('li', null, h('span', null, '3'), 'المسوا «الاتصال بالشبكة»')),
         h('div', { class: 'wf-row' }, h('div', { class: 'wf-label' }, 'الشبكة'), name),
         passRow,
         note)),

@@ -80,24 +80,50 @@ async function loadBoard() {
 }
 
 // ================= tabs =================
-const VIEWS = ['pulse', 'quran', 'fun', 'message', 'lists', 'photos', 'dates', 'settings'];
-function showView(v) {
-  if (!VIEWS.includes(v)) v = 'pulse';
+// Five tabs. «البيت» holds four views (lists, dates, photos, message) under one switcher;
+// «مرح» opens from «نبضة»; the settings are a menu of short pages.
+const VIEWS = ['home', 'pulse', 'quran', 'fun', 'message', 'lists', 'photos', 'dates', 'settings'];
+const HOUSE = ['lists', 'dates', 'photos', 'message'];
+const TAB_OF = { fun: 'pulse', lists: 'house', dates: 'house', photos: 'house', message: 'house' };
+function showView(v, page) {
+  if (!VIEWS.includes(v)) v = 'home';
+  const tab = TAB_OF[v] || v;
   for (const b of document.querySelectorAll('#tabs button')) {
-    const on = b.dataset.view === v;
+    const on = b.dataset.view === tab;
     b.classList.toggle('is-on', on);
     b.setAttribute('aria-selected', String(on));
   }
   for (const name of VIEWS) $('v-' + name).hidden = name !== v;
+  const house = HOUSE.includes(v);
+  $('houseSeg').hidden = !house;
+  $('houseTitle').hidden = !house;
+  for (const b of $('houseSeg').children) b.classList.toggle('is-on', b.dataset.view === v);
+  if (house) store.set('house-view', v);
   store.set('admin-view', v);
+  document.body.dataset.view = v;
   if (v === 'photos') loadPhotos();
+  if (v === 'settings') showSetPage(page || null);
+  if (v === 'home') renderHome();
+  if (v === 'quran' && $('v-quran').dataset.qMode !== 'main') showQ('main');
+  if (v === 'pulse' && tab === 'pulse' && $('v-pulse').dataset.ppMode && !['send', 'feed'].includes($('v-pulse').dataset.ppMode)) showPP('send');
   pulse.shown(v === 'pulse');
   fun.shown(v === 'fun');
   quran.shown(v === 'quran');
   pulse.watch(v === 'fun');
   window.scrollTo(0, 0);
 }
-for (const b of document.querySelectorAll('#tabs button')) b.addEventListener('click', () => showView(b.dataset.view));
+for (const b of document.querySelectorAll('#tabs button')) {
+  b.addEventListener('click', () => showView(b.dataset.view === 'house' ? store.get('house-view', 'lists') : b.dataset.view));
+}
+for (const b of $('houseSeg').children) b.addEventListener('click', () => showView(b.dataset.view));
+// Shortcuts anywhere: data-go="view" (and data-list="tasks"), data-page="settings page".
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-go], [data-page]');
+  if (!t || t.closest('#v-settings')) return;
+  if (t.dataset.page) { showView('settings', t.dataset.page); return; }
+  showView(t.dataset.go);
+  if (t.dataset.list) { list = t.dataset.list; renderLists(); }
+});
 
 // ================= frame status =================
 function renderStatus() {
@@ -107,11 +133,14 @@ function renderStatus() {
   const online = age < 15 * 60000;
   box.classList.toggle('is-online', online);
   box.classList.toggle('is-offline', !online);
-  $('frameStatusText').textContent = !seen
+  const long = !seen
     ? 'لم يتصل الإطار بعد. افتح رابط الإطار مع المفتاح على الجهاز.'
     : online
       ? 'الإطار متصل. يأخذ التغييرات خلال 30 ثانية.'
       : 'الإطار غير متصل منذ ' + durationAr(age) + '. تحقق من الكهرباء أو الويفي.';
+  $('frameStatusText').textContent = !seen ? 'لم يتصل بعد' : online ? 'الإطار متصل' : 'الإطار غير متصل';
+  box.title = long;
+  box.setAttribute('aria-label', long);
 }
 onBoard(renderStatus);
 const keyQuery = () => (key() ? '?key=' + encodeURIComponent(key()) : '');
@@ -158,8 +187,8 @@ function renderLists() {
   const lists = board.lists || { tasks: [], shopping: [] };
   $('nShopping').textContent = (lists.shopping || []).filter((x) => !x.done).length || '';
   $('nTasks').textContent = (lists.tasks || []).filter((x) => !x.done).length || '';
-  for (const b of document.querySelectorAll('.seg button')) b.classList.toggle('is-on', b.dataset.list === list);
-  $('addInput').placeholder = list === 'shopping' ? 'ماذا ينقص البيت؟' : 'مهمة جديدة';
+  for (const b of document.querySelectorAll('#v-lists .seg button')) b.classList.toggle('is-on', b.dataset.list === list);
+  $('addInput').placeholder = list === 'shopping' ? 'أضف شيئاً للشراء…' : 'أضف مهمة…';
 
   const items = (lists[list] || []).slice().sort((a, b) => a.done - b.done);
   const open = new Set(items.filter((x) => !x.done).map((x) => x.text));
@@ -177,25 +206,29 @@ function renderLists() {
       el('button', { type: 'button', class: 'toggle', 'aria-pressed': String(it.done), onclick: () => op({ op: 'toggle', list, id: it.id }) },
         el('span', { class: 'box', html: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg>' }),
         el('span', { class: 'text' }, it.text),
-        it.rid ? el('span', { class: 'rep', title: 'مهمة متكررة', html: REPEAT_SVG }) : null),
+        it.rid ? el('span', { class: 'rep', title: 'مهمة متكررة', html: REPEAT_SVG }) : null,
+        it.by && !it.done ? el('span', { class: 'by' }, it.by) : null),
       el('button', { type: 'button', class: 'del', 'aria-label': 'حذف ' + it.text, onclick: () => op({ op: 'remove', list, id: it.id }),
         html: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>' })));
   }
   const done = items.filter((x) => x.done).length;
   $('clearDone').hidden = !done;
-  $('clearDone').textContent = (list === 'shopping' ? 'إزالة المشترى' : 'حذف المنجزة') + ' (' + done + ')';
+  $('clearDone').textContent = list === 'shopping' ? 'مسح المشترى' : 'حذف المنجزة';
+  if (done) ul.append(el('li', { class: 'clear-row' }, $('clearDone')));
+  else $('items').after($('clearDone'));
   renderRoutines();
 }
 onBoard(renderLists);
 
 async function op(body) {
+  if (body.op === 'add' && pulse.me && pulse.me()) body.by = pulse.me(); // the frame shows who asked
   try {
     board.lists = DEMO ? demo.listOp(body) : await send('/api/lists', 'POST', body);
     renderLists();
     if (body.op === 'add') toast('أُضيف إلى ' + NAMES[body.list]);
   } catch (e) { toast(e.message); }
 }
-for (const b of document.querySelectorAll('.seg button')) b.addEventListener('click', () => { list = b.dataset.list; renderLists(); });
+for (const b of document.querySelectorAll('#v-lists .seg button')) b.addEventListener('click', () => { list = b.dataset.list; renderLists(); });
 $('addForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const text = $('addInput').value.trim();
@@ -224,8 +257,16 @@ function dueAr(iso) {
   return n === 0 ? 'اليوم' : n === 1 ? 'غداً، ' + wd + ' ' + d + ' ' + MONTHS[m - 1] : 'يوم ' + wd + ' ' + d + ' ' + MONTHS[m - 1];
 }
 
+let rtOpen = false;
+$('rtLink').addEventListener('click', () => { rtOpen = true; renderRoutines(); window.scrollTo(0, 0); });
+$('rtBack').addEventListener('click', () => { rtOpen = false; renderRoutines(); });
 function renderRoutines() {
-  $('routinesCard').hidden = list !== 'tasks';
+  $('v-lists').classList.toggle('is-rt', rtOpen);
+  $('routinesCard').hidden = !rtOpen;
+  $('rtBack').hidden = !rtOpen;
+  $('rtLink').hidden = rtOpen;
+  const rs0 = board.routines || [];
+  $('rtSum').textContent = rs0.length ? rs0.map((r) => r.text + ' ' + ruleAr(r)).join(' · ') : 'لا مهام تتكرر بعد';
   if (!rtStartTouched || $('rtStart').value < isoToday()) $('rtStart').value = isoToday();
   rtFormUpdate();
   const ul = $('routineList');
@@ -334,7 +375,7 @@ function renderPhotos() {
 }
 
 async function loadPhotos() {
-  try { photos = (DEMO ? demo.photos() : await api('/api/photos')).photos; renderPhotos(); } catch (e) { toast(e.message); }
+  try { photos = (DEMO ? demo.photos() : await api('/api/photos')).photos; renderPhotos(); if (!$('v-home').hidden) renderHome(); } catch (e) { toast(e.message); }
 }
 
 function loadImage(file) {
@@ -673,6 +714,8 @@ function fillSettings(s) {
 
   $('sQuickShopping').value = (s.quickShopping || config.quickShopping).join('، ');
   $('sQuickTasks').value = (s.quickTasks || config.quickTasks).join('، ');
+  currentTheme = THEME_IDS.includes(s.theme) ? s.theme : 'original';
+  renderThemes();
   $('saveBar').hidden = true;
 }
 
@@ -711,22 +754,48 @@ function collectSettings() {
     dailyVerse: $('sVerse').checked,
     weatherNudge: $('sNudge').checked,
     pulseSound: $('sPulseSound').checked,
+    theme: currentTheme,
   };
 }
 
-function markDirty() { $('saveBar').hidden = false; }
+function markDirty(e) {
+  clearTimeout(saveTimer);
+  // typing waits a little longer than a tap
+  const typing = e && e.target && /^(text|password|number|textarea|time|date)$/.test(e.target.type || e.target.tagName.toLowerCase());
+  saveTimer = setTimeout(saveSettingsNow, typing ? 1400 : 600);
+}
 $('v-settings').addEventListener('input', (e) => {
   if (e.target.id === 'sNightDim') $('sNightDimOut').textContent = Math.round(Number(e.target.value) * 100) + '%';
   if (e.target.id === 'sAdhanVol') $('sAdhanVolOut').textContent = Math.round(Number(e.target.value) * 100) + '%';
   if (e.target.id === 'sAdhkarVol') $('sAdhkarVolOut').textContent = Math.round(Number(e.target.value) * 100) + '%';
   if (e.target.type === 'file') return; // audio uploads save on their own
   if (e.target.id && e.target.id.startsWith('sWifi')) renderWifi();
-  if (e.target.id === 'sNightOff' || e.target.id === 'sNight') renderNightOff();
-  markDirty();
+  if (e.target.id === 'sNightOff' || e.target.id === 'sNight' || e.target.id === 'sNightDim') renderNightOff();
+  markDirty(e);
 });
 
 // ================= night: fully off =================
+for (const [id, off] of [['howDim', false], ['howOff', true]]) {
+  $(id).addEventListener('click', () => {
+    $('sNightOff').checked = off;
+    $('sNightOff').dispatchEvent(new Event('input', { bubbles: true }));
+  });
+}
+function renderNightPreview() {
+  const off = $('sNightOff').checked, dim = Number($('sNightDim').value) || 0;
+  $('howDim').setAttribute('aria-checked', String(!off));
+  $('howOff').setAttribute('aria-checked', String(off));
+  const d = new Date();
+  $('npTime').textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  $('npDate').textContent = WEEKDAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()];
+  const op = off ? 0 : Math.max(0.08, 1 - dim);
+  $('npTime').style.opacity = op.toFixed(2);
+  $('npDate').style.opacity = (op * 0.95).toFixed(2);
+  $('npNote').textContent = !$('sNight').checked ? 'معاينة: الوضع الليلي متوقف' : off ? 'معاينة: الشاشة مطفأة' : 'معاينة: تعتيم ' + Math.round(dim * 100) + '%';
+  $('sNightDimOut').textContent = Math.round(dim * 100) + '%';
+}
 function renderNightOff() {
+  renderNightPreview();
   const off = $('sNightOff').checked;
   $('sNightDim').disabled = off;
   const note = $('nightOffNote');
@@ -757,7 +826,10 @@ $('previewWifi').addEventListener('click', () => {
   if (!(settings.wifi && settings.wifi.ssid)) { toast('اكتب اسم الشبكة واحفظ أولاً.'); return; }
   preview('wifi', 3);
 });
-$('saveSettings').addEventListener('click', async () => {
+// Settings save themselves a moment after each change (the save button stays as a fallback).
+let saveTimer = 0;
+async function saveSettingsNow() {
+  clearTimeout(saveTimer);
   const s = collectSettings();
   if (!Object.values(s.screens).some((x) => x.on)) { toast('اختر شاشة واحدة على الأقل.'); return; }
   if (!isFinite(s.latitude) || !isFinite(s.longitude)) { toast('أدخل خط العرض وخط الطول للمدينة.'); return; }
@@ -765,11 +837,14 @@ $('saveSettings').addEventListener('click', async () => {
   try {
     settings = DEMO ? demo.saveSettings(s) : await send('/api/settings', 'PUT', s);
     board.settings = settings;
-    fillSettings(settings);
+    $('saveBar').hidden = true;
     renderLists();
-    toast('حُفظت الإعدادات. يأخذها الإطار خلال 30 ثانية.');
-  } catch (e) { toast(e.message); }
-});
+    $('setNoteText').textContent = 'حُفظ. يأخذه الإطار خلال 30 ثانية.';
+    clearTimeout(saveSettingsNow.t);
+    saveSettingsNow.t = setTimeout(() => { $('setNoteText').textContent = 'تُحفظ التغييرات وحدها، ويأخذها الإطار خلال 30 ثانية.'; }, 4000);
+  } catch (e) { toast(e.message); $('saveBar').hidden = false; }
+}
+$('saveSettings').addEventListener('click', saveSettingsNow);
 
 let settingsLoaded = false;
 onBoard(() => {
@@ -881,11 +956,237 @@ $('testAdhan').addEventListener('click', () => {
   preview('adhan', 2);
 });
 
+
+// ================= settings: a menu of short pages =================
+const PAGES = [
+  { group: 'الإطار', items: [
+    { id: 'theme', title: 'المظهر', icon: '<path d="M5 20V11a7 7 0 0 1 14 0v9z"/><path d="M9 20v-6a3 3 0 0 1 6 0v6"/>', tone: 'gold', sub: () => themeName(currentTheme) },
+    { id: 'screens', title: 'الشاشات', icon: '<rect x="3" y="4" width="18" height="14" rx="2.5"/><path d="M8 21h8"/>', tone: 'gold', sub: (st) => { const sc = st.screens; const n = sc ? Object.values(sc).filter((x) => x.on).length : 5; return n + ' شاشات تتناوب · اللمس ' + (st.touchNavigation === false ? 'متوقف' : 'مفعّل'); } },
+    { id: 'night', title: 'الوضع الليلي', icon: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>', tone: 'blue', sub: (st) => { const n = Object.assign({}, config.night, st.night); return !n.enabled ? 'متوقف' : n.start + ' – ' + n.end + ' · ' + (n.off ? 'إطفاء كلي' : 'تعتيم ' + Math.round(n.dim * 100) + '%'); } },
+    { id: 'wifi', title: 'الواي فاي للضيوف', icon: '<path d="M2.5 9a14 14 0 0 1 19 0"/><path d="M5.8 12.6a9.2 9.2 0 0 1 12.4 0"/><path d="M9.1 16.1a4.6 4.6 0 0 1 5.8 0"/>', tone: 'green', sub: (st) => (st.wifi && st.wifi.ssid ? st.wifi.ssid : 'لم تُضف شبكة') },
+    { id: 'clock', title: 'شاشة الساعة', icon: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>', tone: 'gold', sub: (st) => (st.dailyVerse === false ? 'بلا آية اليوم' : 'آية أو حديث كل يوم') },
+    { id: 'city', title: 'المدينة والتاريخ', icon: '<path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>', tone: 'gold', sub: (st) => (st.city || config.city) + ' · ' + (st.hijriAdjust ? 'الهجري معدَّل' : 'الهجري كما هو') },
+  ] },
+  { group: 'الصلاة والذكر', items: [
+    { id: 'prayer', title: 'المواقيت والأذان', icon: '<path d="M5 20V11a7 7 0 0 1 14 0v9M3 20h18M12 4V2"/>', tone: 'green', sub: (st) => (st.adhan && st.adhan.enabled ? 'الأذان مفعّل' : 'الأذان متوقف') + (st.prayerFocus === false ? '' : ' · شاشة الصلاة قبل الأذان') },
+    { id: 'adhkar', title: 'الأذكار', icon: '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/>', tone: 'blue', sub: (st) => (st.adhkar && st.adhkar.auto === false ? 'لا تظهر وحدها' : 'بعد الفجر والعصر') },
+    { id: 'ramadan', title: 'رمضان', icon: '<path d="M17 4a8 8 0 1 0 3 12A7 7 0 0 1 17 4z"/>', tone: 'gold', sub: () => $('ramadanWhen').textContent || 'يبدأ وحده' },
+  ] },
+  { group: 'أخرى', items: [
+    { id: 'pulse', title: 'نبضة', icon: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>', tone: 'rose', sub: (st) => (st.pulseSound === false ? 'بلا رنّة' : 'رنّة خفيفة حين تصل') },
+    { id: 'quick', title: 'الإضافة السريعة', icon: '<path d="M12 5v14M5 12h14"/>', tone: 'rose', sub: () => 'أزرار جاهزة للقوائم' },
+  ] },
+];
+const PAGE_TITLE = { theme: 'مظهر الإطار' };
+let setPage = null;
+function renderSetMenu() {
+  const box = $('setMenu');
+  box.textContent = '';
+  for (const g of PAGES) {
+    const card = el('div', { class: 'set-card' });
+    for (const it of g.items) {
+      let sub = '';
+      try { sub = it.sub(settings || {}); } catch (e) { sub = ''; }
+      card.append(el('button', { type: 'button', class: 'set-row', onclick: () => showSetPage(it.id) },
+        el('span', { class: 'set-ic t-' + it.tone, html: '<svg viewBox="0 0 24 24" aria-hidden="true">' + it.icon + '</svg>' }),
+        el('span', { class: 'set-txt' }, el('span', { class: 'set-name' }, it.title), sub ? el('span', { class: 'set-sub' }, sub) : null),
+        el('span', { class: 'set-chev', html: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>' })));
+    }
+    box.append(el('section', { class: 'set-group' }, el('h3', null, g.group), card));
+  }
+}
+function showSetPage(id) {
+  setPage = id;
+  $('setMenu').hidden = !!id;
+  $('setBack').hidden = !id;
+  let title = 'الإعدادات';
+  for (const g of PAGES) for (const it of g.items) if (it.id === id) title = PAGE_TITLE[id] || it.title;
+  $('setTitle').textContent = title;
+  for (const f of document.querySelectorAll('#v-settings [data-page]')) if (f.closest('#v-settings')) f.hidden = f.dataset.page !== id;
+  const SUB = { night: 'في الليل يعرض الإطار الساعة فقط، بإضاءة خافتة.' };
+  $('setSub').hidden = !SUB[id];
+  $('setSub').textContent = SUB[id] || '';
+  $('setTry').hidden = id !== 'theme';
+  $('setNote').hidden = !id || id === 'theme';
+  if (id === 'night') renderNightPreview();
+  if (!id) renderSetMenu();
+  window.scrollTo(0, 0);
+}
+$('setBack').addEventListener('click', () => showSetPage(null));
+$('setTry').addEventListener('click', () => $('tryTheme').click());
+onBoard(() => { if (!setPage) renderSetMenu(); });
+
+// ================= the frame's look =================
+const THEMES = [
+  { id: 'original', name: 'الأصلي', sub: 'التصميم الذي بدأ به الإطار' },
+  { id: 'riad', name: 'رياض', sub: 'نافذة مغربية وزليج' },
+  { id: 'bright', name: 'فاتح', sub: 'أبيض وأزرق فاسي' },
+  { id: 'andalus', name: 'أندلسي', sub: 'جص وأقواس وخط الرقعة' },
+  { id: 'kids', name: 'للأطفال', sub: 'ألوان مرحة ونجوم' },
+  { id: 'sahara', name: 'صحراء', sub: 'كثبان عند الغروب' },
+  { id: 'majorelle', name: 'ماجوريل', sub: 'أزرق ماجوريل وصبّار' },
+  { id: 'album', name: 'ألبوم العائلة', sub: 'كل شيء فوق صوركم' },
+];
+const THEME_IDS = THEMES.map((t) => t.id);
+const themeName = (id) => (THEMES.find((t) => t.id === id) || THEMES[0]).name;
+let currentTheme = 'original';
+function renderThemes() {
+  const box = $('themes');
+  if (!box.children.length) {
+    for (const t of THEMES) {
+      box.append(el('button', { type: 'button', role: 'radio', class: 'theme', 'data-theme': t.id, 'aria-checked': 'false', onclick: () => pickTheme(t.id) },
+        el('span', { class: 'theme-art', html: THEME_ART[t.id] }),
+        el('span', { class: 'theme-name' }, el('span', null, el('b', null, t.name), el('small', null, t.sub)), el('i', { class: 'radio', 'aria-hidden': 'true' }))));
+    }
+  }
+  for (const b of box.children) b.setAttribute('aria-checked', String(b.dataset.theme === currentTheme));
+}
+async function pickTheme(id) {
+  if (id === currentTheme) return;
+  const was = currentTheme;
+  currentTheme = id;
+  renderThemes();
+  try {
+    const next = Object.assign({}, settings, { theme: id });
+    settings = DEMO ? demo.saveSettings(next) : await send('/api/settings', 'PUT', next);
+    board.settings = settings;
+    toast('اخترت «' + themeName(id) + '». يتغيّر الإطار خلال 30 ثانية.');
+  } catch (e) { currentTheme = was; renderThemes(); toast(e.message); }
+}
+$('tryTheme').addEventListener('click', async () => {
+  try {
+    board.preview = DEMO ? null : await send('/api/preview', 'POST', { what: 'theme', theme: currentTheme, minutes: 1 });
+    toast('يظهر «' + themeName(currentTheme) + '» على الإطار لدقيقة، خلال 30 ثانية.');
+  } catch (e) { toast(e.message); }
+});
+const THEME_ART = {
+  "original": "<svg viewBox=\"0 0 112 70\" direction=\"ltr\" aria-hidden=\"true\"> <rect width=\"154\" height=\"96\" fill=\"#1C1A26\"></rect> <text x=\"56\" y=\"34\" text-anchor=\"middle\" font-family=\"Readex Pro, sans-serif\" font-size=\"22\" font-weight=\"600\" fill=\"#FFFFFF\">14:40</text> <rect x=\"22\" y=\"44\" width=\"68\" height=\"4\" rx=\"2\" fill=\"#5E5A70\"></rect> <g fill=\"#2E2B3C\"><rect x=\"10\" y=\"54\" width=\"26\" height=\"10\" rx=\"3\"></rect><rect x=\"43\" y=\"54\" width=\"26\" height=\"10\" rx=\"3\"></rect><rect x=\"76\" y=\"54\" width=\"26\" height=\"10\" rx=\"3\"></rect></g> <rect x=\"43\" y=\"54\" width=\"26\" height=\"10\" rx=\"3\" fill=\"#F2AE3D\"></rect> </svg>",
+  "riad": "<svg viewBox=\"0 0 112 70\" direction=\"ltr\" aria-hidden=\"true\"> <defs><linearGradient id=\"thR2\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#F6B76A\"></stop><stop offset=\"1\" stop-color=\"#7FA9D9\"></stop></linearGradient></defs> <rect width=\"154\" height=\"96\" fill=\"#142060\"></rect> <path d=\"M8 58 V22 A12 12 0 0 1 20 10 H48 A12 12 0 0 1 60 22 V58 Z\" fill=\"none\" stroke=\"#C9A45A\" stroke-width=\"1.2\"></path> <path d=\"M12 58 V24 Q12 13 34 12 Q56 13 56 24 V58 Z\" fill=\"url(#thR2)\"></path> <text x=\"34\" y=\"44\" text-anchor=\"middle\" font-family=\"Readex Pro, sans-serif\" font-size=\"13\" font-weight=\"600\" fill=\"#142060\">14:40</text> <g fill=\"#E9DFC8\"><rect x=\"68\" y=\"16\" width=\"34\" height=\"5\" rx=\"2\"></rect><rect x=\"68\" y=\"26\" width=\"26\" height=\"4\" rx=\"2\" opacity=\"0.6\"></rect><rect x=\"68\" y=\"34\" width=\"30\" height=\"4\" rx=\"2\" opacity=\"0.6\"></rect></g> <rect y=\"58\" width=\"112\" height=\"12\" fill=\"#0E1748\"></rect> <g fill=\"#C9A45A\"><path d=\"M0 58 H112 V59.5 H0 Z\"></path><path d=\"M6 64 l3-3 3 3-3 3z M22 64 l3-3 3 3-3 3z M38 64 l3-3 3 3-3 3z M54 64 l3-3 3 3-3 3z M70 64 l3-3 3 3-3 3z M86 64 l3-3 3 3-3 3z M102 64 l3-3 3 3-3 3z\"></path></g> </svg>",
+  "bright": "<svg viewBox=\"0 0 112 70\" direction=\"ltr\" aria-hidden=\"true\"> <rect width=\"154\" height=\"96\" fill=\"#F3F6FB\"></rect> <circle cx=\"34\" cy=\"32\" r=\"22\" fill=\"#FFFFFF\" stroke=\"#1F48A8\" stroke-width=\"3\"></circle> <path d=\"M14 26 A22 22 0 0 1 52 20\" fill=\"none\" stroke=\"#F2B84B\" stroke-width=\"3\"></path> <text x=\"34\" y=\"37\" text-anchor=\"middle\" font-family=\"Readex Pro, sans-serif\" font-size=\"12\" font-weight=\"600\" fill=\"#12205C\">14:40</text> <g fill=\"#C9D4EC\"><rect x=\"66\" y=\"14\" width=\"36\" height=\"9\" rx=\"3\"></rect><rect x=\"66\" y=\"27\" width=\"36\" height=\"9\" rx=\"3\"></rect></g> <rect x=\"66\" y=\"40\" width=\"36\" height=\"9\" rx=\"3\" fill=\"#1F48A8\"></rect> <rect y=\"59\" width=\"112\" height=\"11\" fill=\"#1F48A8\"></rect> <g fill=\"none\" stroke=\"#F3F6FB\" stroke-width=\"1\"><path d=\"M0 70 A8 8 0 0 1 16 70 M16 70 A8 8 0 0 1 32 70 M32 70 A8 8 0 0 1 48 70 M48 70 A8 8 0 0 1 64 70 M64 70 A8 8 0 0 1 80 70 M80 70 A8 8 0 0 1 96 70 M96 70 A8 8 0 0 1 112 70\"></path></g> </svg>",
+  "andalus": "<svg viewBox=\"0 0 112 70\" direction=\"ltr\" aria-hidden=\"true\"> <rect width=\"154\" height=\"96\" fill=\"#EEE5D3\"></rect> <rect x=\"30\" y=\"4\" width=\"52\" height=\"50\" fill=\"#1E4A3B\"></rect> <path d=\"M34 54 V22 A4 4 0 0 1 38 17 A5 5 0 0 1 45 12 A6 6 0 0 1 56 9 A6 6 0 0 1 67 12 A5 5 0 0 1 74 17 A4 4 0 0 1 78 22 V54 Z\" fill=\"#F7F1E4\" stroke=\"#C9A45A\" stroke-width=\"0.8\"></path> <text x=\"56\" y=\"40\" text-anchor=\"middle\" font-family=\"Amiri, serif\" font-size=\"13\" font-weight=\"700\" fill=\"#2B2118\">14:40</text> <g fill=\"#D2C09A\"><rect x=\"6\" y=\"14\" width=\"18\" height=\"3\" rx=\"1.5\"></rect><rect x=\"6\" y=\"22\" width=\"18\" height=\"3\" rx=\"1.5\"></rect><rect x=\"88\" y=\"14\" width=\"18\" height=\"3\" rx=\"1.5\"></rect><rect x=\"88\" y=\"22\" width=\"18\" height=\"3\" rx=\"1.5\"></rect></g> <rect y=\"54\" width=\"112\" height=\"8\" fill=\"#1E4A3B\"></rect> <rect y=\"62\" width=\"112\" height=\"8\" fill=\"#EEE5D3\"></rect> <g fill=\"#1E4A3B\"><path d=\"M4 66 l4-4 4 4-4 4z M20 66 l4-4 4 4-4 4z M36 66 l4-4 4 4-4 4z M52 66 l4-4 4 4-4 4z M68 66 l4-4 4 4-4 4z M84 66 l4-4 4 4-4 4z M100 66 l4-4 4 4-4 4z\"></path></g> </svg>",
+  "kids": "<svg viewBox=\"0 0 112 70\" direction=\"ltr\" aria-hidden=\"true\"> <rect width=\"154\" height=\"96\" fill=\"#A9DCFF\"></rect> <circle cx=\"96\" cy=\"12\" r=\"7\" fill=\"#FFD23F\"></circle> <path d=\"M0 52 C 30 42, 60 46, 112 48 V70 H0 Z\" fill=\"#7ED07A\"></path> <path d=\"M0 58 C 40 54, 70 62, 112 56 V70 H0 Z\" fill=\"#5BBE6A\"></path> <circle cx=\"30\" cy=\"30\" r=\"20\" fill=\"#FF6B57\"></circle> <circle cx=\"30\" cy=\"30\" r=\"16\" fill=\"#FFFFFF\"></circle> <line x1=\"30\" y1=\"30\" x2=\"40\" y2=\"28\" stroke=\"#7B6CF6\" stroke-width=\"3\" stroke-linecap=\"round\"></line> <line x1=\"30\" y1=\"30\" x2=\"20\" y2=\"36\" stroke=\"#FF9F1C\" stroke-width=\"2.4\" stroke-linecap=\"round\"></line> <g><circle cx=\"62\" cy=\"62\" r=\"4\" fill=\"#7B6CF6\"></circle><circle cx=\"76\" cy=\"60\" r=\"4\" fill=\"#FF9F1C\"></circle><circle cx=\"90\" cy=\"62\" r=\"5\" fill=\"#FF6B57\" stroke=\"#FFD23F\" stroke-width=\"1.5\"></circle></g> <rect x=\"58\" y=\"22\" width=\"40\" height=\"12\" rx=\"6\" fill=\"#1F2A44\"></rect> </svg>",
+  "sahara": "<svg viewBox=\"0 0 112 70\" direction=\"ltr\" aria-hidden=\"true\"> <rect width=\"112\" height=\"70\" fill=\"#F8E2C2\"></rect> <circle cx=\"30\" cy=\"30\" r=\"12\" fill=\"#FBD08C\"></circle> <text x=\"96\" y=\"30\" text-anchor=\"end\" font-family=\"Rakkas, serif\" font-size=\"18\" fill=\"#4A2414\">14:40</text> <path d=\"M0 46 C 20 38, 40 42, 56 44 S 90 36, 112 40 V70 H0 Z\" fill=\"#E7B074\"></path> <path d=\"M0 54 C 30 50, 60 56, 112 52 V70 H0 Z\" fill=\"#A9622F\"></path> <rect y=\"62\" width=\"112\" height=\"8\" fill=\"#A8322A\"></rect> <g fill=\"none\" stroke=\"#F6DDB8\" stroke-width=\"1\"><path d=\"M8 66 l4 -3 4 3 -4 3z M28 66 l4 -3 4 3 -4 3z M48 66 l4 -3 4 3 -4 3z M68 66 l4 -3 4 3 -4 3z M88 66 l4 -3 4 3 -4 3z\"></path></g> </svg>",
+  "majorelle": "<svg viewBox=\"0 0 112 70\" direction=\"ltr\" aria-hidden=\"true\"> <rect width=\"112\" height=\"70\" fill=\"#4537C8\"></rect> <rect x=\"8\" y=\"6\" width=\"30\" height=\"38\" fill=\"#5E9E6E\"></rect> <path d=\"M8 6 H38 V44 H8 Z M23 6 V44 M8 25 H38\" fill=\"none\" stroke=\"#F4C430\" stroke-width=\"2\"></path> <g fill=\"#D9418C\"><circle cx=\"6\" cy=\"6\" r=\"3\"></circle><circle cx=\"12\" cy=\"3\" r=\"3\"></circle><circle cx=\"4\" cy=\"12\" r=\"2.5\"></circle></g> <text x=\"104\" y=\"28\" text-anchor=\"end\" font-family=\"El Messiri, serif\" font-size=\"17\" font-weight=\"700\" fill=\"#FFFFFF\">14:40</text> <g fill=\"#2F6B4F\"><rect x=\"20\" y=\"44\" width=\"6\" height=\"12\" rx=\"3\"></rect><ellipse cx=\"56\" cy=\"52\" rx=\"6\" ry=\"5\"></ellipse><rect x=\"88\" y=\"44\" width=\"6\" height=\"12\" rx=\"3\"></rect></g> <g fill=\"#F4C430\"><path d=\"M14 56 H32 L30 64 H16 Z M47 56 H65 L63 64 H49 Z M82 56 H100 L98 64 H84 Z\"></path></g> <rect x=\"47\" y=\"55\" width=\"18\" height=\"2.5\" fill=\"#D9418C\"></rect> <rect y=\"65\" width=\"112\" height=\"5\" fill=\"#2E2490\"></rect> </svg>",
+  "album": "<svg viewBox=\"0 0 112 70\" direction=\"ltr\" aria-hidden=\"true\"> <defs><linearGradient id=\"thA2\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#2E3A6B\"></stop><stop offset=\"0.5\" stop-color=\"#C8687A\"></stop><stop offset=\"0.7\" stop-color=\"#F6B26B\"></stop></linearGradient></defs> <rect width=\"112\" height=\"70\" fill=\"url(#thA2)\"></rect> <circle cx=\"72\" cy=\"40\" r=\"6\" fill=\"#FFD9A0\"></circle> <rect y=\"42\" width=\"112\" height=\"14\" fill=\"#3B4C7A\"></rect> <path d=\"M0 56 C 30 52, 70 55, 112 53 V70 H0 Z\" fill=\"#B98457\"></path> <path d=\"M14 70 C 15 56, 18 46, 22 38 L23 38 C 20 48, 17 58, 17 70 Z M22 38 C 16 34, 10 34, 5 36 C 12 36, 17 37, 22 40 Z M22 38 C 27 33, 33 33, 38 35 C 32 36, 27 37, 23 40 Z\" fill=\"#1B1530\"></path> <rect x=\"60\" y=\"54\" width=\"46\" height=\"12\" rx=\"6\" fill=\"#FFFFFF\" opacity=\"0.85\"></rect> <text x=\"104\" y=\"30\" text-anchor=\"end\" font-family=\"Almarai, sans-serif\" font-size=\"15\" font-weight=\"800\" fill=\"#FFFFFF\">14:40</text> </svg>"
+};
+
+// ================= home: today at a glance =================
+const HQ_PLAY = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>';
+const HQ_PAUSE = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>';
+function renderHomeQuran() {
+  const n = quran.nowInfo && quran.nowInfo();
+  $('homeQuran').hidden = !n;
+  if (!n) return;
+  $('hqName').textContent = n.name;
+  $('hqSub').textContent = n.reciter + (n.paused ? ' · متوقفة مؤقتاً' : '');
+  $('hqTime').textContent = n.dur ? n.mmss(n.pos) + ' / ' + n.mmss(n.dur) : '';
+  $('hqTime').dir = 'ltr';
+  $('hqBar').style.width = n.dur ? Math.min(100, (100 * n.pos) / n.dur).toFixed(1) + '%' : '0';
+  $('hqPlay').innerHTML = n.paused ? HQ_PLAY : HQ_PAUSE;
+  $('hqPlay').setAttribute('aria-label', n.paused ? 'متابعة' : 'إيقاف مؤقت');
+}
+$('hqPlay').addEventListener('click', async () => { await quran.toggle(); renderHomeQuran(); });
+$('hqStop').addEventListener('click', async () => { await quran.stop(); renderHomeQuran(); });
+setInterval(() => { if (!$('v-home').hidden) renderHomeQuran(); }, 1000);
+setInterval(() => { if (!$('v-home').hidden && document.visibilityState === 'visible') quran.load(); }, 8000);
+// The three quick taps send at once, like on the «نبضة» page.
+for (const b of document.querySelectorAll('[data-send-tap]')) {
+  b.addEventListener('click', () => { const t = $('taps').querySelector('[data-tap="' + b.dataset.sendTap + '"]'); if (t) t.click(); });
+}
+$('homeWifi').addEventListener('click', () => {
+  if (!(settings.wifi && settings.wifi.ssid)) { showView('settings', 'wifi'); return; }
+  preview('wifi', 3);
+});
+function renderHome() {
+  const h = new Date().getHours();
+  const me = (pulse.me && pulse.me()) || '';
+  $('homeHello').textContent = (h < 12 ? 'صباح الخير' : 'مساء الخير') + (me ? ' يا ' + me : '');
+  const d = new Date();
+  const hj = hijri(Date.now() + (config.hijriAdjust || 0) * DAY);
+  $('homeDate').textContent = WEEKDAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + (hj ? ' · ' + hj.d + ' ' + HIJRI_MONTHS[hj.m - 1] : '');
+  const m = board.message;
+  const active = m && m.text && (!m.until || m.until > Date.now());
+  $('homeMsg').textContent = active ? m.text : 'لا رسالة الآن';
+  const np = photos ? photos.length : null;
+  if (typeof np === 'number') $('homePhotos').textContent = np ? np + ' صورة' : 'لا صور بعد';
+  $('homeWifiSub').textContent = settings.wifi && settings.wifi.ssid ? 'اعرض الرمز للضيوف' : 'أضف شبكة الضيوف';
+  const lists = board.lists || { tasks: [], shopping: [] };
+  const shop = (lists.shopping || []).filter((x) => !x.done);
+  $('homeShop').textContent = '';
+  if (shop.length) {
+    $('homeShop').append(shop.slice(0, 3).map((x) => x.text).join('، '));
+    if (shop.length > 3) $('homeShop').append(' ', el('span', { class: 'ht-more' }, 'و' + (shop.length - 3) + ' أخرى'));
+  } else $('homeShop').append('لا شيء ينقص البيت');
+  const today = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+  const evs = (board.events || []).filter((e) => !e.src).map((e) => ({ e, at: nextOccurrence(e, today) })).filter((x) => x.at >= today).sort((a, b) => a.at - b.at);
+  $('homeNext').textContent = '';
+  if (evs.length) $('homeNext').append(evs[0].e.name + ' ', el('span', { class: 'ht-more' }, '· ' + daysAway(Math.round((evs[0].at - today) / DAY))));
+  else $('homeNext').append('لا مناسبات قريبة');
+  renderThemes();
+  renderHomeQuran();
+}
+onBoard(() => { if (!$('v-home').hidden) renderHome(); });
+
+
+// ================= «نبضة»: send, the latest, and a page for each kind =================
+function showPP(mode) {
+  const v = $('v-pulse');
+  v.dataset.ppMode = mode;
+  for (const b of v.querySelectorAll('.pp-seg [data-pp-go]')) b.setAttribute('aria-selected', String(b.dataset.ppGo === mode));
+  $('ppBack').hidden = mode === 'send' || mode === 'feed';
+  window.scrollTo(0, 0);
+}
+$('v-pulse').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-pp-go]');
+  if (b) showPP(b.dataset.ppGo);
+});
+$('ppBack').addEventListener('click', () => showPP('send'));
+$('ppLater').addEventListener('change', () => { $($('ppLater').checked ? 'whenLater' : 'whenNow').click(); });
+new MutationObserver(() => { $('ppLater').checked = $('whenLater').classList.contains('is-on'); }).observe($('whenLater'), { attributes: true, attributeFilter: ['class'] });
+function renderPulseHead() {
+  const me = pulse.me && pulse.me();
+  $('pulseSub').textContent = 'تصل إلى الإطار خلال ثانيتين' + (me ? ' · باسم «' + me + '»' : '');
+  // how many moments today
+  let n = 0, today = false;
+  for (const li of $('pulseFeed').children) {
+    if (li.classList.contains('feed-day')) { today = li.textContent === 'اليوم'; continue; }
+    if (today) n++;
+  }
+  $('ppBadge').hidden = !n;
+  $('ppBadge').textContent = n;
+  const st = $('statusNow');
+  $('ppStatusSub').textContent = st && !st.hidden && st.textContent.trim() ? st.textContent.trim().slice(0, 40) : 'شارك ما تفعله الآن';
+}
+new MutationObserver(renderPulseHead).observe($('pulseFeed'), { childList: true });
+new MutationObserver(renderPulseHead).observe($('statusNow'), { childList: true, attributes: true, subtree: true });
+showPP('send');
+renderPulseHead();
+
+
+// ================= «القرآن»: the main page, the whole list, set times =================
+function showQ(mode) {
+  const v = $('v-quran');
+  v.dataset.qMode = mode;
+  window.scrollTo(0, 0);
+}
+$('v-quran').addEventListener('click', (e) => { const b = e.target.closest('[data-q-go]'); if (b) showQ(b.dataset.qGo); });
+$('qnPlayAll2').addEventListener('click', () => $('qnPlayAll').click());
+function renderQuranExtras() {
+  const n = $('qnFavs').children.length;
+  $('qnMore').textContent = n > 3 ? 'عرض ' + (n <= 10 ? ['', '', '', '', 'الأربع', 'الخمس', 'الست', 'السبع', 'الثماني', 'التسع', 'العشر'][n] + ' كلها' : 'القائمة كلها') + ' وإضافة سورة' : 'إضافة سورة';
+  const rows = [...$('qnSched').children].filter((li) => !li.classList.contains('empty'));
+  $('qnSchedSum').textContent = rows.length ? rows.map((li) => (li.querySelector('.qn-sw span') || li).textContent.trim().replace(' · ', ' ')).join(' · ').slice(0, 60) : 'لا أوقات بعد';
+}
+new MutationObserver(renderQuranExtras).observe($('qnFavs'), { childList: true });
+new MutationObserver(renderQuranExtras).observe($('qnSched'), { childList: true, subtree: true });
+showQ('main');
+
 // ================= start =================
 const fromHash = (location.hash || '').slice(1);
-showView(VIEWS.includes(fromHash) ? fromHash : store.get('admin-view', 'pulse'));
+showView(VIEWS.includes(fromHash) ? fromHash : store.get('admin-view', 'home'));
 window.addEventListener('hashchange', () => { const v = location.hash.slice(1); if (VIEWS.includes(v)) showView(v); });
 loadBoard();
+loadPhotos();
 takeShared();
 setInterval(() => { if (document.visibilityState === 'visible') loadBoard(); }, 15000);
 setInterval(() => { renderStatus(); renderMessage(); }, 60000);

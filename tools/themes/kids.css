@@ -1,0 +1,626 @@
+/* fonts: baloo-bhaijaan-2 */
+/* «للأطفال»: a sunny day on green hills. A big colourful clock that shows how long until the
+   next prayer, the prayers as stops along a path, sticker tiles for shopping and a star chart
+   for tasks. Dark ink on light grounds everywhere. Mockups: T3-Kids-Clock / Prayer / Lists. */
+
+[data-theme='kids'] {
+  --fg: 31, 42, 68;
+  --plaster: rgb(var(--fg));
+  --plaster-2: rgba(var(--fg), 0.72);
+  --plaster-3: rgba(var(--fg), 0.5);
+  --hair: rgba(var(--fg), 0.14);
+  --shade: 255, 255, 255;
+  --saffron: #7B6CF6;
+  --accent-rgb: 123, 108, 246;
+  --saffron-ink: #FFFFFF;
+  --garnet: #6A5BE0;
+  --garnet-deep: #FFFFFF;
+  --sky: #2F8FD8;
+  --sky-2: #1F72B5;
+  --sky-rgb: 79, 168, 232;
+  --mint: #23863C;
+  --mint-rgb: 91, 190, 106;
+  --rose: #D63F6E;
+  --rose-rgb: 255, 143, 177;
+  --deep-rgb: 214, 236, 255;
+  --deep2-rgb: 236, 232, 255;
+  --modal: #EAF6FF;
+  --menu: rgba(255, 255, 255, 0.97);
+  --banner: rgba(255, 255, 255, 0.97);
+  --chip-bg: #FFFFFF;
+  --g-home: #A9DCFF;
+  --g-prayer: #F1EEFF;
+  --g-lists: #FFF4D1;
+  --g-calendar: #EEF7FF;
+  --g-adhkar-m: #FFF4D1;
+  --g-adhkar-e: #ECE8FF;
+  --kufi: 'Baloo Bhaijaan 2', sans-serif;
+  --sans: 'Baloo Bhaijaan 2', sans-serif;
+  /* the dock: light doors over a dimmed screen */
+  --dock-scrim: rgba(31, 42, 68, 0.62);
+  --dock-hint: #FFFFFF;
+  --door-fun: #FFF4D1;
+  --door-wifi: #E3F6E6;
+  --k-coral: #FF6B57;
+  --k-ink-coral: #E9503B;
+  --k-purple: #7B6CF6;
+  --k-sun: #FFD23F;
+  --k-orange: #FF9F1C;
+  --k-pink: #FF8FB1;
+  --k-green: #5BBE6A;
+  --k-night: #3D4A8F;
+  --k-muted: #5A5F80;
+}
+[data-theme='kids'] #stage { font-weight: 500; }
+
+/* confetti on the plain screens */
+[data-theme='kids'] .screen {
+  background-image: svg(<svg width="220" height="220"><g opacity="0.5"><rect x="30" y="24" width="12" height="12" rx="3" fill="#FFD23F" transform="rotate(20 36 30)"/><circle cx="150" cy="40" r="6" fill="#FF8FB1"/><rect x="96" y="120" width="11" height="11" rx="3" fill="#5BBE6A" transform="rotate(-15 101 125)"/><circle cx="190" cy="150" r="7" fill="#FF9F1C"/><circle cx="40" cy="180" r="5" fill="#7B6CF6"/></g></svg>);
+}
+[data-theme='kids'] .s-home,
+[data-theme='kids'] .s-prayer,
+[data-theme='kids'] .s-photos { background-image: none; }
+[data-theme='kids'] .s-lists {
+  background-image: svg(<svg width="32" height="32"><circle cx="16" cy="16" r="2" fill="#F2DC9A"/></svg>);
+}
+
+/* grass along the bottom of the calendar and adhkar; the clock, prayer and lists screens run to
+   the edge like the mockups */
+[data-theme='kids'] .band {
+  height: 84px;
+  border: 0;
+  background-color: transparent;
+  background-position: center top;
+  background-image: svg(<svg width="120" height="84"><path d="M0 14 Q15 2 30 14 T60 14 T90 14 T120 14 V84 H0 Z" fill="#5BBE6A"/><path d="M0 34 Q30 26 60 34 T120 34" fill="none" stroke="#7ED07A" stroke-width="5" stroke-linecap="round"/><circle cx="22" cy="56" r="5" fill="#FFFFFF"/><circle cx="22" cy="56" r="2.4" fill="#FFD23F"/><circle cx="86" cy="70" r="5" fill="#FFFFFF"/><circle cx="86" cy="70" r="2.4" fill="#FF8FB1"/></svg>);
+}
+[data-theme='kids'] .s-home .band,
+[data-theme='kids'] .s-prayer .band,
+[data-theme='kids'] .s-lists .band { display: none; }
+[data-theme='kids'] .nav .tab { font-weight: 700; }
+[data-theme='kids'] .status { color: #1F2A44; font-weight: 700; }
+
+/* ---------- clock (T3-Kids-Clock) ---------- */
+[data-theme='kids'] .s-home .home-grid,
+[data-theme='kids'] .s-home .h-main,
+[data-theme='kids'] .s-home .h-prayers { display: contents; }
+[data-theme='kids'] .s-home .rule,
+[data-theme='kids'] .s-home .h-weather { display: none; }
+
+/* the sun's speech bubble: "العصر بعد 47 دقيقة!" */
+[data-theme='kids'] .s-home .h-next {
+  position: absolute;
+  right: 236px;
+  top: 56px;
+  padding: 14px 30px 16px;
+  border-radius: 36px;
+  background: #FFFFFF;
+  box-shadow: 0 6px 0 #7FBCE8;
+  gap: 11px;
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--k-coral);
+  white-space: nowrap;
+}
+[data-theme='kids'] .s-home .h-next::before {
+  content: '';
+  position: absolute;
+  right: -26px;
+  top: 30px;
+  width: 36px;
+  height: 30px;
+  background-image: svg(<svg width="36" height="30"><path d="M0 2 L36 14 L0 28 Z" fill="#FFFFFF"/></svg>);
+}
+[data-theme='kids'] .s-home .h-next::after { content: '!'; margin-right: -11px; }
+[data-theme='kids'] .s-home .h-next-icon,
+[data-theme='kids'] .s-home .h-next-time { display: none; }
+[data-theme='kids'] .s-home .h-next-name { color: var(--k-coral); font-weight: 800; }
+
+[data-theme='kids'] .s-home .h-dates {
+  position: absolute;
+  right: 64px;
+  top: 220px;
+  width: 600px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+[data-theme='kids'] .s-home .h-weekday { flex: 0 0 100%; font: 800 96px/1.1 var(--kufi); color: var(--k-purple); }
+[data-theme='kids'] .s-home .h-greg,
+[data-theme='kids'] .s-home .h-hijri { margin: 0; font-size: 28px; font-weight: 600; line-height: 1.5; color: #1F2A44; }
+[data-theme='kids'] .s-home .h-hijri::before { content: '·'; padding: 0 8px; }
+
+[data-theme='kids'] .s-home .h-clock,
+[data-theme='kids'] .s-home.has-msg .h-clock {
+  position: absolute;
+  right: 64px;
+  top: 396px;
+  width: 268px;
+  height: 108px;
+  margin: 0;
+  border-radius: 30px;
+  background: #1F2A44;
+  color: var(--k-sun);
+  font: 800 84px/112px var(--kufi);
+  letter-spacing: 0;
+  text-align: center;
+}
+
+[data-theme='kids'] .s-home .h-wxm {
+  position: absolute;
+  right: 350px;
+  top: 396px;
+  height: 108px;
+  padding: 0 24px;
+  border-radius: 30px;
+  background: #FFFFFF;
+  box-shadow: 0 6px 0 #7FBCE8;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #1F2A44;
+  --accent: #FFD23F;
+  --ground: #D6EFFF;
+}
+[data-theme='kids'] .h-wxm .hw-icon { flex: none; display: flex; color: #4FA8E8; }
+[data-theme='kids'] .h-wxm .hw-icon svg { width: 62px; height: 62px; stroke-width: 3; }
+[data-theme='kids'] .h-wxm .hw-text { display: flex; flex-direction: column; line-height: 1.1; }
+[data-theme='kids'] .h-wxm .hw-temp { font-size: 44px; font-weight: 800; text-align: right; }
+[data-theme='kids'] .h-wxm .hw-cond { font-size: 18px; font-weight: 600; color: #4A5878; white-space: nowrap; }
+[data-theme='kids'] .h-wxm .hw-next { display: none; }
+
+/* text drawn by kids.js inside the clock face and the sky */
+[data-theme='kids'] .kd-num { font: 800 28px var(--kufi); }
+[data-theme='kids'] .kd-until { font: 700 19px var(--kufi); stroke-width: 6px; paint-order: stroke; }
+[data-theme='kids'] .kd-zzz { font: 800 26px var(--kufi); fill: #6A5BE0; }
+[data-theme='kids'] .kd-zzz2 { font-size: 20px; }
+
+/* the family's message or the verse (not in the mockup): a small note on the hill */
+[data-theme='kids'] .s-home .h-msg,
+[data-theme='kids'] .s-home .h-verse {
+  position: absolute;
+  right: 64px;
+  top: 530px;
+  width: auto;
+  max-width: 600px;
+  padding: 8px 22px 10px;
+  border-radius: 24px;
+  background: #FFFFFF;
+  box-shadow: 0 5px 0 rgba(31, 42, 68, 0.1);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.4;
+  gap: 10px;
+}
+[data-theme='kids'] .s-home .h-msg-icon { padding-top: 4px; }
+[data-theme='kids'] .s-home .h-msg-icon svg { fill: var(--k-coral); }
+[data-theme='kids'] .s-home .h-verse { flex-direction: row; align-items: baseline; flex-wrap: wrap; column-gap: 12px; row-gap: 0; }
+[data-theme='kids'] .s-home .h-verse-text,
+[data-theme='kids'] .s-home .h-verse.is-verse .h-verse-text { font-family: var(--kufi); font-size: 22px; line-height: 1.4; font-weight: 600; }
+[data-theme='kids'] .s-home .h-verse-ref { font-size: 16px; font-weight: 600; color: var(--k-muted); }
+
+/* the five stops along the path (centres as in the mockup) */
+[data-theme='kids'] .h-prayers .prow-i {
+  position: absolute;
+  width: 160px;
+  margin: -33px 0 0 -80px;
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: center;
+  color: #1F2A44;
+}
+[data-theme='kids'] .h-prayers .k-fajr { left: 1150px; top: 675px; }
+[data-theme='kids'] .h-prayers .k-dhuhr { left: 920px; top: 705px; }
+[data-theme='kids'] .h-prayers .k-asr { left: 680px; top: 675px; }
+[data-theme='kids'] .h-prayers .k-maghrib { left: 440px; top: 705px; }
+[data-theme='kids'] .h-prayers .k-isha { left: 192px; top: 675px; }
+[data-theme='kids'] .h-prayers .prow-icon {
+  grid-column: 1 / -1;
+  justify-self: center;
+  position: relative;
+  width: 66px;
+  height: 66px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  border: 4px solid #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  box-shadow: 0 5px 0 rgba(31, 42, 68, 0.25);
+}
+[data-theme='kids'] .prow .prow-icon svg { stroke-width: 2.3; }
+[data-theme='kids'] .h-prayers .prow-icon svg { width: 34px; height: 34px; }
+[data-theme='kids'] .prow .k-fajr .prow-icon { background: var(--k-purple); }
+[data-theme='kids'] .prow .k-sunrise .prow-icon { background: var(--k-sun); }
+[data-theme='kids'] .prow .k-dhuhr .prow-icon { background: var(--k-orange); }
+[data-theme='kids'] .prow .k-asr .prow-icon { background: var(--k-coral); }
+[data-theme='kids'] .prow .k-maghrib .prow-icon { background: var(--k-pink); }
+[data-theme='kids'] .prow .k-isha .prow-icon { background: var(--k-night); }
+[data-theme='kids'] .h-prayers .prow-name,
+[data-theme='kids'] .h-prayers .prow-time {
+  background: #FFFFFF;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+[data-theme='kids'] .h-prayers .prow-name { padding: 0 14px 0 3px; border-radius: 0 16px 16px 0; }
+[data-theme='kids'] .h-prayers .prow-time { padding: 0 3px 0 14px; border-radius: 16px 0 0 16px; }
+[data-theme='kids'] .h-prayers .prow-in { display: none; }
+[data-theme='kids'] .h-prayers .is-next { margin-top: -42px; }
+[data-theme='kids'] .h-prayers .is-next .prow-icon { width: 84px; height: 84px; border: 6px solid var(--k-sun); }
+[data-theme='kids'] .h-prayers .is-next .prow-name,
+[data-theme='kids'] .h-prayers .is-next .prow-time { color: var(--k-coral); }
+/* a gold star on the stops already passed */
+[data-theme='kids'] .prow .is-past .prow-icon::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -8px;
+  width: 30px;
+  height: 30px;
+  background-image: svg(<svg width="30" height="30" viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z" fill="#FFD23F" stroke="#FFFFFF" stroke-width="1.5" stroke-linejoin="round"/></svg>);
+  background-size: 100% 100%;
+}
+
+/* ---------- prayer: «طريق الصلوات» (T3-Kids-Prayer) ---------- */
+[data-theme='kids'] .s-prayer .p-stage,
+[data-theme='kids'] .s-prayer .p-cd,
+[data-theme='kids'] .s-prayer .p-at { display: none; }
+[data-theme='kids'] .s-prayer .p-head { top: 34px; right: 64px; left: auto; display: block; }
+[data-theme='kids'] .s-prayer .p-head::before {
+  content: 'طريق الصلوات';
+  display: block;
+  font: 800 78px/1.15 var(--kufi);
+  color: var(--k-purple);
+}
+[data-theme='kids'] .s-prayer .p-name-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+[data-theme='kids'] .s-prayer .p-name-row::before { content: 'المحطة القادمة:'; color: #1F2A44; }
+[data-theme='kids'] .s-prayer.is-now .p-name-row::before { content: 'وصلنا إلى'; }
+[data-theme='kids'] .s-prayer .p-name,
+[data-theme='kids'] .s-prayer.is-now .p-name { font: 700 34px/1.5 var(--kufi); color: var(--k-coral); }
+[data-theme='kids'] .s-prayer .p-in { display: inline; font-weight: 700; color: var(--k-coral); }
+[data-theme='kids'] .s-prayer .p-clock {
+  position: absolute;
+  top: 50px;
+  left: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+[data-theme='kids'] .p-clock .pc-time {
+  padding: 2px 26px;
+  border-radius: 26px;
+  background: #1F2A44;
+  color: var(--k-sun);
+  font-size: 60px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+[data-theme='kids'] .p-clock .pc-date { margin-top: 8px; font-size: 22px; font-weight: 600; color: var(--k-muted); }
+
+[data-theme='kids'] .s-prayer .p-tiles { display: contents; }
+[data-theme='kids'] .p-tiles .prow-i {
+  position: absolute;
+  z-index: 1;
+  width: 200px;
+  margin: -58px 0 0 -100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #1F2A44;
+}
+[data-theme='kids'] .p-tiles .is-minor { display: none; }
+[data-theme='kids'] .p-tiles .k-fajr { left: 1146px; top: 400px; }
+[data-theme='kids'] .p-tiles .k-dhuhr { left: 919px; top: 540px; }
+[data-theme='kids'] .p-tiles .k-asr { left: 680px; top: 400px; }
+[data-theme='kids'] .p-tiles .k-maghrib { left: 439px; top: 540px; }
+[data-theme='kids'] .p-tiles .k-isha { left: 194px; top: 400px; }
+[data-theme='kids'] .p-tiles .prow-icon {
+  position: relative;
+  width: 116px;
+  height: 116px;
+  border-radius: 50%;
+  border: 6px solid #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  box-shadow: 0 6px 0 rgba(31, 42, 68, 0.18);
+}
+[data-theme='kids'] .p-tiles .prow-icon svg { width: 48px; height: 48px; stroke-width: 2.2; }
+[data-theme='kids'] .p-tiles .prow-name { margin-top: 8px; font-size: 30px; font-weight: 800; line-height: 1.1; }
+[data-theme='kids'] .p-tiles .prow-time { font-size: 26px; font-weight: 700; line-height: 1.2; color: var(--k-muted); }
+[data-theme='kids'] .p-tiles .prow-in { display: none; }
+[data-theme='kids'] .p-tiles .is-next { margin-top: -75px; }
+[data-theme='kids'] .p-tiles .is-next .prow-icon {
+  width: 150px;
+  height: 150px;
+  border-color: var(--k-sun);
+  box-shadow: 0 0 0 14px rgba(255, 210, 63, 0.35), 0 0 0 30px rgba(255, 210, 63, 0.15);
+}
+[data-theme='kids'] .p-tiles .is-next .prow-icon svg { width: 64px; height: 64px; }
+[data-theme='kids'] .p-tiles .is-next .prow-name { font-size: 38px; color: var(--k-coral); }
+[data-theme='kids'] .p-tiles .is-past .prow-icon::after { top: -12px; left: -10px; width: 40px; height: 40px; }
+
+/* the bead row under the board (kids.js) */
+[data-theme='kids'] .kd-beads-text {
+  position: absolute;
+  right: 64px;
+  top: 692px;
+  width: 260px;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #1F2A44;
+}
+[data-theme='kids'] .kd-beads-text span { display: block; font-size: 22px; color: var(--k-muted); }
+[data-theme='kids'] .kd-beads { position: absolute; left: 340px; width: 600px; top: 690px; display: flex; justify-content: space-between; }
+[data-theme='kids'] .kd-beads::before { content: ''; position: absolute; left: 0; right: 0; top: 26px; height: 3px; border-radius: 2px; background: rgba(31, 42, 68, 0.35); }
+[data-theme='kids'] .kd-beads i {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 5px solid;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+[data-theme='kids'] .kd-beads i.is-done::after {
+  content: '';
+  width: 28px;
+  height: 28px;
+  background-image: svg(<svg width="28" height="28" viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z" fill="#FFD23F"/></svg>);
+}
+[data-theme='kids'] .kd-top { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; }
+[data-theme='kids'] .kd-board-label { font: 700 18px var(--kufi); fill: #FFFFFF; }
+
+/* Ramadan: the lanterns take over; the board goes away */
+[data-theme='kids'] .s-prayer.is-ramadan .t-art,
+[data-theme='kids'] .s-prayer.is-ramadan .kd-top,
+[data-theme='kids'] .s-prayer.is-ramadan .p-tiles,
+[data-theme='kids'] .s-prayer.is-ramadan .p-clock,
+[data-theme='kids'] .s-prayer.is-ramadan .p-in { display: none; }
+[data-theme='kids'] .s-prayer.is-ramadan .p-head::before,
+[data-theme='kids'] .s-prayer.is-ramadan .p-name-row::before { content: none; }
+[data-theme='kids'] .s-prayer.is-ramadan .p-head { display: flex; left: 64px; }
+[data-theme='kids'] .s-prayer.is-ramadan .p-at { display: block; }
+[data-theme='kids'] .s-prayer.is-ramadan .p-name,
+[data-theme='kids'] .s-prayer.is-ramadan.is-now .p-name { font: 800 104px/1.1 var(--kufi); color: var(--k-purple); }
+[data-theme='kids'] .s-prayer.is-ramadan .p-cd { display: block; }
+[data-theme='kids'] .s-prayer.is-ramadan .p-count { font-weight: 800; color: var(--k-ink-coral); }
+[data-theme='kids'] .s-prayer.is-ramadan .r-stage { bottom: 40px; }
+[data-theme='kids'] .r-tile { background: #FFFFFF; border: 0; box-shadow: 0 6px 0 rgba(123, 108, 246, 0.25); }
+[data-theme='kids'] .r-tile.is-key { background: #FFF1B8; }
+[data-theme='kids'] .r-tile.is-key .r-t-name { color: var(--k-ink-coral); }
+[data-theme='kids'] .r-t-time { font-weight: 800; }
+[data-theme='kids'] .r-quran { padding: 16px 22px; border-radius: 26px; background: rgba(255, 255, 255, 0.85); }
+
+/* ---------- lists (T3-Kids-Lists) ---------- */
+[data-theme='kids'] .lists-layout { inset: 0; display: block; }
+[data-theme='kids'] .s-lists .rule { display: none; }
+[data-theme='kids'] .l-shop { position: absolute; top: 40px; right: 64px; width: 660px; bottom: 30px; }
+[data-theme='kids'] .l-head { height: auto; gap: 16px; }
+[data-theme='kids'] .l-title { font: 800 70px/1.2 var(--kufi); color: var(--k-coral); }
+[data-theme='kids'] .l-shop .l-title::before {
+  content: '';
+  display: inline-block;
+  vertical-align: -4px;
+  width: 64px;
+  height: 64px;
+  margin-left: 16px;
+  background-image: svg(<svg width="64" height="64"><path d="M8 24h48l-6 30H14z" fill="#FF9F1C"/><path d="M20 24l8-14M44 24l-8-14" stroke="#1F2A44" stroke-width="4" stroke-linecap="round"/><path d="M14 34h36M16 44h32" stroke="#FFD9A0" stroke-width="3"/></svg>);
+}
+[data-theme='kids'] .l-shop .l-meta-box { margin-right: auto; padding: 0; }
+[data-theme='kids'] .l-meta,
+[data-theme='kids'] .l-shop .l-meta-box .l-meta {
+  padding: 0 16px;
+  border-radius: 18px;
+  background: #FFFFFF;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--k-muted);
+}
+[data-theme='kids'] .l-tiles {
+  margin: 10px -14px 0;
+  padding: 18px 14px 20px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: 230px;
+  gap: 26px 22px;
+}
+[data-theme='kids'] .l-tile {
+  position: relative;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+  padding: 0 8px;
+  border: 6px solid #FFFFFF;
+  border-radius: 30px;
+  text-align: center;
+  color: #FFFFFF;
+  background: var(--k-coral);
+  box-shadow: 0 8px 0 rgba(31, 42, 68, 0.12);
+  transform: rotate(-3deg);
+}
+[data-theme='kids'] .l-tile:nth-child(8n+2) { background: var(--k-purple); transform: rotate(2deg); }
+[data-theme='kids'] .l-tile:nth-child(8n+3) { background: var(--k-sun); color: #1F2A44; transform: rotate(-1.5deg); }
+[data-theme='kids'] .l-tile:nth-child(8n+4) { background: var(--k-green); transform: rotate(3deg); }
+[data-theme='kids'] .l-tile:nth-child(8n+5) { background: var(--k-pink); transform: rotate(2deg); }
+[data-theme='kids'] .l-tile:nth-child(8n+6) { background: var(--k-orange); transform: rotate(-2.5deg); }
+[data-theme='kids'] .l-tile:nth-child(8n+7) { background: #4FA8E8; transform: rotate(1.5deg); }
+[data-theme='kids'] .l-tile:nth-child(8n) { background: #FF6B57; transform: rotate(-2deg); }
+[data-theme='kids'] .kd-emoji { font-size: 64px; line-height: 1; margin-bottom: 10px; }
+[data-theme='kids'] .l-tile-text { font-size: 32px; font-weight: 800; line-height: 1.1; text-align: center; }
+[data-theme='kids'] .l-tile.kd-long .l-tile-text { font-size: 24px; }
+[data-theme='kids'] .l-tile .l-who { display: block; margin-top: 4px; font-size: 16px; font-weight: 600; opacity: 0.85; }
+[data-theme='kids'] .l-tile .l-tick { display: none; }
+[data-theme='kids'] .l-tile.is-done,
+[data-theme='kids'] .l-tile.is-done:nth-child(n) { background: #E9E3D0; color: #7A7F99; border: 6px solid #FFFFFF; opacity: 0.8; }
+[data-theme='kids'] .l-tile.is-done .l-tile-text { color: #7A7F99; text-decoration-color: #7A7F99; }
+[data-theme='kids'] .l-tile.is-done .l-tick {
+  position: absolute;
+  top: -18px;
+  left: -18px;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  border: 4px solid #FFFFFF;
+  background: var(--k-green);
+  color: #FFFFFF;
+}
+[data-theme='kids'] .l-tile.is-done .l-tick svg { width: 26px; height: 26px; }
+[data-theme='kids'] .l-foot { padding-top: 0; font-size: 20px; font-weight: 600; color: var(--k-muted); }
+[data-theme='kids'] .l-clear { min-height: 48px; border: 0; background: #FFFFFF; color: #1F2A44; font-size: 20px; font-weight: 700; box-shadow: 0 4px 0 rgba(31, 42, 68, 0.12); }
+[data-theme='kids'] .l-clear.is-armed { background: var(--k-coral); color: #FFFFFF; }
+
+/* the task chart, inside the white dashed card drawn by kids.js */
+[data-theme='kids'] .l-tasks { position: absolute; top: 60px; left: 72px; width: 412px; bottom: 82px; }
+[data-theme='kids'] .l-tasks .l-head { display: block; }
+[data-theme='kids'] .l-tasks .l-title { font-size: 58px; color: var(--k-purple); }
+[data-theme='kids'] .l-tasks .l-meta { display: none; }
+[data-theme='kids'] .l-tasks .l-head::after {
+  content: 'كل مهمة تنتهي تأخذ نجمة';
+  display: block;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--k-muted);
+}
+[data-theme='kids'] .l-rows { margin-top: 18px; padding-bottom: 0; }
+[data-theme='kids'] .l-row {
+  min-height: 82px;
+  margin-bottom: 14px;
+  padding: 6px 18px;
+  gap: 14px;
+  border: 0;
+  border-radius: 24px;
+  background: #F1EEFF;
+}
+[data-theme='kids'] .l-row-text { flex: 1; font-size: 27px; font-weight: 700; line-height: 1.2; }
+[data-theme='kids'] .l-today { display: block; order: 2; padding: 0 12px; border-radius: 14px; background: var(--k-coral); color: #FFFFFF; font-size: 17px; font-weight: 700; line-height: 1.6; }
+[data-theme='kids'] .l-repeat { order: 2; margin: 0; color: #9A90F2; }
+[data-theme='kids'] .l-today + .l-repeat { display: none; }
+[data-theme='kids'] .l-circle,
+[data-theme='kids'] .l-row.is-done .l-circle {
+  order: 3;
+  width: 50px;
+  height: 50px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  background-image: svg(<svg width="50" height="50" viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z" fill="#FFFFFF" stroke="#C9C2F5" stroke-width="1.6" stroke-linejoin="round"/></svg>);
+}
+[data-theme='kids'] .l-circle svg { display: none; }
+[data-theme='kids'] .l-row.is-done { min-height: 82px; background: #FFF4D1; color: #7A7F99; }
+[data-theme='kids'] .l-row.is-done .l-circle {
+  background-image: svg(<svg width="50" height="50" viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z" fill="#FFD23F" stroke="#FF9F1C" stroke-width="1.6" stroke-linejoin="round"/></svg>);
+}
+[data-theme='kids'] .l-row.is-done .l-row-text { font-size: 27px; font-weight: 700; color: #7A7F99; text-decoration-color: #7A7F99; }
+[data-theme='kids'] .l-done-head { margin: -4px 0 8px; padding: 0; font-size: 17px; font-weight: 700; color: var(--k-muted); }
+[data-theme='kids'] .l-tasks .l-clear { min-height: 34px; padding: 0 16px; font-size: 16px; background: #F1EEFF; box-shadow: none; }
+/* «نجوم المهام: 3» on the right (kids.js), the time on the left */
+[data-theme='kids'] .l-now { display: flex; justify-content: flex-end; padding-top: 12px; }
+[data-theme='kids'] .ln-next { display: none; }
+[data-theme='kids'] .ln-time { padding: 0 16px; border-radius: 18px; background: #1F2A44; color: var(--k-sun); font-size: 26px; font-weight: 800; line-height: 1.6; }
+[data-theme='kids'] .kd-stars-line { position: absolute; left: 72px; width: 412px; bottom: 88px; font-size: 22px; font-weight: 700; color: #1F2A44; }
+[data-theme='kids'] .kd-stars-line b { font-weight: 700; color: var(--k-orange); }
+[data-theme='kids'] .l-empty { font-weight: 600; color: var(--k-muted); }
+
+/* ---------- calendar ---------- */
+[data-theme='kids'] .cal-layout { bottom: 96px; }
+[data-theme='kids'] .c-month { font-weight: 800; color: var(--k-purple); }
+[data-theme='kids'] .c-hijri { color: var(--k-ink-coral); font-weight: 600; }
+[data-theme='kids'] .c-cell { border-top: 2px solid rgba(123, 108, 246, 0.16); }
+[data-theme='kids'] .c-cell.is-weekend { background: rgba(123, 108, 246, 0.06); }
+[data-theme='kids'] .c-d { font-weight: 700; }
+[data-theme='kids'] .c-cell.is-today .c-d { background: var(--k-coral); color: #FFFFFF; }
+[data-theme='kids'] .c-cell.is-hstart .c-h { color: var(--k-ink-coral); }
+[data-theme='kids'] .c-nav,
+[data-theme='kids'] .c-close { background: #FFFFFF; border: 0; box-shadow: 0 4px 0 rgba(31, 42, 68, 0.12); }
+[data-theme='kids'] .c-side {
+  padding: 16px 20px 14px;
+  border-radius: 28px;
+  background: #FFFFFF;
+  box-shadow: 0 6px 0 rgba(123, 108, 246, 0.2);
+}
+[data-theme='kids'] .c-side-title { font-weight: 800; color: var(--k-purple); }
+[data-theme='kids'] .k-national { --k: #6A5BE0; }
+
+/* ---------- adhkar ---------- */
+[data-theme='kids'] .a-title { font-weight: 800; color: var(--k-purple); }
+[data-theme='kids'] .a-card { background: #FFFFFF; border: 0; box-shadow: 0 8px 0 rgba(123, 108, 246, 0.2); }
+[data-theme='kids'] .a-card-title { color: var(--k-ink-coral); font-weight: 700; }
+[data-theme='kids'] .a-text { font-weight: 600; }
+[data-theme='kids'] .a-close,
+[data-theme='kids'] .a-again { background: #FFFFFF; border: 0; box-shadow: 0 4px 0 rgba(31, 42, 68, 0.12); }
+[data-theme='kids'] .a-audio { background: #FFFFFF; border: 0; }
+[data-theme='kids'] .a-done-title { font-weight: 800; }
+
+/* ---------- photos (always dark) ---------- */
+[data-theme='kids'] .s-photos .ph-empty { inset: 0; background-color: #1F2A44; }
+
+/* ---------- overlays ---------- */
+[data-theme='kids'] .fun-scrim,
+[data-theme='kids'] .qr .fun-scrim,
+[data-theme='kids'] .wf .fun-scrim {
+  background-color: var(--modal);
+  background-image: svg(<svg width="260" height="200"><g fill="#FFFFFF"><circle cx="40" cy="60" r="20"/><circle cx="64" cy="50" r="26"/><circle cx="90" cy="62" r="18"/><rect x="40" y="56" width="52" height="24" rx="12"/></g><g opacity="0.6"><circle cx="200" cy="150" r="6" fill="#FFD23F"/><circle cx="150" cy="30" r="5" fill="#FF8FB1"/><circle cx="30" cy="170" r="5" fill="#7B6CF6"/></g></svg>);
+}
+[data-theme='kids'] .fun-menu { border: 0; box-shadow: 0 10px 30px rgba(31, 42, 68, 0.22); }
+[data-theme='kids'] .fun-close { background: #FFFFFF; border: 0; box-shadow: 0 4px 0 rgba(31, 42, 68, 0.12); }
+[data-theme='kids'] .fun-title { font-weight: 800; color: var(--k-purple); }
+[data-theme='kids'] .fw-chip { background: #FFFFFF; border-color: rgba(123, 108, 246, 0.3); }
+[data-theme='kids'] .qr-fav { color: #1F2A44; font-weight: 700; }
+[data-theme='kids'] .qr-np { border: 0; box-shadow: 0 6px 0 rgba(79, 168, 232, 0.25); }
+[data-theme='kids'] .qr-rec,
+[data-theme='kids'] .qr-s { background: #FFFFFF; }
+[data-theme='kids'] .qr-rec.is-on { background: var(--saffron); }
+[data-theme='kids'] .qr-chip { background: #FFFFFF; border-color: rgba(79, 168, 232, 0.5); }
+[data-theme='kids'] .match-chip,
+[data-theme='kids'] .st-chip { background: rgba(255, 255, 255, 0.92); border: 0; box-shadow: 0 3px 0 rgba(31, 42, 68, 0.1); font-weight: 600; }
+[data-theme='kids'] .st-chip b { color: var(--k-ink-coral); }
+[data-theme='kids'] .pl-banner { border: 4px solid var(--k-sun); box-shadow: 0 14px 40px rgba(31, 42, 68, 0.3); }
+[data-theme='kids'] .pl-title { font-weight: 800; }
+[data-theme='kids'] .pl-badge { background: #FFFFFF; color: #1F2A44; border-color: #E2557F; }
+[data-theme='kids'] .pl-listen { background: #F1EEFF; border-color: rgba(123, 108, 246, 0.4); }
+[data-theme='kids'] .wf-row { background: #FFFFFF; }
+
+/* dock door icons, darker so they read on the light doors */
+[data-theme='kids'] .nav .tab[data-for='home'] .tab-icon { color: #6A5BE0; }
+[data-theme='kids'] .nav .tab[data-for='prayer'] .tab-icon { color: #23863C; }
+[data-theme='kids'] .nav .tab[data-for='adhkar'] .tab-icon { color: #8A5BD6; }
+[data-theme='kids'] .nav .tab[data-for='calendar'] .tab-icon { color: #D97F00; }
+[data-theme='kids'] .nav .tab[data-for='lists'] .tab-icon { color: #E9503B; }
+/* the match overlay is always dark green: keep its accents bright */
+[data-theme='kids'] .mt-phase,
+[data-theme='kids'] .mt-count,
+[data-theme='kids'] .mt-cheer b { color: #FFD23F; }
+/* Overlays that are always dark: the derived ink tokens must be light again there (the theme
+   block resolved them from the dark ink). */
+[data-theme='kids'] .match,
+[data-theme='kids'] .s-photos,
+[data-theme='kids'] .pl-beat,
+[data-theme='kids'] .pl-scrim,
+[data-theme='kids'] .ph-caption {
+  --plaster: #F3EDE2;
+  --plaster-2: rgba(243, 237, 226, 0.72);
+  --plaster-3: rgba(243, 237, 226, 0.5);
+  --hair: rgba(243, 237, 226, 0.13);
+  --saffron: #FFD23F;
+  --accent: #FFD23F;
+  --ground: #2A2A30;
+  color: #F3EDE2;
+}
+[data-theme='kids'] .pl-beat .pl-reply { color: #241707; }

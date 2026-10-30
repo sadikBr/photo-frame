@@ -1,0 +1,422 @@
+/* fonts: el-messiri */
+/* «ماجوريل»: Majorelle-blue walls, lemon-yellow art deco, cactus green and bougainvillea pink.
+   A yellow window on the garden, the five prayers painted on cactus pots, a pool of panels.
+   Matches the mockups T5-Majorelle-Clock / -Prayer / -Lists. */
+
+[data-theme='majorelle'] {
+  --fg: 255, 255, 255;
+  --plaster: rgb(var(--fg));
+  --plaster-2: rgba(var(--fg), 0.74);
+  --plaster-3: rgba(var(--fg), 0.5);
+  --hair: rgba(var(--fg), 0.16);
+  --shade: 30, 22, 96;
+  --saffron: #F4C430;
+  --accent-rgb: 244, 196, 48;
+  --saffron-ink: #1E1660;
+  --garnet-deep: #1E1660;
+  --sky: #9FD8F2;
+  --sky-2: #CDEBFA;
+  --sky-rgb: 159, 216, 242;
+  --mint: #8FD6A4;
+  --mint-rgb: 143, 214, 164;
+  --rose: #FF9AC8;
+  --rose-rgb: 255, 154, 200;
+  --deep-rgb: 30, 22, 96;
+  --deep2-rgb: 46, 36, 144;
+  --modal: #2E2490;
+  --menu: rgba(30, 22, 96, 0.96);
+  --banner: rgba(30, 22, 96, 0.95);
+  --chip-bg: #2E2490;
+  --g-home: #4537C8;
+  --g-prayer: #4537C8;
+  --g-lists: #4537C8;
+  --g-calendar: #4537C8;
+  --g-adhkar-m: #4537C8;
+  --g-adhkar-e: #342A9E;
+  --kufi: 'El Messiri', 'Readex Pro', sans-serif;
+  --sans: 'El Messiri', 'Readex Pro', sans-serif;
+  --ink: #1E1660;
+  --lilac: #D8D3FF;
+  /* the dock: blue doors over the dark-blue ledge */
+  --dock-bottom: 76px;
+  --dock-scrim: rgba(30, 22, 96, 0.8);
+  --dock-hint: #D8D3FF;
+  --door-fun: #2E2490;
+  --door-wifi: #2F6B4F;
+}
+[data-theme='majorelle'] #stage { font-weight: 400; }
+
+/* the walls: Majorelle blue with a darker diagonal wash */
+[data-theme='majorelle'] .screen:not(.s-photos) {
+  background-image: svg(<svg width="1280" height="800"><polygon points="0,0 1280,0 1110,800 0,800" fill="#3B2EB8" fill-opacity="0.35"/></svg>);
+  background-repeat: no-repeat;
+}
+
+/* the ledge: dark blue, a yellow rule, a row of yellow triangles */
+[data-theme='majorelle'] .band {
+  height: 56px;
+  border: 0;
+  background-color: #2E2490;
+  background-position: left top;
+  background-image: svg(<svg width="80" height="56"><rect width="80" height="56" fill="#2E2490"/><rect width="80" height="6" fill="#F4C430"/><path d="M0 56 L20 26 L40 56 Z" fill="#F4C430"/></svg>);
+}
+[data-theme='majorelle'] .nav .tab.is-on { border-color: var(--saffron); }
+[data-theme='majorelle'] .st-chip,
+[data-theme='majorelle'] .match-chip { background: rgba(30, 22, 96, 0.82); border-color: rgba(244, 196, 48, 0.4); }
+
+/* ---------- clock: the garden window, the day, five cactus pots ---------- */
+[data-theme='majorelle'] .s-home .home-grid { display: contents; }
+[data-theme='majorelle'] .s-home .rule,
+[data-theme='majorelle'] .s-home .h-weather { display: none; }
+[data-theme='majorelle'] .s-home .h-main {
+  position: absolute;
+  inset: 0;
+  padding: 40px 70px 0 570px;
+  display: flex;
+  flex-flow: row wrap;
+  align-content: flex-start;
+  justify-content: flex-start;
+}
+[data-theme='majorelle'] .s-home .h-dates { display: contents; }
+[data-theme='majorelle'] .s-home .h-weekday { order: 1; flex: 0 0 100%; font: 700 62px/1.3 var(--kufi); color: var(--saffron); }
+[data-theme='majorelle'] .s-home .h-clock {
+  order: 2;
+  flex: 0 0 100%;
+  margin: 0;
+  font: 700 212px/1 var(--kufi);
+  letter-spacing: -2px;
+  text-align: right;
+}
+[data-theme='majorelle'] .s-home .h-greg { order: 3; flex: 0 0 auto; margin-top: 14px; font-size: 30px; font-weight: 500; color: var(--plaster); }
+/* the hijri date fills the rest of the line, so the next-prayer line starts a new one */
+[data-theme='majorelle'] .s-home .h-hijri { order: 3; flex: 1 0 auto; margin-top: 14px; font-size: 30px; font-weight: 500; color: var(--saffron); }
+[data-theme='majorelle'] .s-home .h-hijri::before { content: '·'; margin: 0 8px; color: var(--plaster); }
+[data-theme='majorelle'] .s-home .h-hijri:empty { display: none; }
+[data-theme='majorelle'] .s-home .h-next {
+  order: 4;
+  flex: 0 0 auto;
+  margin-top: 6px;
+  gap: 8px;
+  height: 40px;
+  font-size: 28px;
+  line-height: 40px;
+  font-weight: 700;
+  color: var(--rose);
+}
+[data-theme='majorelle'] .h-next .h-next-icon,
+[data-theme='majorelle'] .h-next .h-next-time { display: none; }
+[data-theme='majorelle'] .h-next .h-next-name { color: var(--rose); font-weight: 700; }
+[data-theme='majorelle'] .s-home .h-msg,
+[data-theme='majorelle'] .s-home .h-verse { order: 5; flex: 0 0 100%; max-width: none; margin-top: 8px; }
+[data-theme='majorelle'] .s-home .h-msg { font-size: 25px; line-height: 1.4; font-weight: 500; }
+[data-theme='majorelle'] .s-home .h-msg-icon { padding-top: 6px; }
+[data-theme='majorelle'] .s-home .h-msg-icon svg { fill: var(--rose); }
+[data-theme='majorelle'] .s-home .h-verse { gap: 0; }
+[data-theme='majorelle'] .s-home .h-verse-text,
+[data-theme='majorelle'] .s-home .h-verse.is-verse .h-verse-text { font-family: var(--kufi); font-size: 25px; line-height: 1.4; font-weight: 500; }
+[data-theme='majorelle'] .s-home .h-verse-ref { font-size: 18px; color: var(--lilac); }
+/* with a message or verse under the day, the clock gives up a little room */
+[data-theme='majorelle'] .s-home.has-msg .h-main { padding-top: 26px; }
+[data-theme='majorelle'] .s-home.has-msg .h-weekday { font-size: 52px; line-height: 1.25; }
+[data-theme='majorelle'] .s-home.has-msg .h-clock { font-size: 172px; }
+[data-theme='majorelle'] .s-home.has-msg .h-greg,
+[data-theme='majorelle'] .s-home.has-msg .h-hijri { margin-top: 8px; font-size: 28px; }
+
+/* the weather, at the end of the next-prayer line (majorelle.js measures where that line ends) */
+[data-theme='majorelle'] .s-home .h-wxm {
+  position: absolute;
+  right: var(--mj-wx-right, 70px);
+  top: var(--mj-wx-top, 0);
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 28px;
+  line-height: 40px;
+  color: var(--lilac);
+  white-space: nowrap;
+}
+[data-theme='majorelle'] .h-wxm::before { content: '·'; }
+[data-theme='majorelle'] .h-wxm .hw-icon,
+[data-theme='majorelle'] .h-wxm .hw-next { display: none; }
+[data-theme='majorelle'] .h-wxm .hw-text { display: flex; align-items: baseline; gap: 8px; }
+[data-theme='majorelle'] .h-wxm .hw-temp { font-size: 28px; font-weight: 400; }
+[data-theme='majorelle'] .h-wxm .hw-cond { font-size: 28px; font-weight: 400; }
+
+/* the five prayers on yellow pots (190 × 104), each pot with its own cactus above it */
+[data-theme='majorelle'] .s-home .h-prayers {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 470px;
+  height: 274px;
+  padding: 0 85px;
+  display: flex;
+  justify-content: space-between;
+}
+[data-theme='majorelle'] .h-prayers .prow-i {
+  position: relative;
+  z-index: 0;
+  width: 190px;
+  height: 274px;
+  padding-top: 194px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--ink);
+  line-height: 1.05;
+  background: no-repeat center bottom;
+  background-image: svg(<svg width="190" height="104"><path d="M14 18 H176 L160 104 H30 Z" fill="#F4C430"/><rect x="4" y="0" width="182" height="22" rx="4" fill="#FFD75A"/></svg>);
+}
+[data-theme='majorelle'] .h-prayers .prow-i::before,
+[data-theme='majorelle'] .h-prayers .prow-i::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  top: 0;
+  width: 190px;
+  height: 172px;
+  background: no-repeat center top;
+}
+[data-theme='majorelle'] .h-prayers .prow-icon,
+[data-theme='majorelle'] .h-prayers .prow-in { display: none; }
+[data-theme='majorelle'] .h-prayers .prow-name { font-size: 21px; font-weight: 700; }
+[data-theme='majorelle'] .h-prayers .prow-time { font-size: 38px; font-weight: 700; }
+[data-theme='majorelle'] .h-prayers .is-past {
+  background-image: svg(<svg width="190" height="104"><path d="M14 18 H176 L160 104 H30 Z" fill="#C9A43A"/><rect x="4" y="0" width="182" height="22" rx="4" fill="#B8952F"/></svg>);
+}
+[data-theme='majorelle'] .h-prayers .is-next {
+  background-image: svg(<svg width="190" height="104"><path d="M14 18 H176 L160 104 H30 Z" fill="#F4C430"/><rect x="4" y="0" width="182" height="22" rx="4" fill="#D9418C"/></svg>);
+}
+/* saguaro */
+[data-theme='majorelle'] .h-prayers .k-fajr::before {
+  background-image: svg(<svg width="190" height="172"><g fill="#2F6B4F" stroke="#1F4D38" stroke-width="2"><rect x="73" y="16" width="44" height="160" rx="22"/><path d="M73 100 H45 A14 14 0 0 1 31 86 V50 A11 11 0 0 1 53 50 V78 H73 Z"/><path d="M117 78 H135 V36 A11 11 0 0 1 157 36 V70 A14 14 0 0 1 143 84 H117 Z"/></g><path d="M95 28 V166" stroke="#5E9E6E" stroke-width="2"/></svg>);
+}
+/* barrel */
+[data-theme='majorelle'] .h-prayers .k-dhuhr::before {
+  background-image: svg(<svg width="190" height="172"><ellipse cx="95" cy="128" rx="54" ry="50" fill="#2F6B4F" stroke="#1F4D38" stroke-width="2"/><path d="M95 86 V170 M71 92 Q 65 130 71 166 M119 92 Q 125 130 119 166" fill="none" stroke="#5E9E6E" stroke-width="2"/></svg>);
+}
+/* prickly pear */
+[data-theme='majorelle'] .h-prayers .k-asr::before {
+  background-image: svg(<svg width="190" height="172"><g fill="#2F6B4F" stroke="#1F4D38" stroke-width="2"><ellipse cx="95" cy="126" rx="36" ry="48"/><ellipse cx="61" cy="60" rx="26" ry="36" transform="rotate(-22 61 60)"/><ellipse cx="129" cy="52" rx="26" ry="36" transform="rotate(20 129 52)"/></g></svg>);
+}
+/* organ-pipe cluster */
+[data-theme='majorelle'] .h-prayers .k-maghrib::before {
+  background-image: svg(<svg width="190" height="172"><g fill="#2F6B4F" stroke="#1F4D38" stroke-width="2"><rect x="75" y="50" width="38" height="126" rx="19"/><rect x="37" y="92" width="34" height="84" rx="17"/><rect x="117" y="110" width="32" height="66" rx="16"/></g><path d="M94 62 V166" stroke="#5E9E6E" stroke-width="2"/></svg>);
+}
+/* agave */
+[data-theme='majorelle'] .h-prayers .k-isha::before {
+  background-image: svg(<svg width="190" height="172"><path d="M95 176 L45 90 L87 160 Z M95 176 L65 50 L99 158 Z M95 176 L95 36 L107 158 Z M95 176 L129 54 L111 160 Z M95 176 L151 96 L115 164 Z" fill="#2F6B4F" stroke="#1F4D38" stroke-width="2"/></svg>);
+}
+/* the next prayer's cactus is in bloom */
+[data-theme='majorelle'] .h-prayers .k-fajr.is-next::after {
+  background-image: svg(<svg width="190" height="172"><g transform="translate(95 18) scale(1.3)"><circle r="9" fill="#D9418C"/><circle cx="7" cy="-6" r="7" fill="#E9609F"/><circle cx="-7" cy="-5" r="7" fill="#C2337A"/><circle r="3" fill="#FFF1A8"/></g><g transform="translate(146 28) scale(1.1)"><circle r="9" fill="#D9418C"/><circle cx="7" cy="-6" r="7" fill="#E9609F"/><circle cx="-7" cy="-5" r="7" fill="#C2337A"/><circle r="3" fill="#FFF1A8"/></g><g transform="translate(42 42) scale(1.1)"><circle r="9" fill="#D9418C"/><circle cx="7" cy="-6" r="7" fill="#E9609F"/><circle cx="-7" cy="-5" r="7" fill="#C2337A"/><circle r="3" fill="#FFF1A8"/></g></svg>);
+}
+[data-theme='majorelle'] .h-prayers .k-dhuhr.is-next::after {
+  background-image: svg(<svg width="190" height="172"><g transform="translate(95 80) scale(1.3)"><circle r="9" fill="#D9418C"/><circle cx="7" cy="-6" r="7" fill="#E9609F"/><circle cx="-7" cy="-5" r="7" fill="#C2337A"/><circle r="3" fill="#FFF1A8"/></g><g transform="translate(68 90) scale(1.1)"><circle r="9" fill="#D9418C"/><circle cx="7" cy="-6" r="7" fill="#E9609F"/><circle cx="-7" cy="-5" r="7" fill="#C2337A"/><circle r="3" fill="#FFF1A8"/></g><g transform="translate(122 90) scale(1.1)"><circle r="9" fill="#D9418C"/><circle cx="7" cy="-6" r="7" fill="#E9609F"/><circle cx="-7" cy="-5" r="7" fill="#C2337A"/><circle r="3" fill="#FFF1A8"/></g></svg>);
+}
+[data-theme='majorelle'] .h-prayers .k-asr.is-next::after {
+  background-image: svg(<svg width="190" height="172"><g transform="translate(55 28) scale(1.3)"><circle r="9" fill="#D9418C"/><circle cx="7" cy="-6" r="7" fill="#E9609F"/><circle cx="-7" cy="-5" r="7" fill="#C2337A"/><circle r="3" fill="#FFF1A8"/></g><g transform="translate(137 18) scale(1.3)"><circle r="9" fill="#D9418C"/><circle cx="7" cy="-6" r="7" fill="#E9609F"/><circle cx="-7" cy="-5" r="7" fill="#C2337A"/><circle r="3" fill="#FFF1A8"/></g><g transform="translate(97 82) scale(1.1)"><circle r="9" fill="#D9418C"/><circle cx="7" cy="-6" r="7" fill="#E9609F"/><circle cx="-7" cy="-5" r="7" fill="#C2337A"/><circle r="3" fill="#FFF1A8"/></g></svg>);
+}
+[data-theme='majorelle'] .h-prayers .k-maghrib.is-next::after {
+  background-image: svg(<svg width="190" height="172"><g transform="translate(94 52) scale(1.3)"><circle r="9" fill="#D9418C"/><circle cx="7" cy="-6" r="7" fill="#E9609F"/><circle cx="-7" cy="-5" r="7" fill="#C2337A"/><circle r="3" fill="#FFF1A8"/></g><g transform="translate(54 94) scale(1.1)"><circle r="9" fill="#D9418C"/><circle cx="7" cy="-6" r="7" fill="#E9609F"/><circle cx="-7" cy="-5" r="7" fill="#C2337A"/><circle r="3" fill="#FFF1A8"/></g><g transform="translate(133 112) scale(1.1)"><circle r="9" fill="#D9418C"/><circle cx="7" cy="-6" r="7" fill="#E9609F"/><circle cx="-7" cy="-5" r="7" fill="#C2337A"/><circle r="3" fill="#FFF1A8"/></g></svg>);
+}
+[data-theme='majorelle'] .h-prayers .k-isha.is-next::after {
+  background-image: svg(<svg width="190" height="172"><g transform="translate(96 36) scale(1.3)"><circle r="9" fill="#D9418C"/><circle cx="7" cy="-6" r="7" fill="#E9609F"/><circle cx="-7" cy="-5" r="7" fill="#C2337A"/><circle r="3" fill="#FFF1A8"/></g><g transform="translate(65 52) scale(1.1)"><circle r="9" fill="#D9418C"/><circle cx="7" cy="-6" r="7" fill="#E9609F"/><circle cx="-7" cy="-5" r="7" fill="#C2337A"/><circle r="3" fill="#FFF1A8"/></g><g transform="translate(129 56) scale(1.1)"><circle r="9" fill="#D9418C"/><circle cx="7" cy="-6" r="7" fill="#E9609F"/><circle cx="-7" cy="-5" r="7" fill="#C2337A"/><circle r="3" fill="#FFF1A8"/></g></svg>);
+}
+
+/* ---------- prayer: five stepped art-deco panels over a pool ---------- */
+[data-theme='majorelle'] .s-prayer .p-stage { display: none; }
+[data-theme='majorelle'] .s-prayer:not(.is-ramadan) .p-head { top: 22px; right: 64px; left: 420px; }
+[data-theme='majorelle'] .s-prayer:not(.is-ramadan) .p-cd,
+[data-theme='majorelle'] .s-prayer:not(.is-ramadan) .p-at { display: none; }
+[data-theme='majorelle'] .s-prayer .p-name-row { display: flex; align-items: baseline; gap: 28px; }
+[data-theme='majorelle'] .s-prayer .p-name { font: 700 136px/1.25 var(--kufi); color: var(--plaster); }
+[data-theme='majorelle'] .s-prayer .p-in { display: inline; font-size: 52px; font-weight: 700; color: var(--saffron); white-space: nowrap; }
+[data-theme='majorelle'] .s-prayer .p-clock { display: flex; flex-direction: column; align-items: flex-start; position: absolute; top: 52px; left: 64px; }
+[data-theme='majorelle'] .p-clock .pc-time { font-size: 60px; font-weight: 700; line-height: 1; }
+[data-theme='majorelle'] .p-clock .pc-date { margin-top: 6px; font-size: 22px; color: var(--lilac); }
+[data-theme='majorelle'] .s-prayer .p-tiles {
+  display: flex;
+  position: absolute;
+  z-index: 1;
+  top: 296px;
+  right: 64px;
+  left: 64px;
+  justify-content: space-between;
+}
+[data-theme='majorelle'] .p-tiles .prow-i.is-minor { display: none; }
+[data-theme='majorelle'] .p-tiles .prow-i {
+  width: 190px;
+  height: 300px;
+  padding-top: 86px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--ink);
+  background: no-repeat center top;
+  background-image: svg(<svg width="190" height="300"><path d="M0 300 V60 H20 V36 H44 V16 H70 V0 H120 V16 H146 V36 H170 V60 H190 V300 Z" fill="#F4C430"/><path d="M14 300 V72 H30 V50 H54 V30 H78 V16 H112 V30 H136 V50 H160 V72 H176 V300" fill="none" stroke="#FFFFFF" stroke-width="2"/></svg>);
+}
+[data-theme='majorelle'] .p-tiles .prow-icon { display: flex; }
+[data-theme='majorelle'] .p-tiles .prow-icon svg { width: 44px; height: 44px; }
+[data-theme='majorelle'] .p-tiles .prow-in { display: none; }
+[data-theme='majorelle'] .p-tiles .prow-name { margin-top: 8px; font-size: 32px; font-weight: 700; line-height: 1.2; }
+[data-theme='majorelle'] .p-tiles .prow-time { font-size: 56px; font-weight: 700; line-height: 1.1; }
+[data-theme='majorelle'] .p-tiles .is-past {
+  background-image: svg(<svg width="190" height="300"><path d="M0 300 V60 H20 V36 H44 V16 H70 V0 H120 V16 H146 V36 H170 V60 H190 V300 Z" fill="#B9A04E"/><path d="M14 300 V72 H30 V50 H54 V30 H78 V16 H112 V30 H136 V50 H160 V72 H176 V300" fill="none" stroke="#FFFFFF" stroke-width="2"/></svg>);
+}
+[data-theme='majorelle'] .p-tiles .is-next {
+  color: #FFFFFF;
+  background-image: svg(<svg width="190" height="300"><path d="M0 300 V60 H20 V36 H44 V16 H70 V0 H120 V16 H146 V36 H170 V60 H190 V300 Z" fill="#D9418C"/><path d="M14 300 V72 H30 V50 H54 V30 H78 V16 H112 V30 H136 V50 H160 V72 H176 V300" fill="none" stroke="#FFB3D6" stroke-width="2"/></svg>);
+}
+/* Ramadan: the lanterns and the fast's times take the screen; the pool and panels step aside */
+[data-theme='majorelle'] .s-prayer.is-ramadan .p-tiles,
+[data-theme='majorelle'] .s-prayer.is-ramadan .t-art,
+[data-theme='majorelle'] .s-prayer.is-ramadan .p-clock,
+[data-theme='majorelle'] .s-prayer.is-ramadan .p-in { display: none; }
+[data-theme='majorelle'] .s-prayer.is-ramadan .p-name { font-size: 112px; line-height: 1.1; color: var(--saffron); }
+[data-theme='majorelle'] .s-prayer.is-ramadan .p-at { color: var(--lilac); }
+[data-theme='majorelle'] .s-prayer .r-stage { bottom: 80px; }
+[data-theme='majorelle'] .r-tile { background: rgba(30, 22, 96, 0.4); border-color: rgba(255, 255, 255, 0.14); }
+[data-theme='majorelle'] .r-tile.is-key { background: rgba(244, 196, 48, 0.16); border-color: rgba(244, 196, 48, 0.5); }
+
+/* ---------- lists: shopping on ceramic tiles, tasks on a white card in a yellow frame ---------- */
+[data-theme='majorelle'] .lists-layout {
+  top: 33px;
+  right: 84px;
+  left: 37px;
+  bottom: 73px;
+  grid-template-columns: minmax(0, 1fr) 494px;
+  column-gap: 35px;
+}
+[data-theme='majorelle'] .s-lists .rule { display: none; }
+[data-theme='majorelle'] .l-shop { position: relative; padding-top: 7px; }
+[data-theme='majorelle'] .l-shop .l-head { height: auto; }
+[data-theme='majorelle'] .l-shop .l-title { font: 700 66px/1.3 var(--kufi); color: var(--saffron); }
+[data-theme='majorelle'] .l-meta-box,
+[data-theme='majorelle'] .l-tasks .l-meta { display: none; }
+[data-theme='majorelle'] .l-tiles {
+  flex: none;
+  height: 318px;
+  margin-top: 22px;
+  padding-bottom: 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: 150px;
+  gap: 18px;
+}
+[data-theme='majorelle'] .l-tile {
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 0;
+  text-align: center;
+  color: var(--ink);
+  background-color: #F4C430;
+  background-repeat: no-repeat;
+  background-position: left top, right top, left bottom, right bottom;
+  background-image: svg(<svg width="20" height="20"><path d="M0 0 H20 L0 20 Z" fill="#1E1660"/></svg>), svg(<svg width="20" height="20"><path d="M0 0 H20 V20 Z" fill="#1E1660"/></svg>), svg(<svg width="20" height="20"><path d="M0 0 V20 H20 Z" fill="#1E1660"/></svg>), svg(<svg width="20" height="20"><path d="M20 0 V20 H0 Z" fill="#1E1660"/></svg>);
+  box-shadow: inset 0 0 0 6px #1E1660, inset 0 0 0 9px #F4C430, inset 0 0 0 11px #1E1660;
+}
+[data-theme='majorelle'] .l-tile:nth-child(even) {
+  background-color: #FFFFFF;
+  background-image: svg(<svg width="20" height="20"><path d="M0 0 H20 L0 20 Z" fill="#4537C8"/></svg>), svg(<svg width="20" height="20"><path d="M0 0 H20 V20 Z" fill="#4537C8"/></svg>), svg(<svg width="20" height="20"><path d="M0 0 V20 H20 Z" fill="#4537C8"/></svg>), svg(<svg width="20" height="20"><path d="M20 0 V20 H0 Z" fill="#4537C8"/></svg>);
+  box-shadow: inset 0 0 0 6px #4537C8, inset 0 0 0 9px #FFFFFF, inset 0 0 0 11px #4537C8;
+}
+[data-theme='majorelle'] .l-tile-text { font-size: 30px; font-weight: 700; line-height: 1.2; text-align: center; }
+[data-theme='majorelle'] .l-who { display: block; font-size: 15px; font-weight: 500; opacity: 0.8; line-height: 1.3; }
+[data-theme='majorelle'] .l-tile .l-tick { display: none; }
+[data-theme='majorelle'] .l-tile.is-done,
+[data-theme='majorelle'] .l-tile.is-done:nth-child(even) {
+  border: 0;
+  background-color: #B9A04E;
+  background-image: svg(<svg width="20" height="20"><path d="M0 0 H20 L0 20 Z" fill="#4537C8"/></svg>), svg(<svg width="20" height="20"><path d="M0 0 H20 V20 Z" fill="#4537C8"/></svg>), svg(<svg width="20" height="20"><path d="M0 0 V20 H20 Z" fill="#4537C8"/></svg>), svg(<svg width="20" height="20"><path d="M20 0 V20 H0 Z" fill="#4537C8"/></svg>);
+  box-shadow: inset 0 0 0 6px #4537C8, inset 0 0 0 9px #B9A04E, inset 0 0 0 11px #4537C8;
+}
+[data-theme='majorelle'] .l-tile.is-done .l-tick { display: flex; width: 30px; height: 30px; margin-bottom: 4px; border: 0; background: #4537C8; color: #FFFFFF; }
+[data-theme='majorelle'] .l-tile.is-done .l-tick svg { width: 18px; height: 18px; }
+[data-theme='majorelle'] .l-tile.is-done .l-tile-text { color: var(--ink); text-decoration-color: var(--ink); }
+/* the time under the tiles */
+[data-theme='majorelle'] .l-now {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  position: absolute;
+  right: 0;
+  top: 466px;
+  white-space: nowrap;
+}
+[data-theme='majorelle'] .ln-time { font-size: 48px; font-weight: 700; color: #FFFFFF; }
+[data-theme='majorelle'] .ln-next { font-size: 24px; font-weight: 700; color: var(--rose); }
+[data-theme='majorelle'] .l-shop .l-foot { position: absolute; left: 0; right: 0; bottom: 0; color: var(--lilac); }
+[data-theme='majorelle'] .l-shop .l-clear { border-color: rgba(244, 196, 48, 0.7); }
+[data-theme='majorelle'] .l-shop .l-empty { color: var(--lilac); }
+
+/* the tasks card */
+[data-theme='majorelle'] .l-tasks {
+  --fg: 30, 22, 96;
+  --plaster: rgb(var(--fg));
+  --plaster-2: rgba(var(--fg), 0.7);
+  --plaster-3: rgba(var(--fg), 0.5);
+  --hair: #E6E3FA;
+  color: var(--plaster);
+  padding: 31px 41px 24px;
+  background: #FFFFFF;
+  border: 14px solid #F4C430;
+  box-shadow: inset 0 0 0 10px #FFFFFF, inset 0 0 0 12px #4537C8;
+}
+[data-theme='majorelle'] .l-tasks .l-head { height: auto; }
+[data-theme='majorelle'] .l-tasks .l-title { font: 700 50px/1.3 var(--kufi); color: #4537C8; }
+[data-theme='majorelle'] .l-tasks .l-rows { margin-top: 12px; padding-bottom: 0; }
+[data-theme='majorelle'] .l-row { min-height: 84px; padding: 8px 0; gap: 14px; border-bottom: 0; border-top: 2px solid var(--hair); }
+[data-theme='majorelle'] .l-rows > .l-row:last-child { border-bottom: 2px solid var(--hair); }
+[data-theme='majorelle'] .l-row-text { flex: 1; font-size: 27px; font-weight: 600; line-height: 1.2; }
+[data-theme='majorelle'] .l-circle { width: 32px; height: 32px; margin: 0; border-radius: 0; border: 3px solid #4537C8; }
+[data-theme='majorelle'] .l-row.is-done { min-height: 84px; }
+[data-theme='majorelle'] .l-row.is-done .l-circle { width: 32px; height: 32px; margin: 0; background: #4537C8; border-color: #4537C8; color: #FFFFFF; }
+[data-theme='majorelle'] .l-row.is-done .l-circle svg { width: 18px; height: 18px; }
+[data-theme='majorelle'] .l-row.is-done .l-row-text { font-size: 24px; color: #8A86B8; font-weight: 500; text-decoration-color: #8A86B8; }
+[data-theme='majorelle'] .l-today { display: inline-block; flex: none; padding: 0 10px; background: #F4C430; color: var(--ink); font-size: 17px; font-weight: 700; line-height: 1.6; }
+[data-theme='majorelle'] .l-repeat { color: #4537C8; }
+[data-theme='majorelle'] .l-done-head { margin-top: 10px; padding: 0 0 8px; color: #8A86B8; font-size: 18px; }
+[data-theme='majorelle'] .l-tasks .l-clear { min-height: 44px; padding: 0 18px; border: 2px solid #4537C8; border-radius: 0; color: #4537C8; font-size: 18px; font-weight: 600; }
+[data-theme='majorelle'] .l-clear.is-armed,
+[data-theme='majorelle'] .l-tasks .l-clear.is-armed { background: var(--saffron); border-color: var(--saffron); color: var(--ink); }
+[data-theme='majorelle'] .l-tasks .l-empty { color: #8A86B8; }
+[data-theme='majorelle'] .mj-vine { position: absolute; top: 0; right: 0; }
+
+/* ---------- calendar, adhkar, overlays ---------- */
+[data-theme='majorelle'] .cal-layout { bottom: 80px; }
+[data-theme='majorelle'] .c-month { font-weight: 700; }
+[data-theme='majorelle'] .c-hijri { color: var(--saffron); }
+[data-theme='majorelle'] .c-cell.is-weekend { background: rgba(30, 22, 96, 0.22); }
+[data-theme='majorelle'] .c-cell.is-today .c-d { background: var(--saffron); color: var(--ink); }
+[data-theme='majorelle'] .c-nav { border-color: rgba(244, 196, 48, 0.6); }
+[data-theme='majorelle'] .a-body { bottom: 110px; }
+[data-theme='majorelle'] .a-dots { bottom: 80px; }
+[data-theme='majorelle'] .a-title { font-weight: 700; color: var(--saffron); }
+[data-theme='majorelle'] .a-card {
+  background: rgba(30, 22, 96, 0.38);
+  border: 2px solid rgba(244, 196, 48, 0.55);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 8px rgba(69, 55, 200, 0.6), inset 0 0 0 10px rgba(244, 196, 48, 0.25);
+}
+[data-theme='majorelle'] .a-text { font-weight: 500; }
+[data-theme='majorelle'] .ph-empty { inset: 0 0 56px; }
+[data-theme='majorelle'] .fun-scrim,
+[data-theme='majorelle'] .qr .fun-scrim,
+[data-theme='majorelle'] .wf .fun-scrim {
+  background-color: var(--modal);
+  background-image: svg(<svg width="1280" height="800"><polygon points="0,0 1280,0 1110,800 0,800" fill="#1E1660" fill-opacity="0.3"/></svg>);
+  background-repeat: no-repeat;
+}
+[data-theme='majorelle'] .fun-menu { border-color: rgba(244, 196, 48, 0.55); }
+/* the match overlay: a pitch (repeated here so it never shows the screen through) */
+[data-theme='majorelle'] .match {
+  background:
+    linear-gradient(180deg, rgba(4, 18, 12, 0.88) 0%, rgba(4, 18, 12, 0.15) 30%, rgba(4, 18, 12, 0.2) 70%, rgba(4, 18, 12, 0.9) 100%),
+    repeating-linear-gradient(90deg, #0F5E3B 0 80px, #0C5233 80px 160px);
+}
+[data-theme='majorelle'] .l-tile.is-long .l-tile-text { font-size: 24px; }

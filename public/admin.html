@@ -28,42 +28,92 @@
 <body>
   <header class="top">
     <div class="top-row">
-      <h1><img class="brand-mark" src="brand/mark.svg" alt="" width="34" height="34">لوحة التحكم</h1>
-      <a class="view-frame" id="viewFrame" href="/" target="_blank" rel="noopener">عرض الإطار</a>
+      <h1><svg class="brand-star" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5l2.6 4.2 4.8-1.1-1.1 4.8 4.2 2.6-4.2 2.6 1.1 4.8-4.8-1.1L12 22.5l-2.6-4.2-4.8 1.1 1.1-4.8L1.5 12l4.2-2.6-1.1-4.8 4.8 1.1z" fill="none" stroke="#F2AE3D" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="#F2AE3D"/></svg>لوحة العائلة</h1>
+      <p class="frame-status" id="frameStatus"><span class="dot"></span><span id="frameStatusText">جاري الاتصال…</span></p>
+      <a class="view-frame" id="viewFrame" href="/" target="_blank" rel="noopener" hidden>عرض الإطار</a>
     </div>
-    <p class="frame-status" id="frameStatus"><span class="dot"></span><span id="frameStatusText">جاري الاتصال…</span></p>
   </header>
 
   <nav class="tabs" id="tabs" role="tablist" aria-label="الأقسام">
-    <button type="button" role="tab" data-view="pulse" class="is-on">
+    <button type="button" role="tab" data-view="home" class="is-on">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2.5"/><path d="M8 21h8"/></svg><span>الرئيسية</span></button>
+    <button type="button" role="tab" data-view="pulse">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.5-4.6-8.6-9.3C2.7 7.6 4.8 4.8 7.8 4.8c1.9 0 3.2 1.1 4.2 2.4 1-1.3 2.3-2.4 4.2-2.4 3 0 5.1 2.8 4.4 5.9C19.5 15.4 12 20 12 20z"/><path d="M6.5 11.5h3l1.2-2.4 2 4.6 1.3-2.2h3.5"/></svg><span>نبضة</span></button>
     <button type="button" role="tab" data-view="quran">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6c-2-1.6-4.6-2.3-8-2v14c3.4-.3 6 .4 8 2 2-1.6 4.6-2.3 8-2V4c-3.4-.3-6 .4-8 2z"/><path d="M12 6v14"/></svg><span>القرآن</span></button>
-    <button type="button" role="tab" data-view="fun">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/><path d="M18.5 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8zM5.5 15.5l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z"/></svg><span>مرح</span></button>
-    <button type="button" role="tab" data-view="message">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg><span>الرسالة</span></button>
-    <button type="button" role="tab" data-view="lists">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg><span>القوائم</span></button>
-    <button type="button" role="tab" data-view="photos">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><span>الصور</span></button>
-    <button type="button" role="tab" data-view="dates">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>المناسبات</span></button>
+    <button type="button" role="tab" data-view="house">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/></svg><span>البيت</span></button>
     <button type="button" role="tab" data-view="settings">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span>الإعدادات</span></button>
   </nav>
 
   <main>
+    <!-- ===== home: what matters today, and shortcuts ===== -->
+    <section id="v-home" class="view">
+      <div class="home-hello">
+        <h2 id="homeHello">أهلاً</h2>
+        <p id="homeDate"></p>
+      </div>
+
+      <section class="home-quran" id="homeQuran" aria-label="على الإطار الآن" hidden>
+        <div class="hq-top"><span class="hq-label">يُتلى على الإطار الآن</span><span class="hq-time" id="hqTime"></span></div>
+        <div class="hq-row">
+          <span class="hq-icon"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6c-2-1.6-4.6-2.3-8-2v14c3.4-.3 6 .4 8 2 2-1.6 4.6-2.3 8-2V4c-3.4-.3-6 .4-8 2z" fill="none" stroke="#BFD7FF" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 6v14" stroke="#BFD7FF" stroke-width="1.8"/></svg></span>
+          <div class="hq-text"><div class="hq-name" id="hqName"></div><div class="hq-sub" id="hqSub"></div></div>
+          <button type="button" class="hq-btn hq-play" id="hqPlay" aria-label="إيقاف مؤقت"></button>
+          <button type="button" class="hq-btn" id="hqStop" aria-label="إيقاف"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5" fill="currentColor"/></svg></button>
+        </div>
+        <div class="hq-bar"><i id="hqBar"></i></div>
+      </section>
+
+      <section class="home-send" aria-labelledby="sendTitle">
+        <div class="hs-head"><h3 id="sendTitle">أرسل نبضة</h3><button type="button" class="hs-more" data-go="pulse">المزيد</button></div>
+        <div class="hs-taps">
+          <button type="button" data-send-tap="love"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="#E86C7E"/></svg>أفكر فيكم</button>
+          <button type="button" data-send-tap="miss"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="none" stroke="#F2AE3D" stroke-width="2"/></svg>اشتقت إليكم</button>
+          <button type="button" data-send-tap="way"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h14M7 17l1.5-6h7L17 17M9 8h6" fill="none" stroke="#7FD3B5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>في الطريق</button>
+        </div>
+      </section>
+
+      <section class="home-grid" aria-label="اختصارات">
+        <button type="button" class="hg" data-go="message"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="#F2AE3D" stroke-width="1.9" stroke-linejoin="round"/></svg><span class="hg-t"><span class="hg-title">رسالة على الإطار</span><span class="hg-sub" id="homeMsg"></span></span></button>
+        <button type="button" class="hg" data-go="photos"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="#F2AE3D" stroke-width="1.9"/><path d="M3 16l5-5 4 4 3-3 6 6" fill="none" stroke="#F2AE3D" stroke-width="1.9" stroke-linejoin="round"/></svg><span class="hg-t"><span class="hg-title">أضف صوراً</span><span class="hg-sub" id="homePhotos">ألبوم الإطار</span></span></button>
+        <button type="button" class="hg" data-go="fun"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.2 5.6L20 9l-5.8 1.5L12 16l-2.2-5.5L4 9l5.8-1.4z" fill="#F2AE3D"/></svg><span class="hg-t"><span class="hg-title">مرح</span><span class="hg-sub">دقّة، عجلة، تلوين</span></span></button>
+        <button type="button" class="hg" id="homeWifi"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#9FE0C6" stroke-width="2" stroke-linecap="round"><path d="M2.5 9a14 14 0 0 1 19 0"/><path d="M5.8 12.6a9.2 9.2 0 0 1 12.4 0"/><path d="M9.1 16.1a4.6 4.6 0 0 1 5.8 0"/><circle cx="12" cy="19.6" r="1.2" fill="#9FE0C6" stroke="none"/></svg><span class="hg-t"><span class="hg-title">الواي فاي</span><span class="hg-sub" id="homeWifiSub">اعرض الرمز للضيوف</span></span></button>
+      </section>
+
+      <section class="home-today" aria-labelledby="todayTitle">
+        <h3 id="todayTitle">اليوم في البيت</h3>
+        <button type="button" class="ht" data-go="lists"><span class="ht-label">للشراء</span><span class="ht-text" id="homeShop"></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="#CDBFB8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button type="button" class="ht" data-go="dates"><span class="ht-label">قريباً</span><span class="ht-text" id="homeNext"></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="#CDBFB8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </section>
+    </section>
+
+    <!-- «البيت»: lists, dates, photos and the message, one switcher above them -->
+    <h2 class="house-title" id="houseTitle" hidden>البيت</h2>
+    <div class="seg house-seg" id="houseSeg" role="tablist" aria-label="البيت" hidden>
+      <button type="button" data-view="lists">القوائم</button>
+      <button type="button" data-view="dates">المناسبات</button>
+      <button type="button" data-view="photos">الصور</button>
+      <button type="button" data-view="message">الرسالة</button>
+    </div>
     <!-- ===== «نبضة»: moments to the frame ===== -->
-    <section id="v-pulse" class="view">
-      <div class="pulse-head">
-        <h2>نبضة</h2>
+    <section id="v-pulse" class="view" hidden>
+      <button type="button" class="back" id="ppBack" data-pp="sub" hidden>نبضة</button>
+      <div class="pulse-head" data-pp="send feed">
+        <div>
+          <h2>نبضة</h2>
+          <p class="pulse-sub" id="pulseSub">تصل إلى الإطار خلال ثانيتين</p>
+        </div>
         <p class="pulse-live" id="pulseLive" hidden><span class="dot"></span><span id="pulseLiveText"></span></p>
       </div>
-      <p class="lead">لحظة صغيرة إلى البيت: تظهر على الإطار في ثوانٍ، ويستطيع من في البيت أن يردّ عليك بقلب.</p>
+      <div class="pp-seg" role="tablist" aria-label="نبضة" data-pp="send feed">
+        <button type="button" role="tab" data-pp-go="send" aria-selected="true">إرسال</button>
+        <button type="button" role="tab" data-pp-go="feed" aria-selected="false">آخر النبضات <span class="pp-badge" id="ppBadge" hidden></span></button>
+      </div>
 
       <!-- who is sending -->
-      <div class="card who" id="whoCard">
+      <div class="card who" id="whoCard" data-pp="send">
         <label>من يرسل؟</label>
         <div class="chips-row" id="whoChips"></div>
         <form class="who-other" id="whoForm">
@@ -71,28 +121,50 @@
           <button type="submit" class="primary">حفظ</button>
         </form>
       </div>
-      <p class="who-line" id="whoLine" hidden>ترسل باسم <b id="whoName"></b> · <button type="button" id="whoChange">تغيير</button></p>
-      <div class="notif-banner" id="notifBanner" hidden>
+      <p class="who-line" id="whoLine" data-pp="send" hidden>ترسل باسم <b id="whoName"></b> · <button type="button" id="whoChange">تغيير</button></p>
+      <div class="notif-banner" id="notifBanner" data-pp="send" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
         <span>فعّل الإشعارات لتصلك النبضات والقلوب على هذا الهاتف حتى والتطبيق مغلق.</span>
         <button type="button" class="primary small" id="notifBannerOn">فعّل</button>
       </div>
 
       <!-- now, or a surprise for later -->
-      <div class="when-row" role="radiogroup" aria-label="متى تصل؟">
+      <div class="when-row" role="radiogroup" aria-label="متى تصل؟" data-pp="none">
         <button type="button" class="when-btn is-on" id="whenNow">الآن</button>
         <button type="button" class="when-btn" id="whenLater">🎁 مفاجأة لاحقاً…</button>
       </div>
-      <div class="when-pick" id="whenPick" hidden>
+      <div class="when-pick" id="whenPick" data-pp="send" hidden>
         <div class="when-inputs"><input type="date" id="whenDate" aria-label="اليوم"><input type="time" id="whenTime" aria-label="الساعة"></div>
         <div class="wheel-chips" id="whenQuick"></div>
       </div>
-      <p class="when-banner" id="whenBanner" hidden></p>
+      <p class="when-banner" id="whenBanner" data-pp="send" hidden></p>
 
-      <div class="taps" id="taps"></div>
+      <div class="taps" id="taps" data-pp="send"></div>
+
+      <section class="pp-more" data-pp="send" aria-labelledby="ppMoreTitle">
+        <h3 id="ppMoreTitle">أو أرسل شيئاً منك</h3>
+        <div class="pp-more-row">
+          <button type="button" data-pp-go="pad"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1L19 8a2.1 2.1 0 0 0-3-3L5 16z" fill="none" stroke="#F2AE3D" stroke-width="1.9" stroke-linejoin="round"/></svg>رسمة</button>
+          <button type="button" data-pp-go="voice"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="#F2AE3D" stroke-width="1.9"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="#F2AE3D" stroke-width="1.9" stroke-linecap="round"/></svg>رسالة صوتية</button>
+          <button type="button" data-pp-go="beat"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2-5 3 10 2-5h7" fill="none" stroke="#E86C7E" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>نبض قلبك</button>
+        </div>
+      </section>
+
+      <section class="pp-opts" data-pp="send" aria-label="خيارات">
+        <label class="pp-opt">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="9" width="17" height="11" rx="2" fill="none" stroke="#F2AE3D" stroke-width="1.8"/><path d="M3.5 13h17M12 9v11M12 9c-1.5-3-5-4-5-1.5S10 9 12 9zm0 0c1.5-3 5-4 5-1.5S14 9 12 9z" fill="none" stroke="#F2AE3D" stroke-width="1.8"/></svg>
+          <span class="pp-opt-t"><span>مفاجأة لوقت لاحق</span><small>اختر متى تظهر بعد أن تكتبها</small></span>
+          <span class="switch-only"><input type="checkbox" id="ppLater" aria-label="مفاجأة لوقت لاحق"></span>
+        </label>
+        <button type="button" class="pp-opt" data-pp-go="status">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6" fill="none" stroke="#F2AE3D" stroke-width="1.8"/><path d="M5 20c1-3.6 3.8-5.5 7-5.5s6 1.9 7 5.5" fill="none" stroke="#F2AE3D" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="pp-opt-t"><span>حالتي</span><small id="ppStatusSub">شارك ما تفعله الآن</small></span>
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="#CDBFB8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </section>
 
       <!-- a real heartbeat -->
-      <div class="card beat-card" id="beatCard">
+      <div class="card beat-card" id="beatCard" data-pp="beat">
         <div class="row-title"><h3>نبضك الحقيقي</h3><span class="hint">قلبك ينبض على الإطار</span></div>
         <div class="beat-stage">
           <video id="beatVideo" class="beat-cam" playsinline muted></video>
@@ -113,7 +185,7 @@
       </div>
 
       <!-- drawing -->
-      <div class="card pad-card">
+      <div class="card pad-card" data-pp="pad">
         <div class="row-title"><h3>رسمة بإصبعك</h3><span class="hint">تُرسم من جديد على الإطار، خطاً خطاً</span></div>
         <div class="pad-wrap"><canvas id="pad" width="800" height="600" aria-label="لوحة الرسم"></canvas><p class="pad-empty" id="padEmpty">ارسم هنا</p></div>
         <div class="pad-tools">
@@ -128,7 +200,7 @@
       </div>
 
       <!-- voice -->
-      <div class="card voice-card">
+      <div class="card voice-card" data-pp="voice">
         <div class="row-title"><h3>رسالة صوتية</h3><span class="hint">حتى 15 ثانية</span></div>
         <div class="rec">
           <button type="button" class="rec-btn" id="recBtn" aria-label="ابدأ التسجيل">
@@ -150,7 +222,7 @@
       </div>
 
       <!-- «حالتي» -->
-      <div class="card status-card" id="statusCard">
+      <div class="card status-card" id="statusCard" data-pp="status">
         <div class="row-title"><h3>حالتي</h3><span class="hint">تظهر على شاشة الساعة في البيت</span></div>
         <div class="status-now" id="statusNow" hidden></div>
         <div class="chips-row" id="statusPresets"></div>
@@ -165,18 +237,18 @@
       </div>
 
       <!-- my surprises waiting -->
-      <div class="card later-card" id="laterCard" hidden>
+      <div class="card later-card" id="laterCard" data-pp="feed" hidden>
         <div class="row-title"><h3>مفاجآتي المؤجلة</h3><span class="hint">لا يراها أحد قبل وقتها</span></div>
         <ul class="feed" id="laterList"></ul>
       </div>
 
       <!-- what happened -->
-      <h3 class="feed-title">آخر النبضات</h3>
-      <ul class="feed" id="pulseFeed"></ul>
-      <button type="button" class="ghost small feed-more" id="feedMore" hidden>عرض المزيد</button>
+      <h3 class="feed-title" data-pp="none">آخر النبضات</h3>
+      <ul class="feed" id="pulseFeed" data-pp="feed"></ul>
+      <button type="button" class="ghost small feed-more" id="feedMore" data-pp="feed" hidden>عرض المزيد</button>
 
       <!-- notifications on this phone -->
-      <div class="card notif" id="notifCard">
+      <div class="card notif" id="notifCard" data-pp="feed">
         <div class="row-title"><h3>الإشعارات على هذا الهاتف</h3><span class="notif-dot" id="notifDot"></span></div>
         <p class="hint" id="notifState">…</p>
         <div id="notifOn" hidden>
@@ -194,19 +266,21 @@
         <button type="button" class="primary" id="notifEnable" hidden>فعّل الإشعارات</button>
       </div>
 
-      <div class="card invite">
+      <div class="card invite" data-pp="feed">
         <h3>للأجداد والأقارب</h3>
         <p class="hint">أرسل لهم هذا الرابط مرة واحدة. يفتحونه على الهاتف، ثم «إضافة إلى الشاشة الرئيسية»، فيصير عندهم تطبيق «الإطار» ويرسلون النبضات مثلك.</p>
         <button type="button" class="ghost" id="inviteBtn">مشاركة الرابط</button>
       </div>
+      <button type="button" class="row-link row-link-end" data-go="fun" data-pp="feed"><span class="rl-title">مرح</span><span class="rl-sub">الماتش، الدقّة السرية، العجلة، التلوين</span></button>
     </section>
 
     <!-- ===== «القرآن» ===== -->
     <section id="v-quran" class="view" hidden>
-      <div class="qn-head"><span class="qn-icon" id="qnIcon"></span><h2>القرآن الكريم</h2></div>
-      <p class="lead" id="qnReciter"></p>
+      <button type="button" class="back" data-q="sub" data-q-go="main">القرآن</button>
+      <div class="qn-head" data-q="main"><span class="qn-icon" id="qnIcon"></span><div><h2>القرآن الكريم</h2><p class="qn-lead">على سمّاعة الإطار</p></div></div>
+      <p class="lead" id="qnReciter" data-q="none"></p>
 
-      <div class="card qn-now" id="qnNow">
+      <div class="card qn-now" id="qnNow" data-q="main">
         <p class="qn-now-name" id="qnName">…</p>
         <p class="hint" id="qnSub"></p>
         <div class="qn-bar"><i id="qnBar"></i></div>
@@ -219,23 +293,29 @@
         <label class="qn-vol"><span>الصوت</span><input type="range" id="qnVol" min="0" max="100" step="5"><b id="qnVolText"></b></label>
       </div>
 
-      <div class="card">
+      <div class="card qn-rec-card" data-q="main">
         <div class="row-title"><h3>القارئ</h3><span class="hint">للإطار ولـ🎧؛ ما يُتلى الآن يُعاد بصوته</span></div>
         <div class="qn-recs" id="qnRecs"></div>
       </div>
 
-      <div class="card">
-        <div class="row-title"><h3>سوري</h3><span class="hint">«الإطار» تُتلى في البيت، 🎧 تسمعها هنا</span></div>
+      <div class="card qn-favs-card" data-q="main all">
+        <div class="row-title"><h3>سوري</h3><span class="hint">«الإطار» تُتلى في البيت، 🎧 تسمعها هنا</span><button type="button" class="qn-all-btn" id="qnPlayAll2">تشغيلها كلها</button></div>
         <ul class="qn-list" id="qnFavs"></ul>
-        <div class="actions">
+        <button type="button" class="qn-more" data-q-go="all" id="qnMore">عرض القائمة كلها وإضافة سورة</button>
+        <div class="actions qn-all-only">
           <button type="button" class="primary" id="qnPlayAll">تشغيل القائمة كلها على الإطار</button>
           <select id="qnMode" aria-label="بعد آخر سورة"><option value="list">ثم تتوقف</option><option value="repeat">ثم تُعاد</option></select>
         </div>
-        <div class="qn-add"><select id="qnAdd" aria-label="سورة"></select><button type="button" class="ghost small" id="qnAddBtn">أضف إلى القائمة</button></div>
+        <div class="qn-add qn-all-only"><select id="qnAdd" aria-label="سورة"></select><button type="button" class="ghost small" id="qnAddBtn">أضف إلى القائمة</button></div>
         <div class="qn-here-box" id="qnHereBox" hidden><p class="hint" id="qnHereName"></p><audio id="qnHere" controls preload="none"></audio></div>
       </div>
 
-      <div class="card">
+      <button type="button" class="pp-opt qn-sched-row-link" data-q="main" data-q-go="sched">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="#F2AE3D" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="#F2AE3D" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span class="pp-opt-t"><span>تشغيل تلقائي</span><small id="qnSchedSum">لا أوقات بعد</small></span>
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="#CDBFB8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="card" data-q="sched">
         <div class="row-title"><h3>تشغيل تلقائي</h3><span class="hint">يبدأها الإطار وحده في وقتها</span></div>
         <p class="hint" id="qnSchedEmpty">لا أوقات بعد. اقتراحات:</p>
         <div class="chips-row" id="qnSuggest"></div>
@@ -251,6 +331,7 @@
 
     <!-- ===== «مرح»: match mode, the secret knock, the wheel ===== -->
     <section id="v-fun" class="view" hidden>
+      <button type="button" class="back" data-go="pulse">نبضة</button>
       <h2>مرح</h2>
       <p class="lead">ألعاب صغيرة مع البيت: تظهر على الإطار في الحال.</p>
 
@@ -355,18 +436,24 @@
     <!-- ===== lists ===== -->
     <section id="v-lists" class="view" hidden>
       <div class="seg" role="tablist" aria-label="القائمة">
-        <button type="button" data-list="shopping" class="is-on">التسوق <span class="n" id="nShopping"></span></button>
+        <button type="button" data-list="shopping" class="is-on">للشراء <span class="n" id="nShopping"></span></button>
         <button type="button" data-list="tasks">المهام <span class="n" id="nTasks"></span></button>
       </div>
       <form class="addbar" id="addForm">
         <label class="sr" for="addInput">عنصر جديد</label>
         <input id="addInput" type="text" maxlength="120" autocomplete="off" enterkeyhint="done">
-        <button type="submit">إضافة</button>
+        <button type="submit" aria-label="أضف"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
       </form>
       <div class="quick" id="quick"></div>
       <ul class="items" id="items"></ul>
       <button type="button" class="ghost" id="clearDone" hidden></button>
 
+      <button type="button" class="pp-opt rt-link" id="rtLink" hidden>
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v4.5h-4.5" fill="none" stroke="#F2AE3D" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="pp-opt-t"><span>مهام تتكرر</span><small id="rtSum"></small></span>
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="#CDBFB8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="back" id="rtBack" hidden>القوائم</button>
       <div class="card routines-card" id="routinesCard" hidden>
         <p class="card-title">مهام متكررة</p>
         <p class="hint">تعود إلى قائمة المهام وحدها في موعدها، فلا داعي لكتابتها كل مرة. تُعلَّم منجزة على الإطار كأي مهمة.</p>
@@ -471,9 +558,19 @@
 
     <!-- ===== settings ===== -->
     <section id="v-settings" class="view" hidden>
-      <h2>الإعدادات</h2>
+      <button type="button" class="back" id="setBack" hidden>الإعدادات</button>
+      <div class="set-title-row"><h2 id="setTitle">الإعدادات</h2><button type="button" class="try-btn" id="setTry" hidden><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5v14l12-7z" fill="currentColor"/></svg>جرّبه دقيقة</button></div>
+      <p class="set-sub" id="setSub" hidden></p>
+      <div id="setMenu" class="set-menu"></div>
 
-      <fieldset class="card">
+      <fieldset class="card" data-page="theme">
+        <legend>مظهر الإطار</legend>
+        <p class="hint">يتبعه كل ما على الإطار، حتى شاشات رمضان والماتش والقرآن. يُحفظ الاختيار فوراً.</p>
+        <div class="themes" id="themes" role="radiogroup" aria-label="المظاهر"></div>
+        <div class="actions"><button type="button" class="ghost" id="tryTheme">جرّب المظهر المحدد على الإطار لدقيقة</button></div>
+      </fieldset>
+
+      <fieldset class="card" data-page="city">
         <legend>المدينة</legend>
         <p class="hint">للطقس ومواقيت الصلاة.</p>
         <label for="sCity">المدينة</label>
@@ -487,14 +584,14 @@
         </div>
       </fieldset>
 
-      <fieldset class="card">
+      <fieldset class="card" data-page="prayer">
         <legend>مواقيت الصلاة</legend>
         <p class="hint">تُحسب حسب طريقة وزارة الأوقاف. إذا اختلف مسجدكم، أضف أو انقص دقائق.</p>
         <div class="steppers" id="prayerAdjust"></div>
         <label class="switch"><input type="checkbox" id="sPrayerFocus"><span>إظهار شاشة الصلاة قبل الأذان بعشر دقائق</span></label>
       </fieldset>
 
-      <fieldset class="card">
+      <fieldset class="card" data-page="prayer">
         <legend>الأذان</legend>
         <p class="hint">يُرفع الأذان من سماعة الإطار في وقت كل صلاة. ارفع ملف الأذان الذي تحبه (MP3 مثلاً، حتى 10 ميغابايت).</p>
         <label class="switch"><input type="checkbox" id="sAdhan"><span>تشغيل الأذان على الإطار</span></label>
@@ -523,7 +620,7 @@
         <div class="actions"><button type="button" class="ghost" id="testAdhan">تجربة الأذان على الإطار الآن</button></div>
       </fieldset>
 
-      <fieldset class="card">
+      <fieldset class="card" data-page="ramadan">
         <legend>رمضان</legend>
         <p class="hint" id="ramadanWhen"></p>
         <label class="switch"><input type="checkbox" id="sRamadan"><span>وضع رمضان على شاشة الصلاة (يعمل وحده طوال الشهر): عدّ تنازلي للإفطار والسحور ووقت الإمساك</span></label>
@@ -535,7 +632,7 @@
         <p class="hint" id="previewNote"></p>
       </fieldset>
 
-      <fieldset class="card">
+      <fieldset class="card" data-page="adhkar">
         <legend>الأذكار</legend>
         <label class="switch"><input type="checkbox" id="sAdhkar"><span>عرض أذكار الصباح بعد الفجر وأذكار المساء بعد العصر</span></label>
         <label for="sAdhkarMin">تبقى على الشاشة (دقائق)، أو حتى تُكمَل</label>
@@ -566,18 +663,18 @@
         <div class="actions"><button type="button" class="ghost" id="previewAdhkar">عرض الأذكار على الإطار الآن</button></div>
       </fieldset>
 
-      <fieldset class="card">
+      <fieldset class="card" data-page="clock">
         <legend>شاشة الساعة</legend>
         <label class="switch"><input type="checkbox" id="sVerse"><span>آية أو حديث كل يوم (حين لا توجد رسالة)</span></label>
         <label class="switch"><input type="checkbox" id="sNudge"><span>جملة عن الطقس بدل الأرقام: المظلة، البرد، الحر…</span></label>
       </fieldset>
 
-      <fieldset class="card">
+      <fieldset class="card" data-page="pulse">
         <legend>نبضة</legend>
         <label class="switch"><input type="checkbox" id="sPulseSound"><span>رنّة خفيفة على الإطار حين تصل نبضة (لا رنّة في الليل)</span></label>
       </fieldset>
 
-      <fieldset class="card">
+      <fieldset class="card" data-page="city">
         <legend>التاريخ الهجري</legend>
         <p class="hint">إذا كان اليوم الهجري على الإطار مختلفاً عن المعلن في المغرب.</p>
         <div class="stepper-line">
@@ -586,7 +683,7 @@
         </div>
       </fieldset>
 
-      <fieldset class="card">
+      <fieldset class="card" data-page="screens">
         <legend>الشاشات</legend>
         <p class="hint">الشاشات التي تتناوب على الإطار، وكم ثانية تبقى كل واحدة.</p>
         <div id="screensList"></div>
@@ -595,20 +692,31 @@
         <input id="sPhotoSeconds" type="number" min="5" max="120" dir="ltr">
       </fieldset>
 
-      <fieldset class="card">
+      <div class="night-preview" data-page="night" aria-hidden="true">
+        <div class="np-time" id="npTime">23:41</div>
+        <div class="np-date" id="npDate"></div>
+        <div class="np-note" id="npNote"></div>
+      </div>
+      <fieldset class="card night-card" data-page="night">
         <legend>الوضع الليلي</legend>
-        <label class="switch"><input type="checkbox" id="sNight"><span>تخفيف الإضاءة ليلاً وعرض الساعة فقط</span></label>
-        <div class="two">
+        <label class="switch np-on"><span>تشغيل الوضع الليلي</span><input type="checkbox" id="sNight"></label>
+        <div class="two np-times">
           <div><label for="sNightStart">من</label><input id="sNightStart" type="time" dir="ltr"></div>
           <div><label for="sNightEnd">إلى</label><input id="sNightEnd" type="time" dir="ltr"></div>
         </div>
-        <label for="sNightDim">درجة التعتيم <span id="sNightDimOut"></span></label>
-        <input id="sNightDim" type="range" min="0" max="0.95" step="0.05">
-        <label class="switch"><input type="checkbox" id="sNightOff"><span>إطفاء الشاشة كلياً بدل التعتيم (لمسة واحدة تُشعلها)</span></label>
-        <p class="hint" id="nightOffNote" hidden></p>
       </fieldset>
+      <section class="night-how" data-page="night" aria-labelledby="howTitle">
+        <h3 id="howTitle">الشاشة في الليل</h3>
+        <div class="how-cards" role="radiogroup" aria-labelledby="howTitle">
+          <button type="button" role="radio" class="how" id="howDim" aria-checked="true"><b>تعتيم</b><span>تبقى الساعة ظاهرة</span></button>
+          <button type="button" role="radio" class="how" id="howOff" aria-checked="false"><b>إطفاء كلي</b><span>سوداء، ولمسة تُشعلها</span></button>
+        </div>
+        <input type="checkbox" id="sNightOff" hidden>
+        <label class="how-dim" for="sNightDim"><span>درجة التعتيم</span><input id="sNightDim" type="range" min="0" max="0.95" step="0.05"><span id="sNightDimOut"></span></label>
+        <p class="hint" id="nightOffNote" hidden></p>
+      </section>
 
-      <fieldset class="card">
+      <fieldset class="card" data-page="wifi">
         <legend>الواي فاي للضيوف</legend>
         <p class="hint">يظهر زرّ الواي فاي في أسفل الإطار، ويعرض الشبكة رمزاً يمسحه الضيف بكاميرا هاتفه فيتصل. تُحفظ كلمة السر مع إعدادات الإطار.</p>
         <label for="sWifiSsid">اسم الشبكة</label>
@@ -626,7 +734,7 @@
         <div class="actions"><button type="button" class="ghost" id="previewWifi">عرض الرمز على الإطار الآن</button></div>
       </fieldset>
 
-      <fieldset class="card">
+      <fieldset class="card" data-page="quick">
         <legend>الإضافة السريعة</legend>
         <p class="hint">أزرار جاهزة في القوائم. افصل بينها بفاصلة.</p>
         <label for="sQuickShopping">التسوق</label>
@@ -635,6 +743,7 @@
         <textarea id="sQuickTasks" rows="2"></textarea>
       </fieldset>
 
+      <p class="set-note" id="setNote" hidden><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="#7FD3B5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="setNoteText">تُحفظ التغييرات وحدها، ويأخذها الإطار خلال 30 ثانية.</span></p>
       <div class="savebar" id="saveBar" hidden>
         <span>لديك تغييرات غير محفوظة</span>
         <button type="button" class="primary" id="saveSettings">حفظ</button>

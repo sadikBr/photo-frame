@@ -1,0 +1,412 @@
+/* Built by tools/build-themes.py from tools/themes/sahara.css — edit that file, not this one. */
+@font-face { font-family: 'Rakkas'; font-weight: 400; font-display: block; src: url('../../fonts/themes/rakkas-arabic-400-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Rakkas'; font-weight: 400; font-display: block; src: url('../../fonts/themes/rakkas-latin-400-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Tajawal'; font-weight: 400; font-display: block; src: url('../../fonts/themes/tajawal-arabic-400-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Tajawal'; font-weight: 400; font-display: block; src: url('../../fonts/themes/tajawal-latin-400-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Tajawal'; font-weight: 500; font-display: block; src: url('../../fonts/themes/tajawal-arabic-500-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Tajawal'; font-weight: 500; font-display: block; src: url('../../fonts/themes/tajawal-latin-500-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Tajawal'; font-weight: 700; font-display: block; src: url('../../fonts/themes/tajawal-arabic-700-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Tajawal'; font-weight: 700; font-display: block; src: url('../../fonts/themes/tajawal-latin-700-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Tajawal'; font-weight: 800; font-display: block; src: url('../../fonts/themes/tajawal-arabic-800-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Tajawal'; font-weight: 800; font-display: block; src: url('../../fonts/themes/tajawal-latin-800-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+/* fonts: rakkas, tajawal */
+/* «صحراء»: golden-hour dunes and a camel caravan, the sun's path across the sky, woven Amazigh
+   rugs. Rakkas for the display, Tajawal for the text, deep brown ink on sand.
+   Mockups: T4-Sahara-Clock / Prayer / Lists. */
+
+[data-theme='sahara'] {
+  --fg: 74, 36, 20;
+  --plaster: rgb(var(--fg));
+  --plaster-2: rgba(var(--fg), 0.74);
+  --plaster-3: rgba(var(--fg), 0.55);
+  --hair: rgba(var(--fg), 0.16);
+  --shade: 142, 58, 30;
+  --saffron: #8E3A1E;
+  --accent-rgb: 142, 58, 30;
+  --saffron-ink: #FBEBD2;
+  --garnet: #A8322A;
+  --garnet-deep: #FBEBD2;
+  --sky: #2F6F8F;
+  --sky-2: #24566F;
+  --sky-rgb: 47, 111, 143;
+  --mint: #4E7A2E;
+  --mint-rgb: 98, 140, 70;
+  --rose: #B5374E;
+  --rose-rgb: 181, 72, 94;
+  --deep-rgb: 251, 235, 210;
+  --deep2-rgb: 242, 214, 170;
+  --modal: #F6E3C4;
+  --menu: rgba(251, 235, 210, 0.97);
+  --banner: rgba(251, 235, 210, 0.97);
+  --chip-bg: #FBEBD2;
+  --g-home: #F2C389;
+  --g-prayer: #F2C389;
+  --g-lists: #EFCB98;
+  --g-calendar: #F8EAD2;
+  --g-adhkar-m: #FBEBD2;
+  --g-adhkar-e: #F0D3A8;
+  --kufi: 'Rakkas', serif;
+  --sans: 'Tajawal', sans-serif;
+  --dock-scrim: rgba(42, 26, 20, 0.66);
+  --dock-hint: #FBEBD2;
+  --door-fun: #F6DDB8;
+  --door-wifi: #E6E8C8;
+  --s-ink: #4A2414;
+  --s-clay: #8E3A1E;
+  --s-red: #A8322A;
+  --s-muted: #7A4A2A;
+  --s-cream: #FBEBD2;
+  font-synthesis: none;
+}
+[data-theme='sahara'] #stage { font-weight: 400; }
+/* Rakkas has a single weight */
+[data-theme='sahara'] .h-weekday,
+[data-theme='sahara'] .h-clock,
+[data-theme='sahara'] .p-name,
+[data-theme='sahara'] .c-month,
+[data-theme='sahara'] .c-d,
+[data-theme='sahara'] .l-title,
+[data-theme='sahara'] .a-title,
+[data-theme='sahara'] .a-left,
+[data-theme='sahara'] .a-done-title,
+[data-theme='sahara'] .c-side-title,
+[data-theme='sahara'] .c-up-d,
+[data-theme='sahara'] .r-day,
+[data-theme='sahara'] .r-t-time,
+[data-theme='sahara'] .r-q-title,
+[data-theme='sahara'] .fun-title,
+[data-theme='sahara'] .pl-title,
+[data-theme='sahara'] .pl-card-title,
+[data-theme='sahara'] .fw-result-text,
+[data-theme='sahara'] .fw-hub,
+[data-theme='sahara'] .qr-fav,
+[data-theme='sahara'] .qr-np-name { font-weight: 400; }
+
+[data-theme='sahara'] .screen {
+  background-image: linear-gradient(180deg, rgba(251, 235, 210, 0.7), rgba(251, 235, 210, 0) 60%);
+}
+[data-theme='sahara'] .s-photos { background-image: none; }
+
+/* the rug along the bottom: a dark warp line, then red diamonds */
+[data-theme='sahara'] .band {
+  height: 52px;
+  border: 0;
+  background-color: #A8322A;
+  background-position: center top;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2252%22%3E%3Crect width=%2264%22 height=%224%22 fill=%22%232A1A14%22/%3E%3Cg transform=%22translate(0 4)%22%3E%3Crect width=%2264%22 height=%2248%22 fill=%22%23A8322A%22/%3E%3Cpath d=%22M32 6 L54 24 L32 42 L10 24 Z%22 fill=%22none%22 stroke=%22%23F6DDB8%22 stroke-width=%223%22/%3E%3Cpath d=%22M32 15 L43 24 L32 33 L21 24 Z%22 fill=%22%232A1A14%22/%3E%3Ccircle cx=%2232%22 cy=%2224%22 r=%222.5%22 fill=%22%23F2B84B%22/%3E%3Cpath d=%22M0 0 L6 6 L0 12 Z M64 0 L58 6 L64 12 Z M0 48 L6 42 L0 36 Z M64 48 L58 42 L64 36 Z%22 fill=%22%232A1A14%22/%3E%3C/g%3E%3C/svg%3E");
+}
+[data-theme='sahara'] .s-lists .band { display: none; }
+[data-theme='sahara'] .status { color: #FBEBD2; font-weight: 700; }
+
+/* ---------- clock (T4-Sahara-Clock) ---------- */
+[data-theme='sahara'] .s-home .home-grid { display: contents; }
+[data-theme='sahara'] .s-home .rule,
+[data-theme='sahara'] .s-home .h-weather,
+[data-theme='sahara'] .s-home .h-next { display: none; }
+[data-theme='sahara'] .s-home .h-main {
+  position: absolute;
+  right: 70px;
+  top: 44px;
+  width: 660px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-start;
+}
+[data-theme='sahara'] .s-home .h-dates { display: contents; }
+[data-theme='sahara'] .s-home .h-weekday { order: 1; flex: 0 0 100%; font: 400 64px/1.15 var(--kufi); color: var(--s-clay); }
+[data-theme='sahara'] .s-home .h-clock,
+[data-theme='sahara'] .s-home.has-msg .h-clock {
+  order: 2;
+  flex: 0 0 100%;
+  margin: 0;
+  font: 400 236px/0.95 var(--kufi);
+  letter-spacing: 0;
+  color: var(--s-ink);
+  text-align: right;
+}
+[data-theme='sahara'] .s-home .h-greg,
+[data-theme='sahara'] .s-home .h-hijri { order: 3; margin: 10px 0 0; font-size: 30px; font-weight: 500; line-height: 1.4; color: var(--s-ink); }
+[data-theme='sahara'] .s-home .h-hijri { color: var(--s-clay); }
+[data-theme='sahara'] .s-home .h-hijri::before { content: '·'; padding: 0 8px; color: var(--s-ink); }
+
+/* the family's message or the verse (not in the mockup): on the dune under the sun */
+[data-theme='sahara'] .s-home .h-msg,
+[data-theme='sahara'] .s-home .h-verse {
+  position: absolute;
+  left: -486px;
+  width: 470px;
+  top: 452px;
+  max-width: none;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--s-ink);
+}
+[data-theme='sahara'] .s-home .h-msg-icon svg { fill: var(--s-red); }
+[data-theme='sahara'] .s-home .h-verse { gap: 2px; }
+[data-theme='sahara'] .s-home .h-verse-text,
+[data-theme='sahara'] .s-home .h-verse.is-verse .h-verse-text { font-family: var(--sans); font-size: 22px; line-height: 1.45; font-weight: 500; }
+[data-theme='sahara'] .s-home .h-verse-ref { font-size: 16px; color: var(--s-muted); }
+
+/* the weather, written on the sun */
+[data-theme='sahara'] .s-home .h-wxm {
+  position: absolute;
+  left: 200px;
+  top: 236px;
+  width: 200px;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  color: var(--s-ink);
+}
+[data-theme='sahara'] .h-wxm .hw-icon,
+[data-theme='sahara'] .h-wxm .hw-next { display: none; }
+[data-theme='sahara'] .h-wxm .hw-text { display: flex; flex-direction: column; align-items: center; }
+[data-theme='sahara'] .h-wxm .hw-temp { font: 400 64px/1 var(--kufi); color: var(--s-clay); }
+[data-theme='sahara'] .h-wxm .hw-cond { font-size: 20px; font-weight: 500; }
+
+/* the prayers across the front dune */
+[data-theme='sahara'] .s-home .h-prayers {
+  position: absolute;
+  right: -6px;
+  width: 1152px;
+  top: 574px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+[data-theme='sahara'] .h-prayers .prow-i {
+  width: 200px;
+  padding: 8px 0 10px;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--s-cream);
+}
+[data-theme='sahara'] .h-prayers .prow-icon { display: none; }
+[data-theme='sahara'] .h-prayers .prow-name { font-size: 22px; font-weight: 700; line-height: 1.3; }
+[data-theme='sahara'] .h-prayers .prow-time { font: 400 48px/1.05 var(--kufi); }
+[data-theme='sahara'] .h-prayers .prow-in { font-size: 17px; font-weight: 700; line-height: 1.3; color: #FBD08C; }
+[data-theme='sahara'] .h-prayers .prow-in:empty { display: none; }
+[data-theme='sahara'] .h-prayers .is-past { opacity: 0.72; }
+[data-theme='sahara'] .h-prayers .is-next { background: var(--s-clay); }
+
+/* status lines and the Quran chip: plain, on the sand */
+[data-theme='sahara'] .match-chip,
+[data-theme='sahara'] .st-chip { background: rgba(251, 235, 210, 0.82); border: 1px solid rgba(142, 58, 30, 0.25); color: var(--s-ink); }
+[data-theme='sahara'] .st-chip b { color: var(--s-clay); }
+[data-theme='sahara'] .st-chip small { color: var(--s-muted); }
+[data-theme='sahara'] .qr-chip { background: rgba(251, 235, 210, 0.9); border-color: rgba(142, 58, 30, 0.3); }
+[data-theme='sahara'] .qr-icon svg { color: var(--s-clay); }
+[data-theme='sahara'] .qr-bar i { background: var(--s-clay); }
+
+/* ---------- prayer: the sun's path (T4-Sahara-Prayer) ---------- */
+[data-theme='sahara'] .s-prayer .p-stage,
+[data-theme='sahara'] .s-prayer .p-tiles,
+[data-theme='sahara'] .s-prayer .p-cd { display: none; }
+[data-theme='sahara'] .s-prayer .p-head { top: 30px; right: 70px; left: auto; width: 520px; display: block; }
+[data-theme='sahara'] .s-prayer .p-name-row { display: block; }
+[data-theme='sahara'] .s-prayer .p-name,
+[data-theme='sahara'] .s-prayer.is-now .p-name { padding-top: 40px; font: 400 140px/1 var(--kufi); color: var(--s-ink); }
+[data-theme='sahara'] .s-prayer .p-in { display: block; font-size: 44px; font-weight: 800; line-height: 1.3; color: var(--s-clay); white-space: nowrap; }
+[data-theme='sahara'] .s-prayer .p-in,
+[data-theme='sahara'] .s-prayer .p-at { text-shadow: 0 0 10px #FAE6C8, 0 0 4px #FAE6C8, 0 0 2px #FAE6C8; }
+[data-theme='sahara'] .s-prayer .p-at { margin-top: 0; font-size: 22px; font-weight: 500; color: var(--s-muted); }
+[data-theme='sahara'] .s-prayer .p-clock { position: absolute; top: 44px; left: 64px; display: flex; flex-direction: column; align-items: flex-start; }
+[data-theme='sahara'] .p-clock .pc-time { font: 400 56px/1 var(--kufi); color: var(--s-ink); }
+[data-theme='sahara'] .p-clock .pc-date { margin-top: 4px; font-size: 20px; color: var(--s-muted); }
+[data-theme='sahara'] .sh-name { font: 800 24px var(--sans); fill: var(--s-ink); }
+[data-theme='sahara'] .sh-time { font: 400 36px var(--kufi); fill: var(--s-ink); }
+[data-theme='sahara'] .sh-mark.is-next .sh-name { font-size: 30px; fill: var(--s-red); }
+[data-theme='sahara'] .sh-mark.is-next .sh-time { font-size: 46px; fill: var(--s-red); }
+[data-theme='sahara'] .sh-foot { position: absolute; left: 0; right: 0; top: 690px; text-align: center; font-size: 24px; font-weight: 500; color: var(--s-cream); }
+
+/* Ramadan: lanterns over plain sand */
+[data-theme='sahara'] .s-prayer.is-ramadan .t-art,
+[data-theme='sahara'] .s-prayer.is-ramadan .p-clock,
+[data-theme='sahara'] .s-prayer.is-ramadan .p-in { display: none; }
+[data-theme='sahara'] .s-prayer.is-ramadan .p-head { display: flex; left: 76px; width: auto; }
+[data-theme='sahara'] .s-prayer.is-ramadan .p-name { font-size: 120px; }
+[data-theme='sahara'] .s-prayer.is-ramadan .p-cd { display: block; }
+[data-theme='sahara'] .s-prayer.is-ramadan .p-count { font: 400 104px/1 var(--kufi); color: var(--s-clay); }
+[data-theme='sahara'] .s-prayer.is-ramadan .r-stage { bottom: 72px; }
+[data-theme='sahara'] .r-tile { background: rgba(251, 235, 210, 0.75); border-color: rgba(142, 58, 30, 0.2); }
+[data-theme='sahara'] .r-tile.is-key { background: #F6D6A6; border-color: rgba(142, 58, 30, 0.45); }
+[data-theme='sahara'] .r-quran { padding: 14px 22px; border-radius: 18px; background: rgba(251, 235, 210, 0.7); }
+
+/* ---------- lists: two woven rugs (T4-Sahara-Lists) ---------- */
+[data-theme='sahara'] .lists-layout { inset: 0; display: block; }
+[data-theme='sahara'] .s-lists .rule { display: none; }
+[data-theme='sahara'] .l-shop { position: absolute; top: 92px; right: 76px; width: 494px; bottom: 104px; }
+[data-theme='sahara'] .l-tasks { position: absolute; top: 92px; left: 80px; width: 516px; bottom: 104px; }
+[data-theme='sahara'] .l-head { height: auto; }
+[data-theme='sahara'] .l-title { font: 400 60px/1.15 var(--kufi); color: var(--s-red); }
+[data-theme='sahara'] .l-meta-box,
+[data-theme='sahara'] .l-tasks .l-meta { display: none; }
+
+[data-theme='sahara'] .l-shop .l-tiles {
+  flex: 0 1 auto;
+  margin-top: 10px;
+  padding-bottom: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 66px;
+  gap: 0 26px;
+}
+[data-theme='sahara'] .l-shop::after { content: 'المس الغرض حين تشتريه'; order: 1; margin-top: 22px; font-size: 20px; color: var(--s-muted); }
+[data-theme='sahara'] .l-shop .l-foot { order: 2; justify-content: flex-start; font-size: 18px; color: var(--s-muted); }
+[data-theme='sahara'] .l-tile {
+  position: relative;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0;
+  padding: 0 34px 0 0;
+  border: 0;
+  border-bottom: 2px dotted #D9B27C;
+  border-radius: 0;
+  background: transparent;
+  color: var(--s-ink);
+}
+[data-theme='sahara'] .l-tile .l-tick {
+  position: absolute;
+  right: 3px;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  border: 2px solid var(--s-red);
+  border-radius: 1px;
+  background: transparent;
+  transform: rotate(45deg);
+}
+[data-theme='sahara'] .l-tile .l-tick svg { display: none; }
+[data-theme='sahara'] .l-tile-text { font-size: 28px; font-weight: 700; line-height: 1.15; -webkit-line-clamp: 1; }
+[data-theme='sahara'] .l-tile .l-who { display: block; max-width: 100%; font-size: 15px; line-height: 1.2; color: #8A6A4A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-theme='sahara'] .l-tile.is-done { background: transparent; border: 0; border-bottom: 2px dotted #D9B27C; color: #9C7E5E; }
+[data-theme='sahara'] .l-tile.is-done .l-tick { background: var(--s-red); border-color: var(--s-red); }
+[data-theme='sahara'] .l-tile.is-done .l-tile-text { color: #9C7E5E; text-decoration-color: #9C7E5E; }
+
+[data-theme='sahara'] .l-tasks .l-rows { flex: 0 1 auto; margin-top: 10px; padding-bottom: 0; }
+[data-theme='sahara'] .l-row {
+  min-height: 76px;
+  padding: 6px 0;
+  gap: 14px;
+  border-bottom: 2px dotted #D9B27C;
+}
+[data-theme='sahara'] .l-circle,
+[data-theme='sahara'] .l-row.is-done .l-circle {
+  width: 30px;
+  height: 30px;
+  margin: 0 3px;
+  border: 3px solid var(--s-red);
+  border-radius: 6px;
+  transform: rotate(45deg);
+}
+[data-theme='sahara'] .l-row.is-done .l-circle { background: var(--s-red); color: var(--s-cream); }
+[data-theme='sahara'] .l-circle svg { width: 16px; height: 16px; transform: rotate(-45deg); }
+[data-theme='sahara'] .l-row-text { flex: 1; font-size: 28px; font-weight: 700; line-height: 1.25; }
+[data-theme='sahara'] .l-today { display: block; padding: 0 12px; border-radius: 12px; background: var(--s-red); color: var(--s-cream); font-size: 17px; font-weight: 700; line-height: 1.5; }
+[data-theme='sahara'] .l-repeat { color: var(--s-red); }
+[data-theme='sahara'] .l-row.is-done { min-height: 76px; color: #9C7E5E; }
+[data-theme='sahara'] .l-row.is-done .l-row-text { font-size: 25px; font-weight: 500; color: #9C7E5E; text-decoration-color: #9C7E5E; }
+[data-theme='sahara'] .l-done-head { margin-top: 12px; padding-bottom: 2px; font-size: 17px; color: var(--s-muted); }
+[data-theme='sahara'] .l-clear { min-height: 40px; padding: 0 18px; border-color: rgba(168, 50, 42, 0.45); color: var(--s-red); font-size: 17px; font-weight: 700; }
+[data-theme='sahara'] .l-clear.is-armed { background: var(--s-red); border-color: var(--s-red); color: var(--s-cream); }
+[data-theme='sahara'] .l-now { display: flex; align-items: baseline; gap: 14px; margin-top: 30px; }
+[data-theme='sahara'] .ln-time { font: 400 44px/1.1 var(--kufi); color: var(--s-ink); }
+[data-theme='sahara'] .ln-next { font-size: 22px; color: var(--s-muted); }
+[data-theme='sahara'] .l-empty { color: var(--s-muted); }
+
+/* ---------- calendar ---------- */
+[data-theme='sahara'] .cal-layout { bottom: 84px; }
+[data-theme='sahara'] .c-month { color: var(--s-clay); }
+[data-theme='sahara'] .c-hijri { color: var(--s-red); font-weight: 500; }
+[data-theme='sahara'] .c-cell { border-top: 2px dotted #D9B27C; }
+[data-theme='sahara'] .c-cell.is-weekend { background: rgba(142, 58, 30, 0.06); }
+[data-theme='sahara'] .c-cell.is-today .c-d { background: var(--s-clay); color: var(--s-cream); }
+[data-theme='sahara'] .c-cell.is-hstart .c-h { color: var(--s-red); }
+[data-theme='sahara'] .c-today { font-weight: 700; }
+[data-theme='sahara'] .c-side {
+  padding: 16px 20px 14px;
+  border: 2px solid #2A1A14;
+  border-radius: 6px;
+  background: #FBEBD2;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22%3E%3Crect y=%2210%22 width=%2212%22 height=%222%22 fill=%22%23F1DCB8%22/%3E%3C/svg%3E");
+}
+[data-theme='sahara'] .c-side-title { color: var(--s-red); font-size: 34px; }
+[data-theme='sahara'] .k-national { --k: #8E3A1E; }
+
+/* ---------- adhkar ---------- */
+[data-theme='sahara'] .a-body { bottom: 120px; }
+[data-theme='sahara'] .a-dots { bottom: 80px; }
+[data-theme='sahara'] .a-title { color: var(--s-clay); font-size: 64px; }
+[data-theme='sahara'] .a-card {
+  background: rgba(251, 235, 210, 0.85);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22%3E%3Crect y=%2210%22 width=%2212%22 height=%222%22 fill=%22%23F1DCB8%22/%3E%3C/svg%3E");
+  border: 2px solid #2A1A14;
+  border-radius: 8px;
+}
+[data-theme='sahara'] .a-card-title { color: var(--s-red); font-weight: 700; }
+[data-theme='sahara'] .a-text { font-weight: 500; color: var(--s-ink); }
+[data-theme='sahara'] .a-done-title { color: var(--s-clay); }
+
+/* ---------- photos (always dark) ---------- */
+[data-theme='sahara'] .s-photos .ph-empty { inset: 0 0 52px; background-color: #2A1A14; }
+
+/* ---------- overlays ---------- */
+[data-theme='sahara'] .fun-scrim,
+[data-theme='sahara'] .qr .fun-scrim,
+[data-theme='sahara'] .wf .fun-scrim {
+  background-color: var(--modal);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221280%22 height=%22800%22%3E%3Cpath d=%22M0 640 C 220 600, 420 660, 640 625 S 1040 600, 1280 640 L1280 800 L0 800 Z%22 fill=%22%23EBC995%22/%3E%3Cpath d=%22M0 700 C 260 672, 520 722, 760 694 S 1120 682, 1280 702 L1280 800 L0 800 Z%22 fill=%22%23E2B57A%22/%3E%3C/svg%3E");
+  background-position: center bottom;
+  background-repeat: no-repeat;
+}
+[data-theme='sahara'] .fun-menu { border-color: rgba(142, 58, 30, 0.35); box-shadow: 0 16px 40px rgba(42, 26, 20, 0.35); }
+[data-theme='sahara'] .fun-title { color: var(--s-clay); }
+[data-theme='sahara'] .fw-chip { background: rgba(251, 235, 210, 0.9); }
+[data-theme='sahara'] .qr-fav { color: var(--s-ink); border-color: rgba(142, 58, 30, 0.3); }
+[data-theme='sahara'] .qr-fav-n { color: var(--s-muted); }
+[data-theme='sahara'] .qr-np { border-color: rgba(142, 58, 30, 0.3); }
+[data-theme='sahara'] .qr-np-bar i,
+[data-theme='sahara'] .qr-bar i { background: var(--s-clay); }
+[data-theme='sahara'] .qr-rec small { background: rgba(142, 58, 30, 0.12); color: var(--s-clay); }
+[data-theme='sahara'] .pl-banner { border-color: rgba(168, 50, 42, 0.6); box-shadow: 0 18px 50px rgba(42, 26, 20, 0.35); }
+[data-theme='sahara'] .pl-badge { background: #FBEBD2; color: var(--s-ink); border-color: var(--s-red); }
+[data-theme='sahara'] .pl-listen { background: rgba(142, 58, 30, 0.1); border-color: rgba(142, 58, 30, 0.35); }
+
+/* dock door icons, darker so they read on the sand-coloured doors */
+[data-theme='sahara'] .nav .tab[data-for='home'] .tab-icon { color: #8E3A1E; }
+[data-theme='sahara'] .nav .tab[data-for='prayer'] .tab-icon { color: #4E7A2E; }
+[data-theme='sahara'] .nav .tab[data-for='adhkar'] .tab-icon { color: #6B4E9B; }
+[data-theme='sahara'] .nav .tab[data-for='calendar'] .tab-icon { color: #A8622F; }
+[data-theme='sahara'] .nav .tab[data-for='lists'] .tab-icon { color: #A8322A; }
+/* the match overlay is always dark green: keep its accents bright */
+[data-theme='sahara'] .mt-phase,
+[data-theme='sahara'] .mt-count,
+[data-theme='sahara'] .mt-cheer b { color: #F2B84B; }
+/* Overlays that are always dark: the derived ink tokens must be light again there (the theme
+   block resolved them from the dark ink). */
+[data-theme='sahara'] .match,
+[data-theme='sahara'] .s-photos,
+[data-theme='sahara'] .pl-beat,
+[data-theme='sahara'] .pl-scrim,
+[data-theme='sahara'] .ph-caption {
+  --plaster: #F3EDE2;
+  --plaster-2: rgba(243, 237, 226, 0.72);
+  --plaster-3: rgba(243, 237, 226, 0.5);
+  --hair: rgba(243, 237, 226, 0.13);
+  --saffron: #F2B84B;
+  --accent: #F2B84B;
+  --ground: #2A2A30;
+  color: #F3EDE2;
+}
+[data-theme='sahara'] .pl-beat .pl-reply { color: #241707; }
+
+/* status chips: plain lines at the top left of the clock screen, as in the mock */
+[data-theme='sahara'] #stage[data-screen='home'] .top-chips { left: 64px; right: auto; top: 50px; transform: none; flex-direction: column; align-items: flex-start; gap: 2px; }
+[data-theme='sahara'] #stage[data-screen='home'] .match-chip,
+[data-theme='sahara'] #stage[data-screen='home'] .st-chip { height: auto; padding: 0; background: none; border: 0; font-size: 20px; color: #7A4A2A; }

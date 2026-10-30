@@ -630,3 +630,296 @@ body.is-later #padSend, body.is-later #recSend, body.is-later #beatSend { backgr
 .wifi-preview { display: flex; align-items: center; gap: 14px; margin-top: 10px; }
 .wifi-preview #wifiQr { flex: none; padding: 8px; border-radius: 12px; background: #fff; line-height: 0; }
 .wifi-preview .hint { margin: 0; }
+
+/* ================= five tabs: home, the «البيت» switcher, settings pages, the frame's look ================= */
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  margin: -6px 0 2px;
+  color: var(--saffron);
+  font-size: 15px;
+}
+.back::before { content: ''; width: 9px; height: 9px; border-left: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-135deg); margin-left: 4px; }
+.row-link {
+  width: 100%;
+  min-height: 60px;
+  margin: -4px 0 18px;
+  padding: 10px 16px;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: right;
+}
+.rl-title { font-weight: 500; color: var(--saffron); }
+.rl-sub { font-size: 14px; color: var(--plaster-3); }
+.house-seg { margin: 0 0 16px; }
+.house-seg button.is-on { background: var(--plaster); color: var(--garnet-deep); }
+
+/* home (option A) */
+body[data-view='home'] main { padding-top: 6px; }
+.home-hello h2 { margin: 0; font: 600 27px/1.3 'Reem Kufi', sans-serif; }
+.home-hello p { margin: 2px 0 0; font-size: 14px; color: #CDBFB8; }
+#v-home { display: flex; flex-direction: column; gap: 18px; }
+#v-home[hidden] { display: none; }
+.home-quran { padding: 16px; border-radius: 20px; background: #2B2650; border: 1px solid #45467A; display: flex; flex-direction: column; gap: 12px; }
+.hq-top { display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+.hq-label { color: #BFD7FF; }
+.hq-time { color: #CFD3EE; }
+.hq-row { display: flex; align-items: center; gap: 12px; }
+.hq-icon { width: 46px; height: 46px; flex: none; border-radius: 14px; background: #3B3D72; display: flex; align-items: center; justify-content: center; }
+.hq-text { flex: 1; min-width: 0; }
+.hq-name { font: 600 19px/1.4 'Reem Kufi', sans-serif; }
+.hq-sub { font-size: 13px; color: #CFD3EE; }
+.hq-btn { width: 44px; height: 44px; flex: none; border-radius: 50%; background: #3B3D72; color: var(--plaster); display: flex; align-items: center; justify-content: center; }
+.hq-btn.hq-play { background: var(--saffron); color: var(--ink); }
+.hq-bar { height: 4px; border-radius: 2px; background: #45467A; overflow: hidden; }
+.hq-bar i { display: block; width: 0; height: 100%; background: #9DB9F5; }
+.home-send { display: flex; flex-direction: column; gap: 10px; }
+.hs-head { display: flex; align-items: baseline; justify-content: space-between; }
+.hs-head h3 { margin: 0; font: 600 18px/1.4 'Reem Kufi', sans-serif; }
+.hs-more { color: var(--saffron); font-size: 14px; }
+.hs-taps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.hs-taps button { height: 58px; border-radius: 16px; border: 1px solid #5A3443; background: #46202F; color: var(--plaster); font-size: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+.home-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.hg { height: 64px; padding: 0 14px; border-radius: 16px; background: #46202F; border: 1px solid #5A3443; color: var(--plaster); display: flex; align-items: center; gap: 10px; text-align: right; min-width: 0; }
+.hg svg { flex: none; }
+.hg-t { display: flex; flex-direction: column; min-width: 0; }
+.hg-title { font-size: 15px; font-weight: 400; }
+.hg-sub { font-size: 12px; color: #CDBFB8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.home-today { border-radius: 18px; border: 1px solid #5A3443; overflow: hidden; }
+.home-today h3 { margin: 0; padding: 12px 16px 6px; font: 600 16px/1.4 'Reem Kufi', sans-serif; }
+.ht { width: 100%; padding: 10px 16px; display: flex; align-items: center; gap: 10px; color: var(--plaster); border-top: 1px solid #5A3443; text-align: right; }
+.ht-label { font-size: 13px; color: #CDBFB8; width: 64px; flex: none; }
+.ht-text { flex: 1; min-width: 0; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ht-more { color: #CDBFB8; }
+.ht .chev { flex: none; }
+
+/* header: only on the home page, as a brand line and a status pill */
+body:not([data-view='home']) .top { display: none; }
+.top { position: static; background: transparent; border: 0; padding: calc(18px + env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-area-inset-left)); }
+.top-row { height: 44px; }
+.top h1 { display: flex; align-items: center; gap: 10px; font-size: 21px; }
+.top .frame-status { margin: 0; height: 32px; padding: 0 12px; border-radius: 16px; background: #2E3A33; color: #BDEBD8; font-size: 13px; gap: 7px; }
+.top .frame-status.is-offline { background: #4A2430; color: #F4B6A6; }
+.top .frame-status .dot { width: 8px; height: 8px; }
+
+/* every page: a 27px title, 20px sides */
+main { padding: 18px max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-area-inset-left)); }
+.view > h2, .page-head h2 { margin: 0; font: 600 27px/1.25 'Reem Kufi', sans-serif; }
+
+/* tab bar: the current tab gets a soft pill behind its icon */
+.tabs { height: calc(78px + env(safe-area-inset-bottom)); padding-top: 8px; padding-bottom: calc(14px + env(safe-area-inset-bottom)); align-items: stretch; border-top-color: #573242; }
+.tabs button { gap: 4px; font-size: 11.5px; color: #CDBFB8; justify-content: flex-start; }
+.tabs button svg { width: 22px; height: 22px; padding: 4px 16px; box-sizing: content-box; border-radius: 15px; }
+.tabs button.is-on { color: var(--saffron); }
+.tabs button.is-on svg { background: #4A2A1E; }
+
+/* settings: a menu of short pages */
+.set-group { margin-bottom: 16px; }
+.set-group h3 { margin: 0 4px 6px; font-size: 13.5px; font-weight: 400; color: var(--plaster-3); }
+.set-card { border-radius: 18px; background: var(--card); border: 1px solid var(--hair); overflow: hidden; }
+.set-row { width: 100%; min-height: 58px; padding: 8px 14px; display: flex; align-items: center; gap: 12px; text-align: right; }
+.set-row + .set-row { border-top: 1px solid var(--hair); }
+.set-ic { flex: none; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.set-ic svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.set-ic.t-gold { background: #5B3A1E; color: var(--saffron); }
+.set-ic.t-blue { background: #2F3360; color: #BFD7FF; }
+.set-ic.t-green { background: #1F4A40; color: #9FE0C6; }
+.set-ic.t-rose { background: #5A2433; color: #F4A3AF; }
+.set-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.set-name { font-size: 16px; font-weight: 400; }
+.set-sub { font-size: 13px; color: var(--plaster-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.set-chev svg { width: 18px; height: 18px; fill: none; stroke: var(--plaster-3); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+#v-settings fieldset[data-page] { margin-top: 6px; }
+#v-settings fieldset[data-page] > legend { display: none; }
+#v-settings fieldset[data-page] > legend + * { clear: none; }
+
+/* the frame's look: eight cards with a small drawing */
+.themes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+.theme {
+  padding: 7px;
+  border-radius: 16px;
+  background: var(--field);
+  border: 1.5px solid var(--hair);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: right;
+  min-width: 0;
+}
+.theme[aria-checked='true'] { border-color: var(--saffron); background: rgba(242, 174, 61, 0.1); }
+.theme-art svg { display: block; width: 100%; height: auto; border-radius: 10px; font-family: 'Readex Pro', sans-serif; }
+.theme-name { padding: 0 3px 2px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.theme-name > span { display: flex; flex-direction: column; min-width: 0; }
+.theme-name b { font-weight: 500; font-size: 15px; }
+.theme-name small { font-size: 12px; color: var(--plaster-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.theme .radio { flex: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(243, 237, 226, 0.4); }
+.theme[aria-checked='true'] .radio { border-color: var(--saffron); background: radial-gradient(circle, var(--saffron) 0 4px, transparent 5px); }
+@media (min-width: 560px) { .themes { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.home-sub, .set-group h3 { font-family: 'Readex Pro', sans-serif; }
+.row-link-end { margin: 18px 0 0; }
+
+/* ===== «نبضة» page (option A): send / the latest, and one page per kind ===== */
+#v-pulse[data-pp-mode] [data-pp~='none'] { display: none !important; }
+#v-pulse[data-pp-mode='send'] [data-pp]:not([data-pp~='send']) { display: none !important; }
+#v-pulse[data-pp-mode='feed'] [data-pp]:not([data-pp~='feed']) { display: none !important; }
+#v-pulse[data-pp-mode='pad'] [data-pp]:not([data-pp~='pad']):not([data-pp~='sub']) { display: none !important; }
+#v-pulse[data-pp-mode='voice'] [data-pp]:not([data-pp~='voice']):not([data-pp~='sub']) { display: none !important; }
+#v-pulse[data-pp-mode='beat'] [data-pp]:not([data-pp~='beat']):not([data-pp~='sub']) { display: none !important; }
+#v-pulse[data-pp-mode='status'] [data-pp]:not([data-pp~='status']):not([data-pp~='sub']) { display: none !important; }
+#v-pulse { display: flex; flex-direction: column; gap: 16px; }
+#v-pulse[hidden] { display: none; }
+#v-pulse > * { margin-top: 0; margin-bottom: 0; }
+.pulse-head { align-items: flex-end; min-height: 52px; }
+.pulse-head h2 { margin: 0; font: 600 27px/1.25 'Reem Kufi', sans-serif; }
+.pulse-sub { margin: 0; font-size: 13px; color: #CDBFB8; }
+.pp-seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 14px; background: #2A0D1B; }
+.pp-seg button { height: 40px; border-radius: 11px; font-size: 15px; color: var(--plaster); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.pp-seg button[aria-selected='true'] { background: var(--saffron); color: var(--ink); font-weight: 500; }
+.pp-badge { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #E86C7E; color: #2A0D1B; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
+#v-pulse .taps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+#v-pulse .tap { position: relative; height: 64px; min-height: 0; padding: 0 14px; border-radius: 16px; border: 1px solid #5A3443; background: #46202F; flex-direction: row; justify-content: flex-start; align-items: center; gap: 10px; font-size: 15px; text-align: right; }
+#v-pulse .tap .tap-icon svg { width: 22px; height: 22px; }
+#v-pulse .tap .tap-label { font-size: 15px; font-weight: 400; line-height: 1.25; }
+#v-pulse .tap .tap-done { top: 50%; left: 12px; margin-top: -12px; }
+.pp-more { display: flex; flex-direction: column; gap: 8px; }
+.pp-more h3 { margin: 0; font-size: 13px; font-weight: 400; color: #CDBFB8; font-family: inherit; }
+.pp-more-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.pp-more-row button { height: 76px; border-radius: 16px; border: 1px solid #5A3443; color: var(--plaster); font-size: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.pp-opts { border-radius: 18px; border: 1px solid #5A3443; overflow: hidden; }
+.pp-opt { width: 100%; padding: 0 16px; height: 56px; margin: 0; display: flex; align-items: center; gap: 12px; color: var(--plaster); text-align: right; font-size: 15px; cursor: pointer; }
+.pp-opt + .pp-opt { border-top: 1px solid #5A3443; }
+.pp-opt-t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.pp-opt-t small { font-size: 12px; color: #CDBFB8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.switch-only input { width: 44px; height: 26px; margin: 0; accent-color: var(--saffron); }
+#v-pulse .back { align-self: flex-start; }
+#v-pulse .card { margin: 0; }
+.tabs button[data-view='pulse'] svg path + path { display: none; }
+
+/* ===== «القرآن» page (option A) ===== */
+#v-quran { display: flex; flex-direction: column; gap: 16px; }
+#v-quran[hidden] { display: none; }
+#v-quran > * { margin: 0; }
+#v-quran [data-q~='none'] { display: none !important; }
+#v-quran[data-q-mode='main'] [data-q]:not([data-q~='main']) { display: none !important; }
+#v-quran[data-q-mode='all'] [data-q]:not([data-q~='all']):not([data-q~='sub']) { display: none !important; }
+#v-quran[data-q-mode='sched'] [data-q]:not([data-q~='sched']):not([data-q~='sub']) { display: none !important; }
+#v-quran .back { align-self: flex-start; }
+.qn-head { min-height: 52px; display: flex; align-items: flex-end; }
+.qn-head .qn-icon { display: none; }
+.qn-head h2 { margin: 0; font: 600 27px/1.25 'Reem Kufi', sans-serif; }
+.qn-lead { margin: 0; font-size: 13px; color: #CDBFB8; }
+#v-quran .qn-now { padding: 20px 18px; border-radius: 20px; background: #2B2650; border: 1px solid #45467A; }
+.qn-rec-card { padding: 0; background: none; border: 0; gap: 8px; }
+.qn-rec-card .row-title h3 { font: 400 13px/1.4 'Readex Pro', sans-serif; color: #CDBFB8; }
+.qn-rec-card .row-title .hint { display: none; }
+.qn-favs-card { padding: 0; border-radius: 18px; border: 1px solid #5A3443; background: none; overflow: hidden; gap: 0; }
+.qn-favs-card .row-title { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
+.qn-favs-card .row-title h3 { margin: 0; font: 600 16px/1.4 'Reem Kufi', sans-serif; }
+.qn-favs-card .row-title .hint { display: none; }
+.qn-all-btn { height: 34px; padding: 0 14px; border-radius: 17px; background: #4A2A1E; color: var(--saffron); font-size: 13px; }
+.qn-favs-card .qn-list { margin: 0; }
+.qn-favs-card .qn-list li { margin: 0; padding: 0 16px; min-height: 52px; border-radius: 0; background: none; border-top: 1px solid #5A3443; display: flex; align-items: center; gap: 12px; }
+.qn-favs-card .qn-list li.is-on { background: #3A2148; }
+.qn-favs-card .qn-n { width: 24px; font-size: 13px; color: #CDBFB8; }
+.qn-favs-card .qn-name { flex: 1; font-size: 15px; }
+.qn-favs-card .qn-list li.is-on .qn-name::after { content: ' · تُتلى الآن'; font-size: 12px; color: #BFD7FF; }
+#v-quran[data-q-mode='main'] .qn-list li:nth-child(n+4) { display: none; }
+#v-quran[data-q-mode='main'] .qn-list .qn-here,
+#v-quran[data-q-mode='main'] .qn-list .qn-del { display: none; }
+#v-quran[data-q-mode='main'] .qn-list .primary { width: 36px; height: 36px; min-height: 0; padding: 0; border-radius: 50%; background: transparent; border: 1.5px solid #6A3A55; color: var(--saffron); font-size: 0; display: flex; align-items: center; justify-content: center; }
+#v-quran[data-q-mode='main'] .qn-list .primary span { font-size: 0; display: flex; }
+#v-quran[data-q-mode='main'] .qn-list .primary svg { width: 16px; height: 16px; }
+#v-quran[data-q-mode='main'] .qn-all-only, #v-quran[data-q-mode='main'] .qn-here-box { display: none !important; }
+#v-quran[data-q-mode='all'] .qn-more, #v-quran[data-q-mode='all'] .qn-all-btn { display: none; }
+#v-quran[data-q-mode='all'] .qn-favs-card { padding-bottom: 14px; }
+#v-quran[data-q-mode='all'] .qn-all-only, #v-quran[data-q-mode='all'] .qn-here-box { margin: 12px 16px 0; }
+.qn-more { width: 100%; min-height: 52px; padding: 0 16px; border-top: 1px solid #5A3443; color: var(--saffron); font-size: 14px; text-align: right; display: flex; align-items: center; justify-content: space-between; }
+.qn-more::after { content: ''; width: 8px; height: 8px; border-left: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); }
+.qn-sched-row-link { border-radius: 18px; border: 1px solid #5A3443; }
+
+/* ===== «البيت» (option A) ===== */
+.house-title { margin: 0 0 16px; min-height: 52px; display: flex; align-items: flex-end; font: 600 27px/1.25 'Reem Kufi', sans-serif; }
+.house-seg { padding: 4px; border-radius: 14px; background: #2A0D1B; gap: 4px; }
+.house-seg button { height: 40px; border-radius: 11px; font-size: 15px; color: var(--plaster); }
+.house-seg button.is-on { background: var(--saffron); color: var(--ink); font-weight: 500; }
+#v-lists .seg { background: none; padding: 0; gap: 8px; justify-content: flex-start; }
+#v-lists .seg button { flex: none; height: 36px; padding: 0 16px; border-radius: 18px; border: 1px solid #5A3443; color: var(--plaster); font-size: 15px; }
+#v-lists .seg button.is-on { background: var(--plaster); border-color: var(--plaster); color: var(--garnet-deep); }
+#v-lists .seg .n:not(:empty)::before { content: '· '; }
+#v-lists .seg .n { opacity: 1; font-size: 15px; }
+#v-lists .addbar { gap: 8px; }
+#v-lists .addbar input { min-height: 48px; border-radius: 14px; border: 1px solid #5A3443; background: #2A0D1B; }
+#v-lists .addbar button { flex: none; width: 48px; height: 48px; padding: 0; border-radius: 14px; background: var(--saffron); color: var(--ink); display: flex; align-items: center; justify-content: center; }
+#v-lists .quick .chip { min-height: 34px; border: 1px dashed #6A3A55; color: var(--plaster); font-size: 14px; }
+#v-lists .items { margin-top: 14px; border: 1px solid #5A3443; border-radius: 18px; overflow: hidden; }
+#v-lists .items li { padding: 0 16px; min-height: 52px; border-bottom: 0; border-top: 1px solid #5A3443; }
+#v-lists .items li:first-child { border-top: 0; }
+#v-lists .items .toggle { min-height: 52px; font-size: 16px; gap: 12px; }
+#v-lists .items .box { width: 22px; height: 22px; border-radius: 4px; border: 2px solid #CDBFB8; background: #F3EDE2; }
+#v-lists .items li.is-done .box { background: var(--saffron); border-color: var(--saffron); color: var(--ink); }
+#v-lists .items .text { flex: 1; min-width: 0; }
+#v-lists .items .by { flex: none; font-size: 12px; color: #CDBFB8; }
+#v-lists .items .del { display: none; }
+#v-lists .items li.clear-row { justify-content: flex-end; min-height: 48px; }
+#v-lists .items li.clear-row .ghost { min-height: 0; padding: 0; border: 0; color: var(--saffron); font-size: 14px; }
+#v-lists .items li.is-done + li.clear-row { border-top: 0; margin-top: -52px; min-height: 52px; justify-content: flex-end; pointer-events: none; }
+#v-lists .items li.is-done + li.clear-row .ghost { pointer-events: auto; }
+.rt-link { margin-top: 14px; border-radius: 18px; border: 1px solid #5A3443; }
+#v-lists.is-rt > :not(#routinesCard):not(#rtBack) { display: none !important; }
+#v-lists.is-rt .routines-card { margin-top: 6px; }
+
+/* ===== settings pages (option A) ===== */
+#v-settings { display: flex; flex-direction: column; gap: 16px; }
+#v-settings[hidden] { display: none; }
+#v-settings > * { margin: 0; }
+#v-settings .back { align-self: flex-start; height: 40px; margin: -4px 0 -12px; }
+.set-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; }
+.set-title-row h2 { margin: 0; font: 600 27px/1.25 'Reem Kufi', sans-serif; }
+.set-sub { margin: -12px 0 0 !important; font-size: 13px; color: #CDBFB8; }
+.try-btn { height: 40px; padding: 0 16px; border-radius: 20px; border: 1.5px solid var(--saffron); color: var(--saffron); font-size: 14px; display: flex; align-items: center; gap: 6px; }
+.set-note { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #CDBFB8; }
+.savebar[hidden] { display: none !important; }
+#v-settings .card { border-radius: 18px; background: #46202F; border-color: #5A3443; }
+/* night */
+.night-preview { height: 168px; border-radius: 16px; background: #0B0A16; border: 6px solid #241A20; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.np-time { font: 400 58px/1 'Reem Kufi', sans-serif; direction: ltr; transition: opacity 300ms; }
+.np-date { margin-top: 6px; font-size: 12px; transition: opacity 300ms; }
+.np-note { position: absolute; bottom: 8px; left: 10px; font-size: 11px; color: #9A8E96; }
+.night-card { padding: 0; gap: 0; overflow: hidden; }
+.np-on { height: 54px; margin: 0; padding: 0 16px; justify-content: space-between; }
+.np-on input { order: 2; }
+.np-times { padding: 10px 16px 14px; border-top: 1px solid #5A3443; gap: 10px; }
+.np-times label { margin: 0; font-size: 12.5px; color: #CDBFB8; }
+.np-times input { min-height: 44px; border-radius: 12px; border: 1px solid #5A3443; background: #2A0D1B; font-size: 16px; }
+.night-how { display: flex; flex-direction: column; gap: 8px; }
+.night-how h3 { margin: 0 4px; font: 400 13px/1.4 'Readex Pro', sans-serif; color: #CDBFB8; }
+.how-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.how { padding: 12px; border-radius: 16px; border: 1px solid #5A3443; color: var(--plaster); text-align: right; display: flex; flex-direction: column; gap: 4px; }
+.how b { font-size: 15px; font-weight: 500; }
+.how span { font-size: 12px; color: #CDBFB8; }
+.how[aria-checked='true'] { border: 2px solid var(--saffron); background: #4A2A1E; }
+.how-dim { margin-top: 4px; display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--plaster); }
+.how-dim input { flex: 1; accent-color: var(--saffron); }
+.how-dim span:last-child { width: 40px; color: #CDBFB8; }
+.how-dim input:disabled { opacity: 0.35; }
+/* the frame's look */
+#v-settings fieldset[data-page='theme'] { padding: 0; background: none; border: 0; }
+#v-settings fieldset[data-page='theme'] > .hint, #v-settings fieldset[data-page='theme'] > .actions { display: none; }
+#v-settings .themes { margin: 0; gap: 9px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#v-settings .theme { padding: 7px; border-radius: 16px; background: #46202F; border: 1px solid #5A3443; }
+#v-settings .theme[aria-checked='true'] { border: 2px solid var(--saffron); background: #4F2632; }
+#v-settings .theme-name small { display: none; }
+#v-settings .theme-name b { font-size: 14.5px; font-weight: 500; }
+#v-settings fieldset[data-page='theme']::after { content: 'يُحفظ فوراً، ويتبعه كل ما على الإطار حتى رمضان والمباريات.'; display: block; margin-top: 12px; text-align: center; font-size: 12px; color: #CDBFB8; }
+
+/* ===== the remaining pages, in the same option A look ===== */
+.lead { font-size: 13px; color: #CDBFB8; margin: -4px 0 16px; }
+.card { border-radius: 18px; background: #46202F; border-color: #5A3443; }
+#v-dates > h2, #v-photos > h2, #v-message > h2 { margin: 4px 0 2px; font: 600 18px/1.4 'Reem Kufi', sans-serif; }
+#v-fun > h2 { margin-top: 0; }

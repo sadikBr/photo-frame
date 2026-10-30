@@ -174,5 +174,18 @@ export function initQuran({ api, send, toast, el, $, DEMO, me }) {
   setInterval(() => { if (visible && q) renderNow(); }, 1000);
   if (DEMO) window.addEventListener('storage', (e) => { if (e.key === 'fd:demo-quran') load(); });
   load();
-  return { shown(on) { visible = on; if (on) loop(); } };
+  // For the home page: what the frame is reciting now (null when nothing), and its buttons.
+  function nowInfo() {
+    const p = q && q.play;
+    if (!p) return null;
+    const t = pos();
+    return { name: 'سورة ' + surahName(p.list[p.idx]), reciter: reciterName(p.reciter), pos: t.pos, dur: t.dur, paused: !!p.paused, mmss };
+  }
+  return {
+    shown(on) { visible = on; if (on) loop(); },
+    load,
+    nowInfo,
+    toggle() { if (q && q.play) return cmd(q.play.paused ? 'resume' : 'pause'); return null; },
+    stop() { return cmd('stop'); },
+  };
 }

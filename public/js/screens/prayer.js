@@ -1,9 +1,10 @@
 import config from '../config.js';
-import { h, setText, now, hhmm, countdown, MINUTE, DAY, WEEKDAYS, parts } from '../util.js';
+import { h, setText, now, hhmm, countdown, durationAr, MINUTE, DAY, WEEKDAYS, MONTHS as MONTHS_AR, parts } from '../util.js';
 import { on, state, prayerDay, frameQuranOp } from '../data.js';
 import { PRAYERS, prayerName, nextPrayer, lastPrayer, displayDay } from '../prayer-times.js';
 import { ramadanInfo } from '../ramadan.js';
 import { decorHTML, garlandSVG } from '../ramadan-decor.js';
+import { createPrayerRow } from '../prayer-row.js';
 
 // Ramadan: the times that matter for the fast, in order. Imsak and Maghrib are highlighted.
 const R_TILES = [
@@ -28,6 +29,7 @@ function s(tag, attrs) {
 export function createPrayer() {
   const nextName = h('div', { class: 'p-name' });
   const nextAt = h('div', { class: 'p-at' });
+  const nextIn = h('span', { class: 'p-in' }); // "in 47 minutes", for the themes
   const cdNum = h('bdi', { class: 'p-count', dir: 'ltr' });
   const cdCap = h('div', { class: 'p-cap' });
   // direction=ltr so text-anchor start/end are physical left/right.
@@ -52,20 +54,62 @@ export function createPrayer() {
     h('div', { class: 'r-q-btns' }, qMinus, qPlus),
   );
   const rGarland = h('div', { class: 'r-garland-box', html: garlandSVG(1128) });
-  const rStage = h('div', { class: 'r-stage' }, h('div', { class: 'r-top' }, rDay, rDots), rTiles, rGarland, rQuran);
+  // Theme-only (hidden in the original look): days left, the date in the Ramadan month, and the
+  // moment of iftar written out.
+  const rLeft = h('div', { class: 'r-left' });
+  const rStage = h('div', { class: 'r-stage' }, h('div', { class: 'r-top' }, rDay, rLeft, rDots), rTiles, rGarland, rQuran);
+  const rhDay = h('span', { class: 'rh-day' });
+  const rhDate = h('span', { class: 'rh-date' });
+  const rHead = h('div', { class: 'r-hday' }, rhDay, rhDate);
+  const riWhen = h('div', { class: 'ri-when' });
+  const riIsha = h('bdi', { class: 'ri-t', dir: 'ltr' });
+  const riSuhoor = h('bdi', { class: 'ri-t', dir: 'ltr' });
+  const rIftar = h('div', { class: 'r-iftar' },
+    riWhen,
+    h('div', { class: 'ri-title' }, 'تقبّل الله صيامكم'),
+    h('div', { class: 'ri-dua' }, 'ذَهَبَ الظَّمَأُ، وَابْتَلَّتِ الْعُرُوقُ، وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ'),
+    h('div', { class: 'ri-next' }, h('span', null, 'العشاء والتراويح ', riIsha), h('span', { class: 'ri-suhoor' }, 'السحور حتى ', riSuhoor)));
   // Lanterns, crescent and night sky, behind the text; only drawn in Ramadan.
   const rDecor = h('div', { class: 'r-decor', 'aria-hidden': 'true', html: decorHTML() });
 
-  const el = h('section', { class: 'screen s-prayer', 'data-screen': 'prayer', style: '--ground:#0B3A33' },
+  // Used by the themes only: the prayers as tiles, and the time now in a corner.
+  const tiles = createPrayerRow('p-tiles', { sunrise: true });
+  const nowTime = h('bdi', { class: 'pc-time', dir: 'ltr' });
+  const nowDate = h('span', { class: 'pc-date' });
+  const nowBox = h('div', { class: 'p-clock' }, nowTime, nowDate);
+
+  const el = h('section', { class: 'screen s-prayer', 'data-screen': 'prayer', style: '--ground:var(--g-prayer)' },
     rDecor,
     h('div', { class: 'p-head' },
-      h('div', { class: 'p-next' }, nextName, nextAt),
+      rHead,
+      h('div', { class: 'p-next' }, h('div', { class: 'p-name-row' }, nextName, nextIn), nextAt),
       h('div', { class: 'p-cd' }, cdNum, cdCap),
     ),
     h('div', { class: 'p-stage' }, svg, empty),
+    tiles.el,
+    nowBox,
     rStage,
+    rIftar,
     h('div', { class: 'band' }),
   );
+
+  // The countdown, with its seconds in a span of their own (the themes can set them smaller).
+  function setCd(str) {
+    if (cdNum.getAttribute('data-v') === str) return;
+    cdNum.setAttribute('data-v', str);
+    const m = /^(\d+:\d\d)(:\d\d)$/.exec(str);
+    cdNum.textContent = '';
+    if (m) cdNum.append(h('span', { class: 'p-cd-hm' }, m[1]), h('span', { class: 'p-cd-s' }, m[2]));
+    else cdNum.textContent = str;
+  }
+  // "… at 18:32", with the time in a span of its own.
+  function setAt(text, at) {
+    const v = text + (at || '');
+    if (nextAt.getAttribute('data-v') === v) return;
+    nextAt.setAttribute('data-v', v);
+    nextAt.textContent = text;
+    if (at) nextAt.appendChild(h('span', { class: 'p-at-t' }, at));
+  }
 
   let drawnFor = '';
   let marker = null, clipRect = null, geometry = null;
@@ -90,8 +134,8 @@ export function createPrayer() {
 
     const defs = s('defs', {});
     const glow = s('radialGradient', { id: 'sunGlow' });
-    glow.appendChild(s('stop', { offset: '0', 'stop-color': '#F2AE3D', 'stop-opacity': '0.55' }));
-    glow.appendChild(s('stop', { offset: '1', 'stop-color': '#F2AE3D', 'stop-opacity': '0' }));
+    glow.appendChild(s('stop', { offset: '0', style: 'stop-color:var(--saffron);stop-opacity:0.55' }));
+    glow.appendChild(s('stop', { offset: '1', style: 'stop-color:var(--saffron);stop-opacity:0' }));
     defs.appendChild(glow);
     const clip = s('clipPath', { id: 'passed' });
     clipRect = s('rect', { x: 0, y: 0, width: W, height: H });
@@ -101,10 +145,10 @@ export function createPrayer() {
 
     // Night ground below the horizon.
     // Full-bleed night ground and horizon (the stage is inset 64px each side).
-    svg.appendChild(s('rect', { x: -64, y: HORIZON, width: W + 128, height: H - HORIZON + 40, fill: 'rgba(0,0,0,0.16)' }));
-    svg.appendChild(s('line', { x1: -64, x2: W + 64, y1: HORIZON, y2: HORIZON, stroke: 'rgba(243,237,226,0.22)', 'stroke-width': 1.5 }));
-    svg.appendChild(s('path', { d, fill: 'none', stroke: 'rgba(243,237,226,0.30)', 'stroke-width': 2, 'stroke-dasharray': '2 9', 'stroke-linecap': 'round' }));
-    const passed = s('path', { d, fill: 'none', stroke: 'rgba(243,237,226,0.85)', 'stroke-width': 3, 'clip-path': 'url(#passed)', 'stroke-linecap': 'round' });
+    svg.appendChild(s('rect', { x: -64, y: HORIZON, width: W + 128, height: H - HORIZON + 40, class: 'p-ground' }));
+    svg.appendChild(s('line', { x1: -64, x2: W + 64, y1: HORIZON, y2: HORIZON, class: 'p-horizon', 'stroke-width': 1.5 }));
+    svg.appendChild(s('path', { d, fill: 'none', class: 'p-path', 'stroke-width': 2, 'stroke-dasharray': '2 9', 'stroke-linecap': 'round' }));
+    const passed = s('path', { d, fill: 'none', class: 'p-passed', 'stroke-width': 3, 'clip-path': 'url(#passed)', 'stroke-linecap': 'round' });
     svg.appendChild(passed);
 
     const np = nextPrayer(t);
@@ -152,9 +196,9 @@ export function createPrayer() {
       marker.setAttribute('data-kind', kind);
       if (isDay) {
         marker.appendChild(s('circle', { cx: 0, cy: 0, r: 54, fill: 'url(#sunGlow)' }));
-        marker.appendChild(s('circle', { cx: 0, cy: 0, r: 17, fill: '#F2AE3D' }));
+        marker.appendChild(s('circle', { cx: 0, cy: 0, r: 17, class: 'p-sun' }));
       } else {
-        marker.appendChild(s('path', { d: 'M5 -16a17 17 0 1 0 12 26 a13.5 13.5 0 1 1 -12 -26z', fill: '#F3EDE2' }));
+        marker.appendChild(s('path', { d: 'M5 -16a17 17 0 1 0 12 26 a13.5 13.5 0 1 1 -12 -26z', class: 'p-moon' }));
       }
     }
     marker.setAttribute('transform', `translate(${mx.toFixed(1)} ${my.toFixed(1)})`);
@@ -192,6 +236,7 @@ export function createPrayer() {
     for (let i = 1; i <= 30; i++) {
       qBar.appendChild(h('i', { class: (i <= juz ? 'is-read' : '') + (i === expected ? ' is-target' : '') }));
     }
+    qBar.appendChild(h('b', { class: 'r-q-n' }, String(juz), h('small', null, 'من 30 جزءاً')));
     const diff = juz - expected;
     setText(qStatus, juz >= 30 ? 'ختمنا القرآن، تقبّل الله منا ومنكم'
       : diff === 0 ? 'في الموعد: جزء كل يوم تُختم الختمة مع آخر رمضان'
@@ -213,25 +258,32 @@ export function createPrayer() {
     el.classList.toggle('is-now', justBroke);
     if (justBroke) {
       setText(nextName, 'الإفطار');
-      setText(nextAt, 'تقبّل الله صيامكم');
-      setText(cdNum, hhmm(today.maghrib));
+      setAt('تقبّل الله صيامكم');
+      setCd(hhmm(today.maghrib));
       setText(cdCap, 'أذان المغرب');
+      setText(riWhen, 'المغرب ' + hhmm(today.maghrib) + ' · ' + rInfo.day + ' رمضان');
+      setText(riIsha, hhmm(today.isha));
+      setText(riSuhoor, tomorrow && tomorrow.imsak ? hhmm(tomorrow.imsak) : '');
     } else if (t >= today.imsak && !iftarDone) {
       setText(nextName, 'الإفطار');
-      setText(nextAt, 'أذان المغرب على الساعة ' + hhmm(today.maghrib));
-      setText(cdNum, countdown(today.maghrib - t));
+      setAt('أذان المغرب على الساعة ', hhmm(today.maghrib));
+      setCd(countdown(today.maghrib - t));
       setText(cdCap, 'متبقية حتى الإفطار');
     } else {
       const imsak = t < today.imsak ? today.imsak : tomorrow && tomorrow.imsak;
       const fajr = t < today.imsak ? today.fajr : tomorrow && tomorrow.fajr;
       setText(nextName, 'السحور');
-      setText(nextAt, imsak ? 'الإمساك ' + hhmm(imsak) + ' · الفجر ' + hhmm(fajr) : '');
-      setText(cdNum, imsak ? countdown(imsak - t) : '');
+      setAt(imsak ? 'الإمساك ' + hhmm(imsak) + ' · الفجر ' + hhmm(fajr) : '');
+      setCd(imsak ? countdown(imsak - t) : '');
       setText(cdCap, 'متبقية حتى الإمساك');
     }
 
     // The fast's day and the month so far.
     setText(rDay, (rInfo.night ? 'ليلة ' : 'اليوم ') + rInfo.day + ' من رمضان' + (rInfo.preview ? ' · معاينة' : ''));
+    setText(rhDay, rInfo.day + ' رمضان');
+    { const q = parts(t); setText(rhDate, WEEKDAYS[q.wd] + ' ' + q.d + ' ' + MONTHS_AR[q.m - 1] + ' · ' + hhmm(t)); }
+    const left = Math.max(0, 30 - rInfo.day + (rInfo.night ? 1 : 0));
+    setText(rLeft, left === 0 ? 'آخر يوم' : left === 1 ? 'يبقى يوم واحد' : left === 2 ? 'يبقى يومان' : left <= 10 ? 'يبقى ' + left + ' أيام' : 'يبقى ' + left + ' يوماً');
     if (rDots.childElementCount !== 30 || rDots.getAttribute('data-day') !== rInfo.day + ':' + rInfo.night) {
       rDots.setAttribute('data-day', rInfo.day + ':' + rInfo.night);
       rDots.textContent = '';
@@ -253,7 +305,7 @@ export function createPrayer() {
         const past = at <= t;
         const isNext = !past && !nextMarked;
         if (isNext) nextMarked = true;
-        rTiles.appendChild(h('div', { class: 'r-tile' + (x.key ? ' is-key' : '') + (past ? ' is-past' : '') + (isNext ? ' is-next' : '') },
+        rTiles.appendChild(h('div', { class: 'r-tile k-' + x.k + (x.key ? ' is-key' : '') + (past ? ' is-past' : '') + (isNext ? ' is-next' : '') },
           h('div', { class: 'r-t-name' }, x.ar),
           h('bdi', { class: 'r-t-time', dir: 'ltr' }, hhmm(at)),
           h('div', { class: 'r-t-note' }, x.note || ''),
@@ -278,6 +330,9 @@ export function createPrayer() {
     empty.style.display = dd ? 'none' : '';
     svg.style.display = dd ? '' : 'none';
     if (!dd) return;
+    tiles.update(t);
+    setText(nowTime, hhmm(t));
+    { const q = parts(t); setText(nowDate, WEEKDAYS[q.wd] + ' ' + q.d + ' ' + MONTHS_AR[q.m - 1]); }
     const np = nextPrayer(t);
     const key = dd.times.fajr + ':' + (np ? np.k + np.at : '') + ':' + Math.floor(t / (5 * MINUTE));
     if (key !== drawnFor) { drawnFor = key; draw(dd.times, t); }
@@ -286,22 +341,24 @@ export function createPrayer() {
     const lp = lastPrayer(t);
     if (lp && t - lp.at < config.prayerFocus.after * MINUTE && lp.k !== 'sunrise') {
       setText(nextName, lp.ar);
-      setText(nextAt, 'حان الآن وقت الصلاة');
-      setText(cdNum, hhmm(lp.at));
+      setAt('حان الآن وقت الصلاة');
+      setCd(hhmm(lp.at));
       setText(cdCap, 'الأذان');
+      setText(nextIn, 'حان الآن');
       el.classList.add('is-now');
     } else if (np) {
       el.classList.remove('is-now');
       setText(nextName, np.ar);
       const p = parts(np.at);
       const sameDay = parts(t).d === p.d;
-      setText(nextAt, (sameDay ? 'على الساعة ' : WEEKDAYS[p.wd] + ' على الساعة ') + hhmm(np.at));
-      setText(cdNum, countdown(np.at - t));
+      setAt((sameDay ? 'يُرفع الأذان على الساعة ' : 'يُرفع الأذان ' + WEEKDAYS[p.wd] + ' على الساعة ') + hhmm(np.at));
+      setText(nextIn, 'بعد ' + durationAr(np.at - t));
+      setCd(countdown(np.at - t));
       setText(cdCap, 'متبقية حتى الأذان');
     }
   }
 
-  on('prayer', () => { drawnFor = ''; rTiles.removeAttribute('data-key'); tick(now()); });
+  on('prayer', () => { drawnFor = ''; tiles.reset(); rTiles.removeAttribute('data-key'); tick(now()); });
   on('settings', () => { rTiles.removeAttribute('data-key'); tick(now()); });
 
   return { name: 'prayer', label: 'الصلاة', el, tick, show() { drawnFor = ''; tick(now()); } };

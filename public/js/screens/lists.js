@@ -1,7 +1,8 @@
 // Shopping and to-do lists. Items are added in the control panel. On the frame, tapping a shopping
 // tile marks it bought and tapping a task marks it done (tap again to undo); finished items can be
 // cleared with two taps.
-import { h } from '../util.js';
+import { h, setText, hhmm, durationAr, startOfDay } from '../util.js';
+import { nextPrayer } from '../prayer-times.js';
 import { state, on, frameListOp } from '../data.js';
 import { ICON } from '../icons.js';
 
@@ -11,15 +12,19 @@ const boughtLine = (n) => (n === 1 ? 'اشتُري غرض واحد' : n === 2 ? 
 
 export function createLists() {
   const shopMeta = h('span', { class: 'l-meta' });
+  const shopHint = h('span', { class: 'l-hint' }, ' · المس ما اشتريته'); // themes only
+  const nowTime = h('bdi', { class: 'ln-time', dir: 'ltr' });
+  const nowNext = h('span', { class: 'ln-next' });
+  const nowLine = h('div', { class: 'l-now' }, nowTime, nowNext); // themes only: the time under the tasks
   const tiles = h('div', { class: 'l-tiles l-scroll' });
   const shopFoot = h('div', { class: 'l-foot' });
   const taskMeta = h('span', { class: 'l-meta' });
   const rows = h('div', { class: 'l-rows l-scroll' });
 
-  const el = h('section', { class: 'screen s-lists', 'data-screen': 'lists', style: '--ground:#3A1426' },
+  const el = h('section', { class: 'screen s-lists', 'data-screen': 'lists', style: '--ground:var(--g-lists)' },
     h('div', { class: 'lists-layout' },
       h('div', { class: 'l-panel l-shop' },
-        h('div', { class: 'l-head' }, h('h2', { class: 'l-title' }, 'التسوق'), shopMeta),
+        h('div', { class: 'l-head' }, h('h2', { class: 'l-title' }, 'للشراء'), h('span', { class: 'l-meta-box' }, shopMeta, shopHint)),
         tiles,
         shopFoot,
       ),
@@ -27,6 +32,7 @@ export function createLists() {
       h('div', { class: 'l-panel l-tasks' },
         h('div', { class: 'l-head' }, h('h2', { class: 'l-title' }, 'المهام'), taskMeta),
         rows,
+        nowLine,
       ),
     ),
     h('div', { class: 'band' }),
@@ -70,14 +76,16 @@ export function createLists() {
     tiles.textContent = '';
     if (!shop.length) tiles.appendChild(h('p', { class: 'l-empty' }, 'لا شيء ناقص في البيت.'));
     for (const it of shop) {
-      const tile = h('button', { class: 'l-tile' + (it.done ? ' is-done' : ''), type: 'button', 'aria-pressed': String(it.done) },
+      const tile = h('button', { class: 'l-tile' + (it.done ? ' is-done' : '') + (it.text.length > 6 ? ' is-long' : ''), type: 'button', 'aria-pressed': String(it.done) },
         h('span', { class: 'l-tick', html: it.done ? ICON.check : '' }),
-        h('span', { class: 'l-tile-text' }, it.text));
+        h('span', { class: 'l-tile-text' }, it.text),
+        // themes only: who asked for it, or how to undo a bought one
+        h('span', { class: 'l-who' }, it.done ? 'اشتُريت · المس للتراجع' : it.by || ''));
       tile.addEventListener('click', () => frameListOp({ op: 'toggle', list: 'shopping', id: it.id }));
       tiles.appendChild(tile);
     }
     shopFoot.textContent = '';
-    if (bought) shopFoot.append(h('span', null, boughtLine(bought)), clearButton('shopping', 'إزالتها من القائمة'));
+    if (bought) shopFoot.append(h('span', null, boughtLine(bought)), clearButton('shopping', 'إزالة المشترى'));
 
     // Tasks: open ones, then the done ones folded underneath.
     const tasks = lists.tasks || [];
@@ -91,6 +99,8 @@ export function createLists() {
       const b = h('button', { class: 'l-row' + (it.done ? ' is-done' : ''), type: 'button', 'aria-pressed': String(it.done) },
         h('span', { class: 'l-circle', html: it.done ? ICON.check : '' }),
         h('span', { class: 'l-row-text' }, it.text),
+        // a repeating task that came back today (themes show it as a small «اليوم» tag)
+        it.rid && !it.done && (it.ts || 0) >= startOfDay(Date.now()) ? h('span', { class: 'l-today' }, 'اليوم') : null,
         it.rid ? h('span', { class: 'l-repeat', title: 'مهمة متكررة', html: ICON.repeat }) : null);
       b.addEventListener('click', () => frameListOp({ op: 'toggle', list: 'tasks', id: it.id }));
       return b;
@@ -106,6 +116,17 @@ export function createLists() {
     edges(rows);
   }
 
+  let lastMin = -1;
+  function tick(t) {
+    const m = Math.floor(t / 60000);
+    if (m === lastMin) return;
+    lastMin = m;
+    setText(nowTime, hhmm(t));
+    const np = nextPrayer(t);
+    setText(nowNext, np ? np.ar + ' بعد ' + durationAr(np.at - t) : '');
+  }
+
   on('lists', render);
-  return { name: 'lists', label: 'القوائم', el, tick() {}, show: render };
+  on('prayer', () => { lastMin = -1; });
+  return { name: 'lists', label: 'القوائم', el, tick, show() { lastMin = -1; render(); } };
 }

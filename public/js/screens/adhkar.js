@@ -4,12 +4,12 @@
 // corner plays it, and it can start by itself when the adhkar come up. The adhan pauses it; a
 // moment from a phone turns it down; leaving the screen or closing the adhkar stops it.
 import config from '../config.js';
-import { h, setText, now, parts, dayKey, MINUTE, store } from '../util.js';
+import { h, setText, now, parts, dayKey, hhmm, MINUTE, store } from '../util.js';
 import { prayerDay, audioUrl } from '../data.js';
 import { adhkarFor, timesAr } from '../adhkar-data.js';
 import { mmss } from '../quran-common.js';
 
-const GROUND = { m: '#173A4A', e: '#2B1B3D' };
+const GROUND = { m: 'var(--g-adhkar-m)', e: 'var(--g-adhkar-e)' };
 const ARROW_PREV = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 const ARROW_NEXT = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
 const CLOSE = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
@@ -66,8 +66,13 @@ export function createAdhkar({ held, duck, busyElsewhere } = {}) {
   const aBar = h('span', { class: 'a-abar' }, h('i'));
   const aBox = h('div', { class: 'a-audio', hidden: true }, aBtn, h('div', { class: 'a-ainfo' }, aTime, aBar));
 
+  // Theme-only (hidden in the original look): the time, with when these adhkar are said.
+  const clockTime = h('bdi', { class: 'ac-time', dir: 'ltr' });
+  const clockWhen = h('span', { class: 'ac-when' });
+  const aClock = h('div', { class: 'a-clock' }, clockTime, clockWhen);
+
   const el = h('section', { class: 'screen s-adhkar', 'data-screen': 'adhkar', style: '--ground:' + GROUND.m },
-    h('div', { class: 'a-head' }, h('div', null, title, sub), h('div', { class: 'a-head-end' }, aBox, close)),
+    h('div', { class: 'a-head' }, h('div', null, title, sub), h('div', { class: 'a-head-end' }, aBox, close), aClock),
     h('div', { class: 'a-body' }, prev, card, next, done),
     dots,
     h('div', { class: 'band' }),
@@ -181,6 +186,7 @@ export function createAdhkar({ held, duck, busyElsewhere } = {}) {
     cardTitle.hidden = !a.title;
     setText(text, a.t);
     text.style.fontSize = fontFor(a.t.length) + 'px';
+    text.setAttribute('data-size', String(fontFor(a.t.length))); // for the themes
     setText(ref, a.ref);
     setText(left, String(remaining));
     setText(times, a.n === 1 ? 'مرة واحدة' : timesAr(a.n) + ' · اضغط للعدّ');
@@ -239,6 +245,8 @@ export function createAdhkar({ held, duck, busyElsewhere } = {}) {
     name: 'adhkar', label: 'الأذكار', el,
     tick(t) {
       load(t);
+      setText(clockTime, hhmm(t));
+      setText(clockWhen, set === 'm' ? 'بعد صلاة الفجر' : 'بعد صلاة العصر');
       const hold = !!(held && held()), dk = !!(duck && duck());
       if (hold !== holding || dk !== ducking) { holding = hold; ducking = dk; sync(); }
       maybeAuto(t);

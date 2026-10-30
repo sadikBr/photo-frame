@@ -20,9 +20,12 @@ tap a shopping item when it's bought or a task when it's done (tap again to undo
 finished tasks and bought items with a second tap to confirm, and count the Quran in Ramadan.
 The «القرآن» button at the bottom opens the Quran player (see [القرآن](#القرآن-recitation-on-the-frame)).
 
-The **control panel** (`/admin`) has these sections:
+The **control panel** (`/admin`) has five tabs: **الرئيسية** (today at a glance: send a moment, the
+message, photos, مرح, the frame's look, and what the house needs today), **نبضة** (with مرح under it),
+**القرآن**, **البيت** (القوائم، المناسبات، الصور، الرسالة under one switcher) and **الإعدادات** (a menu of
+short pages). What each part does:
 
-| Section | What you can do |
+| Part | What you can do |
 | --- | --- |
 | **نبضة** | Send a moment to the frame from wherever you are: a tap (أفكر فيكم, اشتقت إليكم, صباح الخير, تصبحون على خير, في الطريق, خبر سعيد), a finger drawing, or a voice note of up to 15 seconds. It appears on the frame within a second or two with its own animation; the family at home can tap «ردّ بقلب» and you see it in the app. See [نبضة](#نبضة-moments-from-your-phone) |
 | **نبضة**, more | **🎁 مفاجأة لاحقاً**: write a moment now and choose when it appears (midnight for a birthday, 7:30 before an exam); nobody sees it before. **نبضك الحقيقي**: your fingertip on the phone's camera for 15 seconds, and the frame shows a heart beating in your own rhythm. **حالتي**: «📚 في الامتحان حتى 12:00» on the clock screen, gone when the time is up |
@@ -32,7 +35,7 @@ The **control panel** (`/admin`) has these sections:
 | **القوائم** | Add, tick and remove shopping items and tasks, with quick-add buttons. **Repeating tasks** (every N days, every week on a day, or every month on a date) come back on the to-do list by themselves when due |
 | **الصور** | Upload photos (resized on your phone first) and delete them |
 | **المناسبات** | Add birthdays, anniversaries and one-off family dates, or import an `.ics` calendar file (Google Calendar, Outlook, a school timetable). Repeating events are spread over the coming year; importing a file with the same name again replaces its entries |
-| **الإعدادات** | City, prayer-time adjustments, **adhan** (upload the audio, choose the prayers, volume, test it on the frame), **Ramadan** mode and a button to preview it on the frame, **adhkar** (with their morning and evening recordings, and whether they start by themselves), **guest Wi-Fi** (shown on the frame as a QR code), night mode (dimmed, or the screen **fully off**), the verse of the day and weather tip, Hijri day, which screens rotate and for how long, night mode, quick-add buttons |
+| **الإعدادات** | **The frame's look** (eight to choose from, see below), city, prayer-time adjustments, **adhan** (upload the audio, choose the prayers, volume, test it on the frame), **Ramadan** mode and a button to preview it on the frame, **adhkar** (with their morning and evening recordings, and whether they start by themselves), **guest Wi-Fi** (shown on the frame as a QR code), night mode (dimmed, or the screen **fully off**), the verse of the day and weather tip, Hijri day, which screens rotate and for how long, night mode, quick-add buttons |
 
 It also shows whether the frame is online. The frame picks up changes within 30 seconds.
 
@@ -120,6 +123,19 @@ Use the control panel's **الإعدادات** section. Two things are worth che
 
 The defaults the control panel starts from are in [`public/js/config.js`](public/js/config.js).
 Colours and sizes are in [`public/css/app.css`](public/css/app.css).
+
+### The frame's look (مظهر الإطار)
+
+**الإعدادات → المظهر** picks one of eight looks for the whole frame, special screens included:
+الأصلي (the original), رياض, فاتح, أندلسي, للأطفال, صحراء, ماجوريل and ألبوم العائلة (every screen over
+the family's photos). The choice is saved at once; «جرّب» shows the selected look on the frame for
+one minute without changing the setting. On the preview page, `/?demo&theme=kids` shows a look.
+
+Each look is a stylesheet and a small script: edit `tools/themes/<id>.css`, then run
+`python3 tools/build-themes.py` to rebuild `public/css/themes/<id>.css` (it turns inline
+`svg(…)` drawings into data URLs and adds the look's fonts). The pictures drawn behind the screens
+(the window, the clock hands, the dunes…) are in `public/js/themes/<id>.js`. Only the chosen
+look's files and fonts are loaded on the frame.
 
 ### Holidays
 
@@ -406,7 +422,7 @@ src/settings.js      Validation of settings saved from the control panel
 public/index.html    The frame (display only)
 public/admin.html    The control panel (/admin); public/sw.js receives photos shared from phones
                      and shows «نبضة» notifications
-public/js/           Frame screens (screens/), frame data (data.js), holidays (holidays.js),
+public/js/           Frame screens (screens/), looks (theme.js loads themes/<id>.js; prayer-row.js), frame data (data.js), holidays (holidays.js),
                      Ramadan (ramadan.js, decorations in ramadan-decor.js), adhan (adhan.js), adhkar and verses
                      (adhkar-data.js), weather tip (nudge.js), repeating-task dates
                      (routines.js), «نبضة» on the frame (pulse.js) and on the phone
@@ -418,8 +434,10 @@ public/js/           Frame screens (screens/), frame data (data.js), holidays (h
                      quran-common.js), guest Wi-Fi (frame-wifi.js, wifi-common.js; QR codes by
                      vendor/qrcode.js, MIT), night screen off (screen.js), control panel (admin.js), .ics import (ics.js,
                      ics-import.js), defaults (config.js)
-public/css/          Styles: app.css (frame), admin.css (control panel)
-public/fonts/        Reem Kufi and Readex Pro (SIL Open Font License)
+public/css/          Styles: app.css (frame), admin.css (control panel), themes/ (built looks)
+public/fonts/        Reem Kufi and Readex Pro; themes/: the looks' Arabic fonts (all SIL Open Font
+                     License, from Fontsource)
+tools/themes/        Sources of the looks; tools/build-themes.py builds them
 public/demo/         Sample pictures for ?demo (painted in code, tools/paint-demo-photos.py)
 tools/make-vapid.mjs Makes the key pair for phone notifications
 tools/kiosk-screen/  Lets the frame's Home HQ app switch the screen's light off at night (see above)

@@ -1,7 +1,8 @@
 import config from '../config.js';
-import { h, setText, now, hhmm, parts, WEEKDAYS, MONTHS } from '../util.js';
+import { h, setText, now, hhmm, parts, startOfDay, durationAr, WEEKDAYS, MONTHS, DAY } from '../util.js';
 import { state, on, photoUrl, DEMO } from '../data.js';
 import { ICON, weatherIcon, describeWeather } from '../icons.js';
+import { nextPrayer } from '../prayer-times.js';
 
 export function createPhotos() {
   const layers = [h('div', { class: 'ph-layer' }), h('div', { class: 'ph-layer' })];
@@ -15,10 +16,17 @@ export function createPhotos() {
     h('p', null, 'أضف صور العائلة من لوحة التحكم على هاتفك:'),
     phoneUrl,
   );
-  const caption = h('div', { class: 'ph-caption' }, h('div', { class: 'ph-clock' }, time, wx), date);
+  // Theme-only (hidden in the original look): the day beside the time, and which photo this is.
+  const sideWd = h('span', { class: 'phs-wd' });
+  const sideSub = h('span', { class: 'phs-sub' });
+  const side = h('span', { class: 'ph-side' }, sideWd, sideSub);
+  const infoWho = h('span', { class: 'phi-who' });
+  const infoSub = h('span', { class: 'phi-sub' });
+  const info = h('div', { class: 'ph-info' }, h('span', { class: 'phi-badge', html: ICON.image }), h('span', { class: 'phi-text' }, infoWho, infoSub));
+  const caption = h('div', { class: 'ph-caption' }, h('div', { class: 'ph-clock' }, time, wx, side), date);
 
-  const el = h('section', { class: 'screen s-photos', 'data-screen': 'photos', style: '--ground:#0E0E10' },
-    layers[0], layers[1], h('div', { class: 'ph-scrim' }), caption, empty,
+  const el = h('section', { class: 'screen s-photos', 'data-screen': 'photos', style: '--ground:var(--g-photos)' },
+    layers[0], layers[1], h('div', { class: 'ph-scrim' }), caption, info, empty,
   );
 
   let order = [], pos = 0, front = 0, timer = null, visible = false;
@@ -38,6 +46,7 @@ export function createPhotos() {
     if (!order.length || pos >= order.length) shuffle();
     if (!order.length) return;
     const photo = order[pos++];
+    const nth = pos, total = order.length;
     const img = new Image();
     img.decoding = 'async';
     img.draggable = false;
@@ -52,9 +61,20 @@ export function createPhotos() {
       back.classList.add('is-on');
       layers[front].classList.remove('is-on');
       front = 1 - front;
+      showInfo(photo, nth, total);
     };
     img.onerror = () => { if (visible) setTimeout(showNext, 1500); };
     img.src = photoUrl(photo);
+  }
+
+  function showInfo(photo, nth, total) {
+    let added = '';
+    if (photo.added) {
+      const d = Math.round((startOfDay(now()) - startOfDay(photo.added)) / DAY);
+      added = d <= 0 ? 'اليوم' : d === 1 ? 'أمس' : d === 2 ? 'قبل يومين' : d <= 10 ? 'قبل ' + d + ' أيام' : 'قبل ' + d + ' يوماً';
+    }
+    setText(infoWho, added ? 'أُضيفت ' + added : 'ألبوم العائلة');
+    setText(infoSub, 'الصورة ' + nth + ' من ' + total);
   }
 
   function update() {
@@ -73,6 +93,9 @@ export function createPhotos() {
     setText(time, hhmm(t));
     setText(date, WEEKDAYS[p.wd] + ' ' + p.d + ' ' + MONTHS[p.m - 1]);
     const w = state.weather;
+    const np = nextPrayer(t);
+    setText(sideWd, WEEKDAYS[p.wd]);
+    setText(sideSub, [p.d + ' ' + MONTHS[p.m - 1], w ? Math.round(w.current.temp) + '°' : '', np ? np.ar + ' بعد ' + durationAr(np.at - t) : ''].filter(Boolean).join(' · '));
     wx.textContent = '';
     if (w) {
       const d = describeWeather(w.current.code);
@@ -83,6 +106,7 @@ export function createPhotos() {
 
   on('photos', () => { shuffle(); update(); });
   on('weather', () => { lastMin = -1; if (visible) tick(now()); });
+  on('prayer', () => { lastMin = -1; if (visible) tick(now()); });
 
   return {
     name: 'photos', label: 'الصور', el, tick,

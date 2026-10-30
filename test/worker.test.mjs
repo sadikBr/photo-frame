@@ -244,6 +244,15 @@ data = await (await call(k('/api/board?frame=1&audio=ok&screen=nonsense'))).json
 assert.equal(data.frameScreen, 'backlight', 'unknown values ignored');
 data = await (await call(k('/api/board'))).json();
 assert.equal(data.frameScreen, 'backlight', 'phones see it too');
+data = await (await pv({ what: 'theme', theme: 'kids', minutes: 1 })).json();
+assert.equal(data.theme, 'kids', 'a theme can be tried on the frame for a minute');
+assert.ok(data.until <= Date.now() + 61000);
+r = await pv({ what: 'theme', theme: 'neon' });
+assert.equal(r.status, 400, 'only known themes');
+data = await (await put('/api/settings', { theme: 'majorelle' })).json();
+assert.equal(data.theme, 'majorelle');
+data = await (await put('/api/settings', { theme: 'neon' })).json();
+assert.equal(data.theme, undefined, 'unknown themes are dropped');
 data = await (await pv({ what: 'wifi', minutes: 3 })).json();
 assert.equal(data.what, 'wifi', 'the Wi-Fi card can be shown on the frame from a phone');
 await pv({ what: 'none' });
