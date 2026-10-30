@@ -4,7 +4,7 @@
 // behind each screen. Only the chosen theme's files and fonts are loaded.
 import config from './config.js';
 
-export const THEMES = ['original', 'riad', 'bright', 'andalus', 'kids', 'sahara', 'majorelle', 'album'];
+export const THEMES = ['original', 'riad', 'bright', 'andalus', 'kids', 'sahara', 'majorelle', 'album', 'atlas', 'sky', 'flip', 'hilal'];
 
 let screens = {};
 let stage = null;

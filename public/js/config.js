@@ -34,7 +34,8 @@ export default {
 
   photoSeconds: 15,
 
-  // The frame's look: original, riad, bright, andalus, kids, sahara, majorelle or album.
+  // The frame's look: original, riad, bright, andalus, kids, sahara, majorelle, album,
+  // atlas, sky, flip or hilal.
   theme: 'original',
 
   // Let people swipe or tap the tabs on the frame to look at another screen.

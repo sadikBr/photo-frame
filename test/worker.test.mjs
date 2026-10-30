@@ -251,6 +251,10 @@ r = await pv({ what: 'theme', theme: 'neon' });
 assert.equal(r.status, 400, 'only known themes');
 data = await (await put('/api/settings', { theme: 'majorelle' })).json();
 assert.equal(data.theme, 'majorelle');
+for (const t of ['atlas', 'sky', 'flip', 'hilal']) {
+  data = await (await put('/api/settings', { theme: t })).json();
+  assert.equal(data.theme, t, 'the newer themes are accepted too');
+}
 data = await (await put('/api/settings', { theme: 'neon' })).json();
 assert.equal(data.theme, undefined, 'unknown themes are dropped');
 data = await (await pv({ what: 'wifi', minutes: 3 })).json();

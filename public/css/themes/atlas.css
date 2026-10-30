@@ -1,0 +1,575 @@
+/* Built by tools/build-themes.py from tools/themes/atlas.css — edit that file, not this one. */
+@font-face { font-family: 'Noto Kufi Arabic'; font-weight: 400; font-display: block; src: url('../../fonts/themes/noto-kufi-arabic-arabic-400-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Noto Kufi Arabic'; font-weight: 400; font-display: block; src: url('../../fonts/themes/noto-kufi-arabic-latin-400-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Noto Kufi Arabic'; font-weight: 500; font-display: block; src: url('../../fonts/themes/noto-kufi-arabic-arabic-500-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Noto Kufi Arabic'; font-weight: 500; font-display: block; src: url('../../fonts/themes/noto-kufi-arabic-latin-500-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Noto Kufi Arabic'; font-weight: 600; font-display: block; src: url('../../fonts/themes/noto-kufi-arabic-arabic-600-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Noto Kufi Arabic'; font-weight: 600; font-display: block; src: url('../../fonts/themes/noto-kufi-arabic-latin-600-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Noto Kufi Arabic'; font-weight: 700; font-display: block; src: url('../../fonts/themes/noto-kufi-arabic-arabic-700-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Noto Kufi Arabic'; font-weight: 700; font-display: block; src: url('../../fonts/themes/noto-kufi-arabic-latin-700-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+/* fonts: noto-kufi-arabic */
+/* «الأطلس»: Morocco's High Atlas. Layered ranges with snow caps, an ighrem on a ridge, poplars
+   and cedars; the landscape follows the season and the hour (js/themes/atlas.js sets the --at-*
+   colours on the stage). Noto Kufi Arabic throughout, dark green-grey ink on light skies.
+   Mockups: T7-Atlas-Clock / Prayer / Lists. */
+
+[data-theme='atlas'] {
+  --fg: 31, 42, 38;
+  --plaster: rgb(var(--fg));
+  --plaster-2: rgba(var(--fg), 0.74);
+  --plaster-3: rgba(var(--fg), 0.58);
+  --hair: rgba(var(--fg), 0.15);
+  --shade: 107, 74, 46;
+  --saffron: #A4561F;
+  --accent-rgb: 164, 86, 31;
+  --saffron-ink: #FBF6EA;
+  --garnet: #A4561F;
+  --garnet-deep: #FBF6EA;
+  --sky: #3F6B8C;
+  --sky-2: #2F5674;
+  --sky-rgb: 63, 107, 140;
+  --mint: #2F5A43;
+  --mint-rgb: 47, 90, 67;
+  --rose: #A84A5C;
+  --rose-rgb: 168, 74, 92;
+  --deep-rgb: 251, 246, 234;
+  --deep2-rgb: 240, 230, 210;
+  --modal: #F4EADA;
+  --menu: rgba(251, 246, 234, 0.97);
+  --banner: rgba(251, 246, 234, 0.97);
+  --chip-bg: #FBF6EA;
+  --g-home: #E6C69C;
+  --g-prayer: #EBD3AE;
+  --g-lists: #EBD3AE;
+  --g-calendar: #F2E6D2;
+  --g-adhkar-m: #F2E6D2;
+  --g-adhkar-e: #EBDCC4;
+  --kufi: 'Noto Kufi Arabic', 'Readex Pro', sans-serif;
+  --sans: 'Noto Kufi Arabic', 'Readex Pro', sans-serif;
+  --dock-scrim: rgba(24, 32, 28, 0.66);
+  --dock-hint: #FBF6EA;
+  --door-fun: #F1E2C6;
+  --door-wifi: #DCE6DC;
+  /* the board look (lists, calendar, adhkar) */
+  --a-ink: #1F2A26;
+  --a-muted: #6E6A5E;
+  --a-faint: #8C8676;
+  --a-board: #FBF6EA;
+  --a-line: #E8DCC4;
+  --a-wood: #6B4A2E;
+  --a-green: #2F5A43;
+  /* the landscape: autumn by day until the module sets the real season and hour on the stage */
+  --at-sky1: #F4E6CC;
+  --at-sky2: #E6C69C;
+  --at-sun: #FBEBC8;
+  --at-far: #BCC2CC;
+  --at-far-snow: 1;
+  --at-mid-snow: 0;
+  --at-mid: #8E98A6;
+  --at-shade: #7A8494;
+  --at-near: #C98B3F;
+  --at-tree: #DFA23A;
+  --at-trunk: #6B4A2E;
+  --at-ground: #2F3B2C;
+  --at-kasbah: #B97A4B;
+  --at-accent: #A4561F;
+  --at-ink: #1F2A26;
+  --at-ink2: rgba(31, 42, 38, 0.72);
+  --at-chip: rgba(255, 255, 255, 0.55);
+  --at-snow: #FBF8F1;
+  --at-win: #3A2A1E;
+  --at-stars: 0;
+  --at-moon: 0;
+  --at-sunop: 1;
+  --at-glow: 0;
+  --at-sun-dy: 0px;
+  --at-season: 'الخريف في الأطلس';
+  --atd-sky1: #F4E6CC;
+  --atd-sky2: #E6C69C;
+  --atd-far: #BCC2CC;
+  --atd-far-snow: 1;
+  --atd-ground: #2F3B2C;
+  font-synthesis: none;
+}
+[data-theme='atlas'] #stage { font-weight: 400; }
+[data-theme='atlas'] .screen { background-image: none; }
+[data-theme='atlas'] .band { display: none; }
+[data-theme='atlas'] .status { color: #FBF6EA; font-weight: 600; }
+
+/* spring: almond trees in blossom instead of the poplars */
+[data-theme='atlas'] .t-art .at-almonds { display: none; }
+[data-theme='atlas'] .t-art.at-spring .at-almonds { display: inline; }
+[data-theme='atlas'] .t-art.at-spring .at-poplars { display: none; }
+
+/* ---------- clock (T7-Atlas-Clock) ---------- */
+[data-theme='atlas'] .s-home .home-grid { display: contents; }
+[data-theme='atlas'] .s-home .rule,
+[data-theme='atlas'] .s-home .h-weather,
+[data-theme='atlas'] .s-home .h-next { display: none; }
+[data-theme='atlas'] .s-home .h-main {
+  position: absolute;
+  right: 70px;
+  top: 40px;
+  width: 640px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-start;
+  color: var(--at-ink);
+}
+[data-theme='atlas'] .s-home .h-dates { display: contents; }
+[data-theme='atlas'] .s-home .h-weekday { order: 1; flex: 0 0 100%; font: 700 54px/1.3 var(--kufi); color: var(--at-accent); }
+[data-theme='atlas'] .s-home .h-clock,
+[data-theme='atlas'] .s-home.has-msg .h-clock {
+  order: 2;
+  flex: 0 0 100%;
+  margin: 0;
+  font: 600 200px/1 var(--kufi);
+  letter-spacing: -2px;
+  text-align: right;
+  color: var(--at-ink);
+}
+[data-theme='atlas'] .s-home .h-greg,
+[data-theme='atlas'] .s-home .h-hijri { order: 3; margin: 10px 0 0; font-size: 28px; font-weight: 500; line-height: 1.7; color: var(--at-ink); }
+[data-theme='atlas'] .s-home .h-hijri { color: var(--at-accent); }
+[data-theme='atlas'] .s-home .h-hijri::before { content: '·'; padding: 0 9px; color: var(--at-ink); }
+
+/* the verse of the day (or the family's message) under the dates */
+[data-theme='atlas'] .s-home .h-msg,
+[data-theme='atlas'] .s-home .h-verse {
+  order: 4;
+  flex: 0 0 100%;
+  max-width: none;
+  margin-top: 14px;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--at-ink);
+}
+[data-theme='atlas'] .s-home .h-verse {
+  display: block;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+[data-theme='atlas'] .s-home .h-verse[hidden],
+[data-theme='atlas'] .s-home .h-msg[hidden] { display: none; }
+[data-theme='atlas'] .s-home .h-verse-text,
+[data-theme='atlas'] .s-home .h-verse.is-verse .h-verse-text { display: inline; font: 500 24px/1.5 var(--kufi); }
+[data-theme='atlas'] .s-home .h-verse-ref { display: inline; margin-right: 8px; font-size: 17px; font-weight: 500; color: var(--at-ink2); }
+[data-theme='atlas'] .s-home .h-msg-icon { padding-top: 6px; }
+[data-theme='atlas'] .s-home .h-msg-icon svg { fill: var(--at-accent); }
+
+/* Ramadan: the iftar / imsak countdown under the verse, as in the original look */
+[data-theme='atlas'] .s-home > .t-art.at-ramadan ~ .home-grid .h-next {
+  order: 5;
+  flex: 0 0 100%;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--at-ink);
+}
+[data-theme='atlas'] .s-home .h-next-icon { display: none; }
+[data-theme='atlas'] .s-home .h-next-name { color: var(--at-accent); font-weight: 700; }
+[data-theme='atlas'] .s-home .h-next-time { color: var(--at-ink); font-weight: 600; }
+[data-theme='atlas'] .s-home .h-next-in { font-size: 22px; font-weight: 500; color: var(--at-ink); }
+
+/* the five prayers as pills on the dark ground at the bottom */
+[data-theme='atlas'] .s-home .h-prayers {
+  position: absolute;
+  right: 0;
+  width: 1070px;
+  top: 676px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+[data-theme='atlas'] .h-prayers .prow-i {
+  min-width: 170px;
+  height: 64px;
+  padding: 0 18px;
+  border-radius: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #FBF6EA;
+  white-space: nowrap;
+}
+[data-theme='atlas'] .h-prayers .prow-icon { display: none; }
+[data-theme='atlas'] .h-prayers .prow-name { font-size: 20px; font-weight: 600; line-height: 1.4; }
+[data-theme='atlas'] .h-prayers .prow-time { font-size: 32px; font-weight: 600; line-height: 1.3; }
+[data-theme='atlas'] .h-prayers .prow-in { font-size: 16px; font-weight: 600; line-height: 1.4; }
+[data-theme='atlas'] .h-prayers .prow-in:empty { display: none; }
+[data-theme='atlas'] .h-prayers .is-past { opacity: 0.6; }
+[data-theme='atlas'] .h-prayers .is-next { background: var(--saffron); opacity: 1; }
+
+/* the weather, over the sky at the top left (icon, temperature, condition; the sentence; the season) */
+[data-theme='atlas'] .s-home .h-wxm {
+  position: absolute;
+  left: 64px;
+  top: 100px;
+  width: 380px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 16px;
+  color: var(--at-ink);
+  --accent: var(--at-accent);
+  --ground: var(--at-sky1);
+}
+[data-theme='atlas'] .h-wxm .hw-icon { order: 1; display: flex; flex: none; }
+[data-theme='atlas'] .h-wxm .hw-icon svg { width: 58px; height: 58px; }
+[data-theme='atlas'] .h-wxm .hw-text { order: 2; display: flex; align-items: center; gap: 16px; white-space: nowrap; }
+[data-theme='atlas'] .h-wxm .hw-temp { font-size: 62px; font-weight: 600; line-height: 1.15; }
+[data-theme='atlas'] .h-wxm .hw-cond { font-size: 24px; font-weight: 500; }
+[data-theme='atlas'] .h-wxm .hw-next { display: none; }
+[data-theme='atlas'] .h-wxm .hw-tip {
+  order: 3;
+  flex: 0 0 100%;
+  margin-top: 6px;
+  font-size: 21px;
+  font-weight: 500;
+  line-height: 1.55;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+[data-theme='atlas'] .h-wxm .hw-tip:empty { display: none; }
+/* «الخريف في الأطلس» with a leaf: the season the landscape is showing */
+[data-theme='atlas'] .s-home .h-wxm::before {
+  content: '';
+  order: 4;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 14px 0 0 -8px;
+  background-color: var(--at-accent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2220%22 height=%2220%22 viewBox=%220 0 24 24%22%3E%3Cg fill=%22none%22 stroke=%22%23000%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 19c0-8 5-13 14-14c0 9-5 14-13 14z%22/%3E%3Cpath d=%22M5 19l8-8%22/%3E%3C/g%3E%3C/svg%3E") center / 20px 20px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2220%22 height=%2220%22 viewBox=%220 0 24 24%22%3E%3Cg fill=%22none%22 stroke=%22%23000%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 19c0-8 5-13 14-14c0 9-5 14-13 14z%22/%3E%3Cpath d=%22M5 19l8-8%22/%3E%3C/g%3E%3C/svg%3E") center / 20px 20px no-repeat;
+}
+[data-theme='atlas'] .s-home .h-wxm::after {
+  content: var(--at-season);
+  order: 5;
+  margin-top: 14px;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--at-accent);
+}
+
+/* status chips: top left, above the weather (as in the mock) */
+[data-theme='atlas'] #stage[data-screen='home'] .top-chips {
+  left: 64px;
+  right: auto;
+  top: 40px;
+  width: 380px;
+  max-width: none;
+  transform: none;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+[data-theme='atlas'] #stage[data-screen='home'] .status-chips { flex-direction: column; align-items: flex-start; gap: 8px; }
+[data-theme='atlas'] .match-chip,
+[data-theme='atlas'] .st-chip {
+  height: 36px;
+  padding: 0 16px;
+  gap: 10px;
+  border: 0;
+  border-radius: 18px;
+  background: rgba(251, 246, 234, 0.85);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--a-ink);
+}
+[data-theme='atlas'] .match-chip .mc-flag { display: none; }
+[data-theme='atlas'] .match-chip::before { content: ''; flex: none; width: 10px; height: 10px; border-radius: 50%; background: #C1272D; }
+[data-theme='atlas'] .st-chip b { font-weight: 700; color: var(--saffron); }
+[data-theme='atlas'] .st-chip small { font-size: 15px; color: var(--a-muted); }
+[data-theme='atlas'] .st-emoji { font-size: 18px; }
+[data-theme='atlas'] .qr-chip { background: rgba(251, 246, 234, 0.9); border: 0; }
+[data-theme='atlas'] .qr-open { font-size: 17px; font-weight: 600; color: var(--a-ink); }
+[data-theme='atlas'] .qr-icon svg,
+[data-theme='atlas'] .qr-btn { color: var(--a-ink); }
+[data-theme='atlas'] .qr-bar i { background: var(--saffron); }
+/* on the clock screen they follow the sky (light at night) */
+[data-theme='atlas'] #stage[data-screen='home'] .match-chip,
+[data-theme='atlas'] #stage[data-screen='home'] .st-chip,
+[data-theme='atlas'] #stage[data-screen='home'] .qr-chip { background: var(--at-chip); color: var(--at-ink); }
+[data-theme='atlas'] #stage[data-screen='home'] .qr-open,
+[data-theme='atlas'] #stage[data-screen='home'] .qr-btn,
+[data-theme='atlas'] #stage[data-screen='home'] .qr-icon svg { color: var(--at-ink); }
+[data-theme='atlas'] #stage[data-screen='home'] .st-chip b { color: var(--at-accent); }
+[data-theme='atlas'] #stage[data-screen='home'] .st-chip small { color: var(--at-ink2); }
+/* no chip: the weather moves up; several: it moves down under them */
+[data-theme='atlas'] #stage:not(:has(.top-chips .st-chip, .top-chips .match-chip:not([hidden]), .top-chips .qr-chip:not([hidden]))) .s-home .h-wxm { top: 46px; }
+[data-theme='atlas'] #stage:has(.top-chips .st-chip ~ .st-chip) .s-home .h-wxm,
+[data-theme='atlas'] #stage:has(.top-chips .match-chip:not([hidden])):has(.top-chips .st-chip) .s-home .h-wxm,
+[data-theme='atlas'] #stage:has(.top-chips .match-chip:not([hidden])):has(.top-chips .qr-chip:not([hidden])) .s-home .h-wxm,
+[data-theme='atlas'] #stage:has(.top-chips .st-chip):has(.top-chips .qr-chip:not([hidden])) .s-home .h-wxm { top: 148px; }
+[data-theme='atlas'] #stage:has(.top-chips .st-chip ~ .st-chip ~ .st-chip) .s-home .h-wxm { top: 196px; }
+/* the lists' boards fill the top: the chips sit on the ground between the posts there */
+[data-theme='atlas'] #stage[data-screen='lists'] .top-chips { top: auto; bottom: 8px; }
+
+/* ---------- prayer: five summits (T7-Atlas-Prayer) ---------- */
+[data-theme='atlas'] .s-prayer .p-stage,
+[data-theme='atlas'] .s-prayer .p-tiles,
+[data-theme='atlas'] .s-prayer .p-cd { display: none; }
+[data-theme='atlas'] .s-prayer .p-head { top: 26px; right: 70px; left: auto; display: block; text-align: right; color: var(--at-ink); }
+[data-theme='atlas'] .s-prayer .p-name-row { display: block; }
+[data-theme='atlas'] .s-prayer .p-name,
+[data-theme='atlas'] .s-prayer.is-now .p-name { font: 700 104px/1.25 var(--kufi); color: var(--at-accent); }
+[data-theme='atlas'] .s-prayer .p-in { display: block; font-size: 38px; font-weight: 700; line-height: 1.3; color: var(--at-ink); white-space: nowrap; }
+[data-theme='atlas'] .s-prayer .p-at { margin-top: 4px; font-size: 21px; font-weight: 500; color: var(--at-ink); }
+[data-theme='atlas'] .s-prayer .p-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: absolute;
+  left: 64px;
+  top: 40px;
+  color: var(--at-ink);
+}
+[data-theme='atlas'] .p-clock .pc-time { font-size: 54px; font-weight: 600; line-height: 1.1; }
+[data-theme='atlas'] .p-clock .pc-date { margin-top: 4px; font-size: 19px; font-weight: 500; line-height: 1.6; }
+[data-theme='atlas'] .p-clock .pc-sun { display: block; font-size: 19px; font-weight: 500; line-height: 1.6; opacity: 0.75; }
+/* the names and times above the summits (drawn by atlas.js in the art layer) */
+[data-theme='atlas'] .atp-lab {
+  position: absolute;
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--at-ink);
+}
+[data-theme='atlas'] .atp-n { font-size: 22px; font-weight: 700; line-height: 1.35; }
+[data-theme='atlas'] .atp-t { font-size: 36px; font-weight: 600; line-height: 1.1; }
+[data-theme='atlas'] .atp-lab.is-past { opacity: 0.55; }
+[data-theme='atlas'] .atp-lab.is-next .atp-n { font-size: 30px; color: var(--at-accent); }
+[data-theme='atlas'] .atp-lab.is-next .atp-t { font-size: 48px; }
+[data-theme='atlas'] .atp-foot { position: absolute; left: 0; right: 0; top: 760px; text-align: center; font-size: 18px; font-weight: 500; color: #F4E6CC; }
+
+/* Ramadan: the season's sky without the summits, and the fast's own layout */
+[data-theme='atlas'] .s-prayer.is-ramadan { --at-ink: #1F2A26; --at-ink2: rgba(31, 42, 38, 0.72); --at-accent: var(--saffron); background-image: linear-gradient(180deg, var(--atd-sky1), var(--atd-sky2)); }
+[data-theme='atlas'] .s-prayer.is-ramadan .t-art,
+[data-theme='atlas'] .s-prayer.is-ramadan .p-clock,
+[data-theme='atlas'] .s-prayer.is-ramadan .p-in { display: none; }
+[data-theme='atlas'] .s-prayer.is-ramadan .p-head { display: flex; left: 76px; right: 76px; top: 40px; justify-content: space-between; align-items: flex-end; }
+[data-theme='atlas'] .s-prayer.is-ramadan .p-name { font-size: 100px; }
+[data-theme='atlas'] .s-prayer.is-ramadan .p-cd { display: block; }
+[data-theme='atlas'] .s-prayer.is-ramadan .p-count { font: 600 96px/1.1 var(--kufi); letter-spacing: 0; color: var(--a-ink); }
+[data-theme='atlas'] .s-prayer.is-ramadan .p-cd-s { font-size: 0.6em; }
+[data-theme='atlas'] .s-prayer.is-ramadan .p-cap { font-size: 21px; color: var(--a-muted); }
+[data-theme='atlas'] .s-prayer.is-ramadan .r-stage { top: 250px; bottom: 40px; }
+[data-theme='atlas'] .r-day { font: 700 32px/1.3 var(--kufi); color: var(--a-ink); }
+[data-theme='atlas'] .r-tile { background: var(--a-board); border: 0; border-top: 8px solid var(--a-wood); border-radius: 10px; box-shadow: 0 6px 0 rgba(47, 59, 44, 0.16); color: var(--a-ink); }
+[data-theme='atlas'] .r-tile { height: 168px; padding: 12px 18px 0; }
+[data-theme='atlas'] .r-t-name { line-height: 1.45; }
+[data-theme='atlas'] .r-t-time { margin-top: 0; font-size: 46px; font-weight: 600; line-height: 1.2; }
+[data-theme='atlas'] .r-t-note { margin-top: 0; line-height: 1.5; }
+[data-theme='atlas'] .r-tile.is-key { background: #F6E6C8; }
+[data-theme='atlas'] .r-tile.is-past { opacity: 0.6; }
+[data-theme='atlas'] .r-tile.is-next { border-top-color: var(--saffron); box-shadow: 0 0 0 3px var(--saffron), 0 6px 0 rgba(47, 59, 44, 0.16); }
+[data-theme='atlas'] .r-t-note { color: var(--a-muted); }
+[data-theme='atlas'] .r-quran { padding: 14px 22px; border-radius: 14px; background: rgba(251, 246, 234, 0.85); color: var(--a-ink); }
+[data-theme='atlas'] .r-q-title { font-weight: 700; color: var(--saffron); }
+[data-theme='atlas'] .r-q-btn { border-color: rgba(47, 90, 67, 0.5); color: var(--a-green); }
+[data-theme='atlas'] .r-q-plus { background: var(--a-green); border-color: var(--a-green); color: #FBF6EA; }
+[data-theme='atlas'] .r-q-bar i.is-read { background: var(--a-green); }
+[data-theme='atlas'] .r-iftar { color: var(--a-ink); }
+[data-theme='atlas'] .ri-title { color: var(--saffron); }
+
+/* ---------- lists: two notice boards on posts (T7-Atlas-Lists) ---------- */
+[data-theme='atlas'] .lists-layout { inset: 0; display: block; }
+[data-theme='atlas'] .s-lists .rule { display: none; }
+[data-theme='atlas'] .l-panel {
+  position: absolute;
+  top: 34px;
+  height: 660px;
+  padding: 18px 34px 26px;
+  border-top: 14px solid var(--a-wood);
+  border-radius: 14px;
+  background: var(--a-board);
+  box-shadow: 0 10px 0 rgba(47, 59, 44, 0.18);
+  color: var(--a-ink);
+}
+[data-theme='atlas'] .l-shop { right: 38px; width: 566px; }
+[data-theme='atlas'] .l-tasks { left: 38px; width: 618px; }
+[data-theme='atlas'] .l-head { height: auto; align-items: baseline; justify-content: space-between; }
+[data-theme='atlas'] .l-title { font: 700 46px/1.3 var(--kufi); color: var(--saffron); }
+[data-theme='atlas'] .l-meta,
+[data-theme='atlas'] .l-meta-box { padding-top: 0; font-size: 18px; font-weight: 500; color: var(--a-muted); }
+[data-theme='atlas'] .l-hint { display: inline; }
+[data-theme='atlas'] .l-empty { color: var(--a-muted); }
+
+[data-theme='atlas'] .l-shop .l-tiles {
+  flex: 0 1 auto;
+  margin-top: 8px;
+  padding-bottom: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 76px;
+  gap: 0 28px;
+}
+[data-theme='atlas'] .l-tile {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-content: center;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 1.5px solid var(--a-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--a-ink);
+}
+[data-theme='atlas'] .l-tile .l-tick {
+  grid-row: 1 / 3;
+  grid-column: 1;
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--a-green);
+  background: transparent;
+  color: #FBF6EA;
+}
+[data-theme='atlas'] .l-tile .l-tick svg { width: 16px; height: 16px; }
+[data-theme='atlas'] .l-tile-text { grid-column: 2; font-size: 26px; font-weight: 600; line-height: 1.25; -webkit-line-clamp: 1; }
+[data-theme='atlas'] .l-tile .l-who { grid-column: 2; display: block; min-width: 0; font-size: 15px; font-weight: 500; line-height: 1.2; color: #7A7466; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-theme='atlas'] .l-tile.is-done { background: transparent; border: 0; border-bottom: 1.5px solid var(--a-line); color: var(--a-faint); }
+[data-theme='atlas'] .l-tile.is-done .l-tick { background: var(--a-green); border-color: var(--a-green); color: #FBF6EA; }
+[data-theme='atlas'] .l-tile.is-done .l-tile-text { color: var(--a-faint); text-decoration-color: var(--a-faint); }
+[data-theme='atlas'] .l-tile.is-done .l-who { color: var(--a-faint); }
+[data-theme='atlas'] .l-shop .l-foot { margin-top: auto; padding-top: 14px; font-size: 18px; font-weight: 500; color: var(--a-muted); }
+[data-theme='atlas'] .l-clear {
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 24px;
+  border: 2px solid var(--a-green);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--a-green);
+}
+[data-theme='atlas'] .l-clear.is-armed { background: var(--a-green); border-color: var(--a-green); color: #FBF6EA; }
+
+[data-theme='atlas'] .l-tasks .l-rows { flex: 0 1 auto; margin-top: 8px; padding-bottom: 0; }
+[data-theme='atlas'] .l-row { min-height: 72px; padding: 6px 0; gap: 14px; border-bottom: 1.5px solid var(--a-line); color: var(--a-ink); }
+[data-theme='atlas'] .l-circle { width: 32px; height: 32px; margin: 0; border: 3px solid var(--a-green); }
+[data-theme='atlas'] .l-row-text { flex: 1; font-size: 27px; font-weight: 600; line-height: 1.35; }
+[data-theme='atlas'] .l-today { display: inline-block; flex: none; padding: 2px 12px; border-radius: 12px; background: #F3DFC0; color: var(--saffron); font-size: 16px; font-weight: 700; line-height: 1.6; }
+[data-theme='atlas'] .l-repeat { color: var(--a-green); }
+[data-theme='atlas'] .l-done-head { margin-top: 14px; padding-bottom: 4px; font-size: 18px; font-weight: 500; color: var(--a-muted); }
+[data-theme='atlas'] .l-done-head .l-clear { min-height: 44px; padding: 0 18px; border-radius: 22px; font-size: 17px; }
+[data-theme='atlas'] .l-row.is-done { min-height: 60px; border-bottom: 0; color: var(--a-faint); }
+[data-theme='atlas'] .l-row.is-done .l-circle { width: 30px; height: 30px; margin: 0 1px; border: 0; background: var(--a-green); color: #FBF6EA; }
+[data-theme='atlas'] .l-row.is-done .l-circle svg { width: 16px; height: 16px; }
+[data-theme='atlas'] .l-row.is-done .l-row-text { font-size: 23px; font-weight: 500; color: var(--a-faint); text-decoration-color: var(--a-faint); }
+[data-theme='atlas'] .l-now { display: flex; align-items: baseline; gap: 14px; margin-top: auto; padding-top: 14px; }
+[data-theme='atlas'] .ln-time { font-size: 36px; font-weight: 600; line-height: 1.2; color: var(--a-ink); }
+[data-theme='atlas'] .ln-next { font-size: 19px; font-weight: 500; color: var(--a-muted); }
+
+/* ---------- calendar: the month on the sky, «القادم» on a notice board ---------- */
+[data-theme='atlas'] .cal-layout { bottom: 104px; }
+[data-theme='atlas'] .c-month { font-weight: 700; color: var(--saffron); }
+[data-theme='atlas'] .c-year { color: var(--a-muted); }
+[data-theme='atlas'] .c-hijri { font-weight: 500; color: var(--a-ink); }
+[data-theme='atlas'] .c-week { color: var(--a-muted); font-weight: 500; }
+[data-theme='atlas'] .c-cell { border-top: 1.5px solid rgba(31, 42, 38, 0.14); }
+[data-theme='atlas'] .c-cell.is-weekend { background: rgba(255, 255, 255, 0.32); }
+[data-theme='atlas'] .c-d { font-weight: 600; }
+[data-theme='atlas'] .c-cell.is-today .c-d { background: var(--saffron); color: #FBF6EA; }
+[data-theme='atlas'] .c-cell.is-hstart .c-h { color: var(--saffron); }
+[data-theme='atlas'] .c-nav { border-color: rgba(47, 90, 67, 0.4); color: var(--a-green); }
+[data-theme='atlas'] .c-today { border-color: var(--a-green); color: var(--a-green); font-weight: 600; }
+[data-theme='atlas'] .c-side {
+  padding: 16px 22px 14px;
+  border: 0;
+  border-top: 12px solid var(--a-wood);
+  border-radius: 12px;
+  background: var(--a-board);
+  box-shadow: 0 8px 0 rgba(47, 59, 44, 0.16);
+}
+[data-theme='atlas'] .c-side-title { font-weight: 700; color: var(--saffron); }
+[data-theme='atlas'] .k-national { --k: #A4561F; }
+
+/* ---------- adhkar: the dhikr on a notice board ---------- */
+[data-theme='atlas'] .a-body { bottom: 130px; }
+[data-theme='atlas'] .a-dots { bottom: 100px; }
+[data-theme='atlas'] .a-title { font-weight: 700; color: var(--saffron); }
+[data-theme='atlas'] .a-card {
+  background: var(--a-board);
+  border: 0;
+  border-top: 12px solid var(--a-wood);
+  border-radius: 14px;
+  box-shadow: 0 8px 0 rgba(47, 59, 44, 0.16);
+}
+[data-theme='atlas'] .a-card-title { font-weight: 700; color: var(--saffron); }
+[data-theme='atlas'] .a-text { font-weight: 500; color: var(--a-ink); }
+[data-theme='atlas'] .a-done-title { font-weight: 700; color: var(--saffron); }
+[data-theme='atlas'] .a-dots i { background: rgba(31, 42, 38, 0.2); }
+[data-theme='atlas'] .a-dots i.is-past { background: rgba(var(--accent-rgb), 0.55); }
+[data-theme='atlas'] .a-dots i.is-on { background: var(--saffron); }
+
+/* ---------- photos (always dark) ---------- */
+[data-theme='atlas'] .s-photos .ph-empty { inset: 0; background-color: #1E2824; }
+
+/* ---------- overlays (Quran, Wi-Fi, the fun menu): a cream sky over a far range ---------- */
+[data-theme='atlas'] .fun-scrim,
+[data-theme='atlas'] .qr .fun-scrim,
+[data-theme='atlas'] .wf .fun-scrim {
+  background-color: var(--modal);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221280%22 height=%22800%22%3E%3Cpath d=%22M0 700 L110 662 L230 686 L360 640 L480 680 L610 660 L760 694 L900 672 L1030 700 L1160 680 L1280 696 L1280 800 L0 800 Z%22 fill=%22%23D5D3CF%22/%3E%3Cpath d=%22M360 640 L344 652 L354 651 L362 658 L370 650 L380 652 Z%22 fill=%22%23FBF8F1%22/%3E%3Cpath d=%22M0 752 C 260 736, 560 764, 860 748 S 1180 744, 1280 750 L1280 800 L0 800 Z%22 fill=%22%23C9C3B6%22/%3E%3C/svg%3E");
+  background-position: center bottom;
+  background-repeat: no-repeat;
+}
+[data-theme='atlas'] .fun-menu { border-color: rgba(107, 74, 46, 0.35); box-shadow: 0 16px 40px rgba(24, 32, 28, 0.35); }
+[data-theme='atlas'] .fun-title { font-weight: 700; color: var(--saffron); }
+[data-theme='atlas'] .fw-chip { background: rgba(251, 246, 234, 0.9); }
+[data-theme='atlas'] .qr-fav { font-weight: 600; color: var(--a-ink); border-color: rgba(107, 74, 46, 0.3); }
+[data-theme='atlas'] .qr-fav-n { color: var(--a-muted); }
+[data-theme='atlas'] .qr-np { border-color: rgba(107, 74, 46, 0.3); }
+[data-theme='atlas'] .qr-np-name { font-weight: 600; }
+[data-theme='atlas'] .qr-np-bar i,
+[data-theme='atlas'] .qr-bar i { background: var(--saffron); }
+[data-theme='atlas'] .qr-rec small { background: rgba(var(--accent-rgb), 0.12); color: var(--saffron); }
+[data-theme='atlas'] .wf-row { background: rgba(251, 246, 234, 0.8); }
+[data-theme='atlas'] .wf-icon { color: var(--a-green); }
+[data-theme='atlas'] .pl-banner { border-color: rgba(107, 74, 46, 0.5); box-shadow: 0 18px 50px rgba(24, 32, 28, 0.35); }
+[data-theme='atlas'] .pl-badge { background: #FBF6EA; color: var(--a-ink); border-color: var(--saffron); }
+[data-theme='atlas'] .pl-listen { background: rgba(var(--accent-rgb), 0.1); border-color: rgba(var(--accent-rgb), 0.35); }
+
+/* dock door icons, darker so they read on the light doors */
+[data-theme='atlas'] .nav .tab[data-for='home'] .tab-icon { color: var(--saffron); }
+[data-theme='atlas'] .nav .tab[data-for='prayer'] .tab-icon { color: #2F5A43; }
+[data-theme='atlas'] .nav .tab[data-for='adhkar'] .tab-icon { color: #6B4E9B; }
+[data-theme='atlas'] .nav .tab[data-for='calendar'] .tab-icon { color: #3F6B8C; }
+[data-theme='atlas'] .nav .tab[data-for='lists'] .tab-icon { color: #A84A5C; }
+[data-theme='atlas'] .nav .tab { font-weight: 500; }
+/* the match overlay is always dark green: keep its accents bright */
+[data-theme='atlas'] .mt-phase,
+[data-theme='atlas'] .mt-count,
+[data-theme='atlas'] .mt-cheer b { color: #F2B84B; }
+/* Overlays that are always dark: the derived ink tokens must be light again there. */
+[data-theme='atlas'] .match,
+[data-theme='atlas'] .s-photos,
+[data-theme='atlas'] .pl-beat,
+[data-theme='atlas'] .pl-scrim,
+[data-theme='atlas'] .ph-caption {
+  --plaster: #F3EDE2;
+  --plaster-2: rgba(243, 237, 226, 0.72);
+  --plaster-3: rgba(243, 237, 226, 0.5);
+  --hair: rgba(243, 237, 226, 0.13);
+  --saffron: #F2B84B;
+  --accent: #F2B84B;
+  --ground: #2A2A30;
+  color: #F3EDE2;
+}
+[data-theme='atlas'] .pl-beat .pl-reply { color: #241707; }

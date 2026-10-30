@@ -1,0 +1,515 @@
+/* fonts: noto-naskh-arabic */
+/* «الهلال»: the night sky over a sleeping city. Tonight's real moon ringed by the days of the
+   Hijri month, the prayers as a constellation, crescents that fill in on the lists. Noto Naskh
+   Arabic for the headings and words of the day, Readex Pro (thin) for the numbers.
+   Mockups: T10-Hilal-Clock / -Prayer / -Lists. */
+
+[data-theme='hilal'] {
+  --fg: 237, 233, 220;
+  --plaster: rgb(var(--fg));
+  --plaster-2: rgba(var(--fg), 0.74);
+  --plaster-3: rgba(var(--fg), 0.55);
+  --hair: rgba(159, 166, 200, 0.18);
+  --shade: 4, 7, 24;
+  --saffron: #E9C46A;
+  --accent-rgb: 233, 196, 106;
+  --saffron-ink: #141A3C;
+  --garnet: #1A2350;
+  --garnet-deep: #141A3C;
+  --sky: #9DB4F0;
+  --sky-2: #C3D2FF;
+  --sky-rgb: 157, 180, 240;
+  --mint: #8FD6B8;
+  --mint-rgb: 143, 214, 184;
+  --rose: #EE9AAE;
+  --rose-rgb: 238, 154, 174;
+  --deep-rgb: 13, 19, 48;
+  --deep2-rgb: 26, 35, 80;
+  --modal: #0B1029;
+  --menu: rgba(13, 19, 48, 0.97);
+  --banner: rgba(13, 19, 48, 0.96);
+  --chip-bg: #1A2350;
+  --g-home: #0D1330;
+  --g-prayer: #0D1330;
+  --g-lists: #0D1330;
+  --g-calendar: #0D1330;
+  --g-adhkar-m: #111A40;
+  --g-adhkar-e: #0D1330;
+  --g-photos: #0A0F27;
+  --kufi: 'Noto Naskh Arabic', 'Readex Pro', serif;
+  --sans: 'Readex Pro', 'Noto Sans Arabic', sans-serif;
+  --naskh: 'Noto Naskh Arabic', 'Readex Pro', serif;
+  --hl-gold: #E9C46A;
+  --hl-moon: #EDE9DC;
+  --hl-muted: #9FA6C8;
+  --hl-muted-2: #8C93BD;
+  --hl-soft: #C3C7E0;
+  --hl-ring: #2B3466;
+  --hl-rule: #252D5C;
+  /* the dock: night doors with a silver edge, gold on the screen that is up */
+  --dock-bottom: 96px;
+  --dock-scrim: rgba(5, 8, 24, 0.82);
+  --dock-hint: #9FA6C8;
+  --door-home: #141B42;
+  --door-prayer: #141B42;
+  --door-adhkar: #141B42;
+  --door-calendar: #141B42;
+  --door-lists: #141B42;
+  --door-quran: #101839;
+  --door-fun: #1A2350;
+  --door-wifi: #10243A;
+  --hl-stars: svg(<svg width="1280" height="800"><defs><radialGradient id="mw"><stop offset="0" stop-color="#8C93BD" stop-opacity="0.11"/><stop offset="1" stop-color="#8C93BD" stop-opacity="0"/></radialGradient></defs><g transform="translate(700 380) rotate(-28)"><ellipse rx="820" ry="120" fill="url(#mw)"/><ellipse rx="560" ry="46" fill="url(#mw)" opacity="0.8"/></g><g fill="#FFFFFF"><circle cx="731" cy="326" r="0.6" opacity="0.35"/><circle cx="1041" cy="626" r="0.8" opacity="0.27"/><circle cx="627" cy="58" r="1.1" opacity="0.27"/><circle cx="1101" cy="458" r="1.3" opacity="0.46"/><circle cx="1058" cy="199" r="0.8" opacity="0.59"/><circle cx="847" cy="101" r="0.9" opacity="0.73"/><circle cx="785" cy="34" r="0.6" opacity="0.37"/><circle cx="250" cy="691" r="1.1" opacity="0.64"/><circle cx="307" cy="507" r="1.5" opacity="0.47"/><circle cx="83" cy="444" r="0.8" opacity="0.67"/><circle cx="1241" cy="181" r="0.6" opacity="0.5"/><circle cx="1047" cy="500" r="0.7" opacity="0.32"/><circle cx="726" cy="284" r="0.8" opacity="0.31"/><circle cx="993" cy="73" r="0.8" opacity="0.74"/><circle cx="244" cy="265" r="1.3" opacity="0.47"/><circle cx="871" cy="109" r="0.8" opacity="0.68"/><circle cx="342" cy="230" r="0.8" opacity="0.64"/><circle cx="615" cy="264" r="1.3" opacity="0.36"/><circle cx="697" cy="33" r="1.1" opacity="0.37"/><circle cx="335" cy="308" r="0.8" opacity="0.45"/><circle cx="1113" cy="512" r="0.9" opacity="0.62"/><circle cx="1270" cy="206" r="1.5" opacity="0.55"/><circle cx="80" cy="372" r="1.5" opacity="0.7"/><circle cx="174" cy="411" r="1.1" opacity="0.52"/><circle cx="627" cy="126" r="1.5" opacity="0.3"/><circle cx="1247" cy="630" r="0.6" opacity="0.47"/><circle cx="83" cy="266" r="0.8" opacity="0.3"/><circle cx="581" cy="754" r="1.5" opacity="0.32"/><circle cx="1103" cy="589" r="1.5" opacity="0.42"/><circle cx="332" cy="599" r="1.5" opacity="0.46"/><circle cx="831" cy="691" r="0.8" opacity="0.62"/><circle cx="414" cy="25" r="0.9" opacity="0.57"/><circle cx="753" cy="630" r="1.5" opacity="0.26"/><circle cx="149" cy="225" r="0.9" opacity="0.61"/><circle cx="1138" cy="35" r="0.7" opacity="0.74"/><circle cx="365" cy="509" r="0.8" opacity="0.43"/><circle cx="513" cy="598" r="1.1" opacity="0.34"/><circle cx="757" cy="324" r="0.7" opacity="0.59"/><circle cx="395" cy="731" r="1.3" opacity="0.47"/><circle cx="952" cy="158" r="1.1" opacity="0.31"/><circle cx="1002" cy="6" r="1.3" opacity="0.55"/><circle cx="1120" cy="662" r="0.9" opacity="0.29"/><circle cx="542" cy="68" r="0.6" opacity="0.42"/><circle cx="461" cy="322" r="0.9" opacity="0.56"/><circle cx="362" cy="528" r="1.5" opacity="0.5"/><circle cx="337" cy="336" r="1.1" opacity="0.42"/><circle cx="355" cy="689" r="1.5" opacity="0.54"/><circle cx="107" cy="410" r="1.1" opacity="0.65"/><circle cx="519" cy="603" r="1.3" opacity="0.61"/><circle cx="84" cy="644" r="1.0" opacity="0.26"/><circle cx="419" cy="245" r="1.3" opacity="0.56"/><circle cx="361" cy="142" r="0.8" opacity="0.4"/><circle cx="712" cy="621" r="0.6" opacity="0.36"/><circle cx="953" cy="723" r="0.9" opacity="0.53"/><circle cx="1259" cy="695" r="0.6" opacity="0.45"/><circle cx="434" cy="675" r="0.9" opacity="0.51"/><circle cx="1037" cy="581" r="1.1" opacity="0.69"/><circle cx="842" cy="439" r="0.6" opacity="0.53"/><circle cx="1100" cy="302" r="0.8" opacity="0.64"/><circle cx="150" cy="600" r="1.1" opacity="0.75"/><circle cx="40" cy="700" r="1.1" opacity="0.29"/><circle cx="562" cy="669" r="0.6" opacity="0.32"/><circle cx="1108" cy="537" r="1.5" opacity="0.61"/><circle cx="1262" cy="133" r="1.3" opacity="0.66"/><circle cx="439" cy="425" r="1.5" opacity="0.44"/><circle cx="124" cy="487" r="0.6" opacity="0.72"/><circle cx="240" cy="482" r="1.3" opacity="0.74"/><circle cx="1016" cy="274" r="1.3" opacity="0.73"/><circle cx="775" cy="126" r="0.9" opacity="0.27"/><circle cx="226" cy="484" r="1.1" opacity="0.67"/><circle cx="387" cy="646" r="1.3" opacity="0.55"/><circle cx="549" cy="262" r="0.9" opacity="0.5"/><circle cx="216" cy="615" r="1.5" opacity="0.72"/><circle cx="420" cy="28" r="0.8" opacity="0.54"/><circle cx="538" cy="390" r="1.3" opacity="0.73"/><circle cx="508" cy="618" r="0.9" opacity="0.3"/><circle cx="924" cy="236" r="1.0" opacity="0.52"/><circle cx="1087" cy="75" r="1.5" opacity="0.55"/><circle cx="682" cy="9" r="0.8" opacity="0.73"/><circle cx="495" cy="174" r="1.5" opacity="0.3"/><circle cx="1160" cy="443" r="1.0" opacity="0.43"/><circle cx="1240" cy="143" r="0.6" opacity="0.29"/><circle cx="1038" cy="13" r="1.3" opacity="0.42"/><circle cx="1176" cy="553" r="1.1" opacity="0.41"/><circle cx="609" cy="598" r="0.6" opacity="0.35"/><circle cx="370" cy="624" r="0.9" opacity="0.7"/><circle cx="495" cy="414" r="1.3" opacity="0.69"/><circle cx="974" cy="95" r="0.7" opacity="0.26"/><circle cx="70" cy="586" r="0.8" opacity="0.31"/><circle cx="493" cy="11" r="1.3" opacity="0.62"/><circle cx="234" cy="321" r="0.6" opacity="0.53"/><circle cx="68" cy="286" r="1.5" opacity="0.48"/><circle cx="238" cy="303" r="1.5" opacity="0.49"/><circle cx="908" cy="277" r="0.7" opacity="0.32"/><circle cx="324" cy="69" r="0.6" opacity="0.33"/><circle cx="101" cy="399" r="0.8" opacity="0.63"/><circle cx="687" cy="219" r="1.1" opacity="0.65"/><circle cx="737" cy="483" r="1.3" opacity="0.69"/><circle cx="187" cy="45" r="0.6" opacity="0.55"/><circle cx="827" cy="407" r="0.9" opacity="0.32"/><circle cx="1101" cy="640" r="0.8" opacity="0.68"/><circle cx="479" cy="509" r="0.7" opacity="0.49"/><circle cx="594" cy="352" r="0.8" opacity="0.26"/><circle cx="780" cy="343" r="0.8" opacity="0.42"/><circle cx="856" cy="118" r="1.5" opacity="0.55"/><circle cx="213" cy="533" r="0.9" opacity="0.5"/><circle cx="452" cy="730" r="1.3" opacity="0.32"/><circle cx="821" cy="241" r="1.1" opacity="0.31"/><circle cx="586" cy="512" r="0.6" opacity="0.44"/><circle cx="994" cy="598" r="0.6" opacity="0.31"/><circle cx="1269" cy="707" r="1.3" opacity="0.36"/><circle cx="611" cy="430" r="0.7" opacity="0.3"/><circle cx="1228" cy="614" r="1.3" opacity="0.41"/><circle cx="959" cy="580" r="1.3" opacity="0.52"/><circle cx="692" cy="517" r="0.9" opacity="0.61"/><circle cx="1073" cy="166" r="1.5" opacity="0.59"/><circle cx="1047" cy="293" r="0.9" opacity="0.74"/><circle cx="685" cy="570" r="0.8" opacity="0.29"/><circle cx="507" cy="67" r="0.9" opacity="0.72"/><circle cx="581" cy="505" r="1.1" opacity="0.44"/><circle cx="295" cy="564" r="0.6" opacity="0.25"/><circle cx="702" cy="434" r="0.6" opacity="0.31"/><circle cx="25" cy="713" r="0.6" opacity="0.43"/><circle cx="1185" cy="72" r="0.6" opacity="0.21"/><circle cx="949" cy="154" r="0.6" opacity="0.23"/><circle cx="1165" cy="157" r="0.6" opacity="0.33"/><circle cx="114" cy="597" r="0.6" opacity="0.22"/><circle cx="547" cy="484" r="0.6" opacity="0.22"/><circle cx="50" cy="754" r="0.6" opacity="0.37"/><circle cx="1214" cy="54" r="0.6" opacity="0.23"/><circle cx="1085" cy="83" r="0.6" opacity="0.32"/><circle cx="88" cy="773" r="0.6" opacity="0.41"/><circle cx="962" cy="240" r="0.6" opacity="0.29"/><circle cx="897" cy="243" r="0.6" opacity="0.35"/><circle cx="661" cy="411" r="0.6" opacity="0.29"/><circle cx="1057" cy="244" r="0.6" opacity="0.21"/><circle cx="745" cy="321" r="0.6" opacity="0.39"/><circle cx="1119" cy="146" r="0.6" opacity="0.31"/><circle cx="258" cy="648" r="0.6" opacity="0.43"/><circle cx="31" cy="653" r="0.6" opacity="0.21"/><circle cx="235" cy="592" r="0.6" opacity="0.5"/><circle cx="442" cy="518" r="0.6" opacity="0.34"/><circle cx="82" cy="697" r="0.6" opacity="0.27"/><circle cx="43" cy="707" r="0.6" opacity="0.31"/><circle cx="574" cy="400" r="0.6" opacity="0.4"/><circle cx="380" cy="558" r="0.6" opacity="0.4"/><circle cx="926" cy="272" r="0.6" opacity="0.27"/><circle cx="742" cy="410" r="0.6" opacity="0.43"/><circle cx="495" cy="479" r="0.6" opacity="0.37"/><circle cx="1066" cy="165" r="0.6" opacity="0.29"/><circle cx="80" cy="649" r="0.6" opacity="0.34"/><circle cx="979" cy="183" r="0.6" opacity="0.34"/><circle cx="147" cy="733" r="0.6" opacity="0.37"/><circle cx="760" cy="334" r="0.6" opacity="0.5"/><circle cx="827" cy="341" r="0.6" opacity="0.42"/><circle cx="84" cy="704" r="0.6" opacity="0.34"/><circle cx="546" cy="434" r="0.6" opacity="0.32"/><circle cx="1104" cy="199" r="0.6" opacity="0.45"/><circle cx="734" cy="472" r="0.6" opacity="0.46"/><circle cx="787" cy="382" r="0.6" opacity="0.49"/><circle cx="1016" cy="185" r="0.6" opacity="0.4"/><circle cx="884" cy="249" r="0.6" opacity="0.25"/><circle cx="568" cy="441" r="0.6" opacity="0.33"/><circle cx="325" cy="550" r="0.6" opacity="0.32"/><circle cx="328" cy="551" r="0.6" opacity="0.34"/><circle cx="949" cy="161" r="0.6" opacity="0.43"/><circle cx="1122" cy="178" r="0.6" opacity="0.42"/><circle cx="981" cy="165" r="0.6" opacity="0.36"/><circle cx="1109" cy="191" r="0.6" opacity="0.39"/><circle cx="784" cy="406" r="0.6" opacity="0.38"/><circle cx="1269" cy="95" r="0.6" opacity="0.47"/><circle cx="1169" cy="60" r="0.6" opacity="0.3"/><circle cx="1204" cy="160" r="0.6" opacity="0.48"/><circle cx="247" cy="579" r="0.6" opacity="0.44"/><circle cx="336" cy="528" r="0.6" opacity="0.33"/><circle cx="736" cy="394" r="0.6" opacity="0.23"/><circle cx="106" cy="690" r="0.6" opacity="0.28"/><circle cx="953" cy="208" r="0.6" opacity="0.43"/><circle cx="755" cy="369" r="0.6" opacity="0.47"/><circle cx="869" cy="250" r="0.6" opacity="0.45"/><circle cx="1108" cy="130" r="0.6" opacity="0.43"/><circle cx="591" cy="335" r="0.6" opacity="0.24"/><circle cx="567" cy="443" r="0.6" opacity="0.38"/><circle cx="574" cy="440" r="0.6" opacity="0.34"/><circle cx="143" cy="737" r="0.6" opacity="0.28"/><circle cx="250" cy="652" r="0.6" opacity="0.46"/><circle cx="95" cy="676" r="0.6" opacity="0.47"/><circle cx="879" cy="200" r="0.6" opacity="0.22"/><circle cx="631" cy="451" r="0.6" opacity="0.36"/><circle cx="1011" cy="180" r="0.6" opacity="0.37"/><circle cx="494" cy="445" r="0.6" opacity="0.3"/><circle cx="111" cy="664" r="0.6" opacity="0.28"/><circle cx="167" cy="663" r="0.6" opacity="0.34"/><circle cx="592" cy="484" r="0.6" opacity="0.28"/><circle cx="220" cy="608" r="0.6" opacity="0.2"/><circle cx="1044" cy="187" r="0.6" opacity="0.43"/><circle cx="522" cy="495" r="0.6" opacity="0.47"/><circle cx="936" cy="236" r="0.6" opacity="0.4"/><circle cx="97" cy="703" r="0.6" opacity="0.36"/><circle cx="755" cy="322" r="0.6" opacity="0.22"/><circle cx="454" cy="581" r="0.6" opacity="0.29"/><circle cx="105" cy="647" r="0.6" opacity="0.45"/><circle cx="868" cy="220" r="0.6" opacity="0.42"/><circle cx="366" cy="572" r="0.6" opacity="0.37"/><circle cx="358" cy="491" r="0.6" opacity="0.4"/></g></svg>);
+  --hl-lattice: svg(<svg width="96" height="96"><g fill="none" stroke="#9FA6C8" stroke-opacity="0.07" stroke-width="1"><polygon points="65.0,65.0 31.0,65.0 31.0,31.0 65.0,31.0"/><polygon points="48.0,72.0 24.0,48.0 48.0,24.0 72.0,48.0"/><polygon points="17.0,17.0 -17.0,17.0 -17.0,-17.0 17.0,-17.0"/><polygon points="0.0,24.0 -24.0,0.0 -0.0,-24.0 24.0,-0.0"/><polygon points="113.0,17.0 79.0,17.0 79.0,-17.0 113.0,-17.0"/><polygon points="96.0,24.0 72.0,0.0 96.0,-24.0 120.0,-0.0"/><polygon points="17.0,113.0 -17.0,113.0 -17.0,79.0 17.0,79.0"/><polygon points="0.0,120.0 -24.0,96.0 -0.0,72.0 24.0,96.0"/><polygon points="113.0,113.0 79.0,113.0 79.0,79.0 113.0,79.0"/><polygon points="96.0,120.0 72.0,96.0 96.0,72.0 120.0,96.0"/><path d="M72 48H96M0 48H24M48 0V24M48 72V96M24 0V-0M65 31L79 17M31 31L17 17M31 65L17 79M65 65L79 79"/></g></svg>);
+  font-synthesis: none;
+}
+
+/* ---------- the night on every screen: stars and a soft milky way, a faint khatam lattice ---------- */
+[data-theme='hilal'] .screen:not(.s-photos) {
+  background-color: #0A0F27;
+  background-image:
+    var(--hl-stars),
+    var(--hl-lattice),
+    radial-gradient(ellipse 900px 640px at 50% 30%, #1A2350 0%, rgba(26, 35, 80, 0) 100%),
+    linear-gradient(180deg, #0D1330, #0A0F27);
+  background-repeat: no-repeat, repeat, no-repeat, no-repeat;
+  background-position: 0 0, 0 0, 0 0, 0 0;
+}
+[data-theme='hilal'] .s-home:not(.s-photos) {
+  background-image:
+    var(--hl-stars),
+    var(--hl-lattice),
+    radial-gradient(circle 560px at 320px 350px, #1A2350 0%, rgba(26, 35, 80, 0) 100%),
+    linear-gradient(180deg, #0D1330, #0A0F27);
+}
+[data-theme='hilal'] .s-prayer:not(.s-photos) {
+  background-image:
+    var(--hl-stars),
+    var(--hl-lattice),
+    radial-gradient(ellipse 1000px 620px at 50% 66%, #1A2350 0%, rgba(26, 35, 80, 0) 100%),
+    linear-gradient(180deg, #0D1330, #0A0F27);
+}
+[data-theme='hilal'] .t-art .hl-art { position: absolute; left: 0; top: 0; }
+[data-theme='hilal'] .band { display: none; }
+[data-theme='hilal'] .status { color: #E9C46A; }
+
+/* a few stars that twinkle (only their opacity moves) */
+[data-theme='hilal'] .hl-tw {
+  position: absolute;
+  display: block;
+  background: svg(<svg width="40" height="40" viewBox="-50 -50 100 100"><path d="M0 -50L9 -9L50 0L9 9L0 50L-9 9L-50 0L-9 -9Z" fill="#FFF6DD"/><circle r="9" fill="#FFFFFF"/></svg>) center / contain no-repeat;
+  opacity: 0.2;
+  animation: hl-tw 5.5s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+[data-theme='hilal'] .hl-tw:nth-of-type(2n) { animation-duration: 7s; }
+[data-theme='hilal'] .hl-tw:nth-of-type(3n) { animation-duration: 8.5s; }
+@keyframes hl-tw { 0% { opacity: 0.12; } 60% { opacity: 0.5; } 100% { opacity: 0.95; } }
+@media (prefers-reduced-motion: reduce) { [data-theme='hilal'] .hl-tw { animation: none; opacity: 0.6; } }
+
+/* ---------- clock (T10-Hilal-Clock) ---------- */
+[data-theme='hilal'] .s-home .home-grid { display: contents; }
+[data-theme='hilal'] .s-home .rule,
+[data-theme='hilal'] .s-home .h-weather { display: none; }
+[data-theme='hilal'] .s-home .h-main {
+  position: absolute;
+  right: 70px;
+  top: 28px;
+  width: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: right;
+}
+[data-theme='hilal'] .s-home .h-dates { display: contents; }
+[data-theme='hilal'] .s-home .h-weekday { order: 1; font: 700 48px/1.32 var(--naskh); color: var(--hl-gold); }
+[data-theme='hilal'] .s-home .h-clock,
+[data-theme='hilal'] .s-home.has-msg .h-clock {
+  order: 2;
+  margin: 0 -6px 0 0;
+  font: 200 184px/1 var(--sans);
+  letter-spacing: -4px;
+  color: #FFFFFF;
+  text-align: right;
+}
+[data-theme='hilal'] .s-home .h-hijri { order: 3; margin-top: 8px; font: 600 50px/1.32 var(--naskh); color: var(--hl-moon); white-space: nowrap; }
+/* the year smaller than the day and month (the theme module writes the two parts) */
+[data-theme='hilal'] .s-home.hl-has-hijri .h-hijri { font-size: 0; }
+[data-theme='hilal'] .s-home.hl-has-hijri .h-hijri::before { content: var(--hl-hd); font-size: 50px; }
+[data-theme='hilal'] .s-home.hl-has-hijri .h-hijri::after { content: var(--hl-hy); margin-right: 14px; font-size: 31px; font-weight: 500; color: #B5BBDD; }
+[data-theme='hilal'] .s-home .h-greg { order: 4; margin-top: 0; font-size: 24px; line-height: 1.4; font-weight: 300; color: var(--hl-muted); }
+[data-theme='hilal'] .s-home .h-next {
+  order: 5;
+  margin: 16px 0 calc(var(--hl-wx-h, 32px) + 8px);
+  gap: 8px;
+  font-size: 28px;
+  line-height: 1.4;
+  font-weight: 400;
+  color: var(--hl-moon);
+  white-space: nowrap;
+}
+[data-theme='hilal'] .h-next .h-next-icon { display: none; }
+[data-theme='hilal'] .h-next .h-next-name { order: 1; color: var(--hl-gold); font-weight: 600; }
+[data-theme='hilal'] .h-next .h-next-in { order: 2; }
+[data-theme='hilal'] .h-next .h-next-time { order: 3; color: var(--hl-moon); font-weight: 400; }
+[data-theme='hilal'] .h-next .h-next-time::after { content: '\00a0·'; }
+/* the weather in one or two lines under the next prayer: temperature, condition, the sentence */
+[data-theme='hilal'] .s-home .h-wxm {
+  position: absolute;
+  right: 70px;
+  top: var(--hl-wx-top, 452px);
+  width: 600px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 21px;
+  line-height: 1.5;
+  font-weight: 300;
+  color: var(--hl-soft);
+  text-align: right;
+}
+[data-theme='hilal'] .h-wxm .hw-icon,
+[data-theme='hilal'] .h-wxm .hw-next { display: none; }
+[data-theme='hilal'] .h-wxm .hw-text,
+[data-theme='hilal'] .h-wxm .hw-tip { display: inline; }
+[data-theme='hilal'] .h-wxm .hw-temp { font-weight: 300; color: var(--hl-moon); }
+[data-theme='hilal'] .h-wxm .hw-cond { margin-right: 6px; }
+[data-theme='hilal'] .h-wxm .hw-tip:not(:empty)::before { content: ' · '; }
+/* the family's message, or the verse with its reference */
+[data-theme='hilal'] .s-home .h-msg:not([hidden]),
+[data-theme='hilal'] .s-home .h-verse:not([hidden]) { order: 6; max-width: none; margin-top: 10px; }
+[data-theme='hilal'] .s-home .h-msg,
+[data-theme='hilal'] .s-home .h-verse,
+[data-theme='hilal'] .l-hint::after,
+[data-theme='hilal'] .l-shop .l-foot,
+[data-theme='hilal'] .l-now,
+[data-theme='hilal'] .hl-foot { text-shadow: 0 0 8px #070B20, 0 0 3px #070B20; }
+[data-theme='hilal'] .s-home .h-msg { gap: 10px; font: 500 24px/1.6 var(--naskh); color: var(--hl-moon); }
+[data-theme='hilal'] .s-home .h-msg-icon { padding-top: 9px; }
+[data-theme='hilal'] .s-home .h-msg-icon svg { fill: var(--hl-gold); }
+[data-theme='hilal'] .s-home .h-verse:not([hidden]) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+[data-theme='hilal'] .s-home .h-verse-text,
+[data-theme='hilal'] .s-home .h-verse.is-verse .h-verse-text { display: inline; font: 500 23px/1.65 var(--naskh); color: var(--hl-moon); }
+[data-theme='hilal'] .s-home .h-verse-ref { display: inline; margin-right: 10px; font-size: 15px; font-weight: 300; color: var(--hl-muted-2); white-space: nowrap; }
+
+/* the prayers along the city's roofs: a line of stars, travelled part solid, the next one gold */
+[data-theme='hilal'] .s-home .h-prayers {
+  position: absolute;
+  right: -6px;
+  top: 650px;
+  width: 1152px;
+  display: flex;
+}
+[data-theme='hilal'] .h-prayers.is-empty { display: none; }
+[data-theme='hilal'] .h-prayers .prow-i {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 28px;
+  line-height: 1.25;
+}
+/* the star */
+[data-theme='hilal'] .h-prayers .prow-i::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin-left: -10px;
+  background: svg(<svg width="20" height="20" viewBox="-50 -50 100 100"><path d="M0 -46L10 -10L46 0L10 10L0 46L-10 10L-46 0L-10 -10Z" fill="#0D1330" stroke="#8C93BD" stroke-width="7"/></svg>) center / contain no-repeat;
+}
+[data-theme='hilal'] .h-prayers .prow-i.is-past::before { background-image: svg(<svg width="20" height="20" viewBox="-50 -50 100 100"><path d="M0 -46L10 -10L46 0L10 10L0 46L-10 10L-46 0L-10 -10Z" fill="#C9C5B6" stroke="#C9C5B6" stroke-width="7"/></svg>); }
+[data-theme='hilal'] .h-prayers .prow-i.is-next::before {
+  top: -10px;
+  width: 40px;
+  height: 40px;
+  margin-left: -20px;
+  background-image: svg(<svg width="40" height="40" viewBox="-50 -50 100 100"><path d="M0 -46L10 -10L46 0L10 10L0 46L-10 10L-46 0L-10 -10Z" fill="#E9C46A" stroke="#FFF3CF" stroke-width="5"/></svg>);
+}
+/* the line to the next star (RTL: the next prayer is to the left) */
+[data-theme='hilal'] .h-prayers .prow-i::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: -50%;
+  width: 100%;
+  border-top: 2px dashed #3D477E;
+}
+[data-theme='hilal'] .h-prayers .prow-i.is-past::after { border-top: 2px solid rgba(201, 197, 182, 0.6); }
+[data-theme='hilal'] .h-prayers .prow-i:last-child::after { display: none; }
+[data-theme='hilal'] .h-prayers .prow-icon { display: none; }
+[data-theme='hilal'] .h-prayers .prow-name { font: 700 21px/1.3 var(--naskh); color: var(--hl-muted); }
+[data-theme='hilal'] .h-prayers .prow-time { font-size: 32px; font-weight: 200; line-height: 1.15; color: var(--hl-moon); }
+[data-theme='hilal'] .h-prayers .prow-in { font-size: 16px; font-weight: 400; color: var(--hl-gold); }
+[data-theme='hilal'] .h-prayers .prow-in:empty { display: none; }
+[data-theme='hilal'] .h-prayers .is-past .prow-name,
+[data-theme='hilal'] .h-prayers .is-past .prow-time { opacity: 0.6; }
+[data-theme='hilal'] .h-prayers .is-next .prow-name,
+[data-theme='hilal'] .h-prayers .is-next .prow-time { color: var(--hl-gold); }
+[data-theme='hilal'] .h-prayers .is-next .prow-time { font-weight: 300; }
+/* the radial glow under the next star */
+[data-theme='hilal'] .h-prayers .is-next { background: radial-gradient(ellipse 120px 70px at 50% 10px, rgba(233, 196, 106, 0.2), rgba(233, 196, 106, 0) 100%); }
+
+/* the ring's labels and dots, and the words under the moon */
+[data-theme='hilal'] .hl-one { font: 300 15px var(--sans); fill: var(--hl-muted-2); }
+[data-theme='hilal'] .hl-tnum { font: 700 22px var(--naskh); fill: var(--hl-gold); }
+[data-theme='hilal'] .hl-d { fill: #0D1330; stroke: #5A6396; stroke-width: 1.5; }
+[data-theme='hilal'] .hl-d.is-past { fill: #C9C5B6; stroke: none; }
+[data-theme='hilal'] .hl-d.is-maybe { stroke-dasharray: 2.4 2.4; }
+[data-theme='hilal'] .hl-d.is-on { opacity: 0; }
+[data-theme='hilal'] .hl-cap { position: absolute; left: 64px; top: 596px; width: 512px; text-align: center; line-height: 1.55; }
+[data-theme='hilal'] .hl-cap-moon { font-size: 20px; font-weight: 400; color: var(--hl-moon); }
+[data-theme='hilal'] .hl-cap-next { font-size: 17px; font-weight: 300; color: var(--hl-muted); }
+
+/* status chips: outlined pills, top left of the clock screen */
+[data-theme='hilal'] .st-chip,
+[data-theme='hilal'] .match-chip {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 19px;
+  background: rgba(13, 19, 48, 0.7);
+  border: 1px solid #2E3870;
+  font-size: 16px;
+  color: var(--hl-soft);
+}
+[data-theme='hilal'] .st-chip b { color: var(--hl-gold); font-weight: 500; }
+[data-theme='hilal'] .st-chip small { color: var(--hl-muted-2); font-size: 15px; }
+[data-theme='hilal'] .qr-chip { height: 38px; background: rgba(13, 19, 48, 0.7); border: 1px solid #2E3870; }
+[data-theme='hilal'] .qr-open { height: 38px; font-size: 16px; color: var(--hl-soft); }
+[data-theme='hilal'] .qr-btn { width: 32px; height: 32px; }
+[data-theme='hilal'] .qr-icon svg { color: var(--hl-gold); }
+[data-theme='hilal'] .qr-bar i { background: var(--hl-gold); }
+[data-theme='hilal'] #stage[data-hl-screen='home'] .top-chips { left: 64px; right: auto; top: 22px; transform: none; justify-content: flex-start; max-width: 600px; }
+[data-theme='hilal'] #stage[data-hl-screen='home'] .status-chips { flex-direction: row-reverse; }
+
+/* ---------- prayer: the constellation (T10-Hilal-Prayer) ---------- */
+[data-theme='hilal'] .s-prayer .p-stage,
+[data-theme='hilal'] .s-prayer .p-tiles { display: none; }
+[data-theme='hilal'] .s-prayer:not(.is-ramadan) .p-cd { display: none; }
+[data-theme='hilal'] .s-prayer:not(.is-ramadan) .p-head { top: 26px; right: 70px; left: auto; display: block; text-align: right; }
+[data-theme='hilal'] .s-prayer .p-name-row { display: block; }
+[data-theme='hilal'] .s-prayer .p-name,
+[data-theme='hilal'] .s-prayer.is-now .p-name { font: 700 104px/1.35 var(--naskh); color: var(--hl-gold); }
+[data-theme='hilal'] .s-prayer .p-in { display: block; margin-top: -6px; font-size: 36px; font-weight: 400; line-height: 1.35; color: var(--hl-moon); white-space: nowrap; }
+[data-theme='hilal'] .s-prayer .p-at { margin-top: 0; font-size: 20px; font-weight: 300; color: var(--hl-muted); }
+[data-theme='hilal'] .s-prayer .p-clock { position: absolute; top: 40px; left: 64px; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.5; }
+[data-theme='hilal'] .p-clock .pc-time { font-size: 56px; font-weight: 200; line-height: 1.1; color: #FFFFFF; }
+[data-theme='hilal'] .p-clock .pc-date { font-size: 18px; font-weight: 300; color: var(--hl-soft); }
+[data-theme='hilal'] .p-clock .pc-date::after { content: var(--hl-hijri, ''); }
+[data-theme='hilal'] .p-clock .pc-sun { display: block; font-size: 18px; font-weight: 300; color: var(--hl-muted-2); }
+[data-theme='hilal'] .hl-sn { font: 700 24px var(--naskh); fill: var(--hl-moon); }
+[data-theme='hilal'] .hl-st { font: 300 28px var(--sans); fill: var(--hl-moon); }
+[data-theme='hilal'] .hl-pt.is-past { opacity: 0.62; }
+[data-theme='hilal'] .hl-pt.is-minor { opacity: 0.6; }
+[data-theme='hilal'] .hl-pt.is-minor .hl-sn,
+[data-theme='hilal'] .hl-pt.is-minor .hl-st { font-size: 16px; }
+[data-theme='hilal'] .hl-pt.is-minor .hl-sn { font-weight: 500; }
+[data-theme='hilal'] .hl-pt.is-next .hl-sn { font-size: 30px; fill: var(--hl-gold); }
+[data-theme='hilal'] .hl-pt.is-next .hl-st { font-size: 40px; fill: var(--hl-gold); }
+[data-theme='hilal'] .hl-foot { position: absolute; left: 0; right: 0; top: 724px; text-align: center; font: 400 22px var(--naskh); color: var(--hl-muted); }
+
+/* Ramadan: the lanterns and the fast's times; the constellation, its moon and words step aside */
+[data-theme='hilal'] .s-prayer.is-ramadan .hl-const,
+[data-theme='hilal'] .s-prayer.is-ramadan .hl-pmoon,
+[data-theme='hilal'] .s-prayer.is-ramadan .hl-foot,
+[data-theme='hilal'] .s-prayer.is-ramadan .p-clock,
+[data-theme='hilal'] .s-prayer.is-ramadan .p-in { display: none; }
+[data-theme='hilal'] .s-prayer.is-ramadan .p-name { font-size: 96px; line-height: 1.3; }
+[data-theme='hilal'] .s-prayer.is-ramadan .p-count { font-weight: 200; font-size: 104px; color: #FFFFFF; }
+[data-theme='hilal'] .s-prayer.is-ramadan.is-now .p-count { color: var(--hl-gold); }
+[data-theme='hilal'] .s-prayer.is-ramadan .p-cap { color: var(--hl-muted); }
+[data-theme='hilal'] .s-prayer .r-stage { bottom: 96px; }
+[data-theme='hilal'] .r-day { font: 700 32px/1.3 var(--naskh); color: var(--hl-moon); }
+[data-theme='hilal'] .r-dots i { background: rgba(159, 166, 200, 0.2); }
+[data-theme='hilal'] .r-dots i.is-past { background: #C9C5B6; }
+[data-theme='hilal'] .r-dots i.is-on { background: var(--hl-gold); box-shadow: 0 0 0 4px rgba(233, 196, 106, 0.25); }
+[data-theme='hilal'] .r-tile { background: rgba(13, 19, 48, 0.72); border-color: var(--hl-ring); }
+[data-theme='hilal'] .r-tile.is-key { background: rgba(233, 196, 106, 0.1); border-color: rgba(233, 196, 106, 0.5); }
+[data-theme='hilal'] .r-t-name { font-family: var(--naskh); font-weight: 600; }
+[data-theme='hilal'] .r-t-time { font-family: var(--sans); font-weight: 200; }
+[data-theme='hilal'] .r-quran { padding: 12px 20px; border-radius: 18px; background: rgba(7, 11, 32, 0.78); }
+[data-theme='hilal'] .r-q-title { font-family: var(--naskh); font-weight: 700; color: var(--hl-gold); }
+[data-theme='hilal'] .r-q-bar i { background: rgba(159, 166, 200, 0.18); }
+[data-theme='hilal'] .r-q-bar i.is-read { background: var(--hl-gold); }
+
+/* ---------- lists: crescents that fill in (T10-Hilal-Lists) ---------- */
+[data-theme='hilal'] .lists-layout { inset: 0; display: block; }
+[data-theme='hilal'] .s-lists .rule { display: none; }
+[data-theme='hilal'] .l-shop { position: absolute; top: 40px; right: 70px; width: 530px; bottom: 34px; padding-bottom: 104px; }
+[data-theme='hilal'] .l-tasks { position: absolute; top: 40px; left: 70px; width: 530px; bottom: 34px; padding-bottom: 70px; }
+[data-theme='hilal'] .l-head { height: auto; align-items: baseline; justify-content: space-between; }
+[data-theme='hilal'] .l-title { font: 700 52px/1.4 var(--naskh); color: var(--hl-gold); }
+[data-theme='hilal'] .l-meta,
+[data-theme='hilal'] .l-meta-box { padding-top: 0; font-size: 18px; font-weight: 300; color: var(--hl-muted); }
+[data-theme='hilal'] .l-meta-box .l-meta { font-size: 18px; }
+/* the hint, at the foot of the shopping list in the mockup's words */
+[data-theme='hilal'] .l-hint { display: block; position: absolute; right: 0; bottom: 62px; font-size: 0; }
+[data-theme='hilal'] .l-hint::after { content: 'المس الغرض حين تشتريه، فيكتمل قمره'; font-size: 18px; font-weight: 300; color: var(--hl-muted); }
+
+[data-theme='hilal'] .l-shop .l-tiles {
+  flex: 0 1 auto;
+  margin-top: 8px;
+  padding-bottom: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 78px;
+  gap: 0 30px;
+}
+[data-theme='hilal'] .l-tile {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-content: center;
+  column-gap: 14px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--hl-rule);
+  border-radius: 0;
+  background: transparent;
+  color: var(--hl-moon);
+}
+[data-theme='hilal'] .l-tile .l-tick { grid-row: 1 / span 2; align-self: center; }
+[data-theme='hilal'] .l-tile-text { font-size: 26px; font-weight: 400; line-height: 1.3; -webkit-line-clamp: 1; }
+[data-theme='hilal'] .l-tile.is-long .l-tile-text { font-size: 24px; }
+[data-theme='hilal'] .l-tile .l-who { display: block; grid-column: 2; font-size: 14px; font-weight: 300; line-height: 1.3; color: var(--hl-muted-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-theme='hilal'] .l-tile .l-who:empty { display: none; }
+[data-theme='hilal'] .l-tile.is-done { border: 0; border-bottom: 1px solid var(--hl-rule); background: transparent; }
+[data-theme='hilal'] .l-tile.is-done .l-tile-text,
+[data-theme='hilal'] .l-tile.is-done .l-who { opacity: 0.55; }
+[data-theme='hilal'] .l-tile.is-done .l-tile-text { color: var(--hl-moon); text-decoration-color: rgba(237, 233, 220, 0.6); }
+/* the box: a crescent; ticked, a full moon */
+[data-theme='hilal'] .l-tick,
+[data-theme='hilal'] .l-circle,
+[data-theme='hilal'] .l-row.is-done .l-circle {
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  border: 0;
+  border-radius: 50%;
+  background: svg(<svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="none" stroke="#C9C5B6" stroke-width="1.5" stroke-opacity="0.4"/><path d="M15 3A12 12 0 1 0 15 27A8 12 0 1 1 15 3Z" fill="#C9C5B6"/></svg>) center / 30px 30px no-repeat;
+}
+[data-theme='hilal'] .l-tile.is-done .l-tick,
+[data-theme='hilal'] .l-row.is-done .l-circle {
+  background-color: transparent;
+  background-image: svg(<svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="#E8E4D5"/><g fill="#C9C3B0" opacity="0.6"><ellipse cx="11" cy="11" rx="4" ry="3"/><ellipse cx="17" cy="19" rx="3" ry="2.4"/><circle cx="19" cy="10" r="1.6"/></g></svg>);
+}
+[data-theme='hilal'] .l-tick svg,
+[data-theme='hilal'] .l-circle svg { display: none; }
+[data-theme='hilal'] .l-shop .l-foot { position: absolute; left: 0; right: 0; bottom: 0; padding: 0; font-size: 16px; font-weight: 300; color: var(--hl-muted-2); }
+[data-theme='hilal'] .l-clear { min-height: 46px; padding: 0 22px; border: 1.5px solid var(--hl-gold); border-radius: 23px; color: var(--hl-gold); font-size: 18px; font-weight: 400; background: rgba(7, 11, 32, 0.6); }
+[data-theme='hilal'] .l-clear.is-armed { background: var(--hl-gold); border-color: var(--hl-gold); color: #141A3C; }
+
+[data-theme='hilal'] .l-tasks .l-rows { flex: 0 1 auto; margin-top: 8px; padding-bottom: 0; }
+[data-theme='hilal'] .l-row { min-height: 76px; padding: 6px 0; gap: 14px; border-bottom: 1px solid var(--hl-rule); }
+[data-theme='hilal'] .l-row .l-circle { width: 32px; height: 32px; background-size: 32px 32px; }
+[data-theme='hilal'] .l-row-text { flex: 1; font-size: 27px; font-weight: 400; line-height: 1.3; color: var(--hl-moon); }
+[data-theme='hilal'] .l-today { display: block; flex: none; padding: 2px 12px; border-radius: 12px; background: var(--hl-gold); color: #1A2350; font-size: 15px; font-weight: 600; line-height: 1.4; }
+[data-theme='hilal'] .l-repeat { color: var(--hl-muted); }
+[data-theme='hilal'] .l-row.is-done { min-height: 60px; border-bottom: 0; }
+[data-theme='hilal'] .l-row.is-done .l-circle,
+[data-theme='hilal'] .l-row.is-done .l-row-text { opacity: 0.55; }
+[data-theme='hilal'] .l-row.is-done .l-row-text { font-size: 23px; font-weight: 300; color: var(--hl-moon); text-decoration-color: rgba(237, 233, 220, 0.6); }
+[data-theme='hilal'] .l-done-head { margin-top: 16px; padding-bottom: 4px; font-size: 18px; font-weight: 300; color: var(--hl-muted); }
+[data-theme='hilal'] .l-tasks .l-clear { min-height: 44px; padding: 0 18px; font-size: 17px; }
+[data-theme='hilal'] .l-now { display: flex; align-items: baseline; gap: 14px; position: absolute; right: 0; bottom: 0; white-space: nowrap; }
+[data-theme='hilal'] .ln-time { font-size: 40px; font-weight: 200; line-height: 1.2; color: #FFFFFF; }
+[data-theme='hilal'] .ln-next { font-size: 19px; font-weight: 300; color: var(--hl-soft); }
+[data-theme='hilal'] .ln-next::after { content: var(--hl-hijri, ''); }
+[data-theme='hilal'] .l-empty { color: var(--hl-muted); }
+
+/* ---------- calendar ---------- */
+[data-theme='hilal'] .cal-layout { bottom: 90px; }
+[data-theme='hilal'] .c-month { font: 700 60px/1.15 var(--naskh); color: var(--hl-gold); }
+[data-theme='hilal'] .c-year { font-weight: 200; color: var(--hl-muted); }
+[data-theme='hilal'] .c-hijri { color: var(--hl-moon); font-family: var(--naskh); font-weight: 500; }
+[data-theme='hilal'] .c-week { color: var(--hl-muted); }
+[data-theme='hilal'] .c-cell { border-top: 1px solid var(--hl-rule); }
+[data-theme='hilal'] .c-cell.is-weekend { background: rgba(26, 35, 80, 0.35); }
+[data-theme='hilal'] .c-d,
+[data-theme='hilal'] .c-up-d { font-family: var(--sans); font-weight: 300; }
+[data-theme='hilal'] .c-cell.is-today .c-d { background: var(--hl-gold); color: #141A3C; font-weight: 500; }
+[data-theme='hilal'] .c-cell.is-hstart .c-h { color: var(--hl-gold); }
+[data-theme='hilal'] .c-nav,
+[data-theme='hilal'] .c-close { border-color: #3A4580; }
+[data-theme='hilal'] .c-today { background: var(--hl-gold); color: #141A3C; }
+[data-theme='hilal'] .c-side {
+  padding: 16px 20px 14px;
+  border: 1px solid var(--hl-ring);
+  border-radius: 20px;
+  background: rgba(10, 15, 39, 0.82);
+}
+[data-theme='hilal'] .c-side-title { font: 700 30px/1.3 var(--naskh); color: var(--hl-gold); }
+[data-theme='hilal'] .c-up-row { border-top-color: var(--hl-rule); }
+
+/* ---------- adhkar ---------- */
+[data-theme='hilal'] .a-body { bottom: 128px; }
+[data-theme='hilal'] .a-dots { bottom: 96px; }
+[data-theme='hilal'] .a-title { font: 700 58px/1.2 var(--naskh); color: var(--hl-gold); }
+[data-theme='hilal'] .a-sub { color: var(--hl-muted); }
+[data-theme='hilal'] .a-card { background: rgba(10, 15, 39, 0.74); border: 1px solid var(--hl-ring); border-radius: 26px; }
+[data-theme='hilal'] .a-card-title { color: var(--hl-gold); font-family: var(--naskh); font-weight: 700; }
+[data-theme='hilal'] .a-text { font-family: var(--naskh); font-weight: 500; color: var(--hl-moon); }
+[data-theme='hilal'] .a-ref { color: var(--hl-muted-2); }
+[data-theme='hilal'] .a-left { font-family: var(--sans); font-weight: 300; }
+[data-theme='hilal'] .a-ring-bg { stroke: var(--hl-ring); }
+[data-theme='hilal'] .a-dots i.is-past { background: #C9C5B6; }
+[data-theme='hilal'] .a-done-title { font-family: var(--naskh); font-weight: 700; color: var(--hl-gold); }
+[data-theme='hilal'] .a-close,
+[data-theme='hilal'] .a-again { border-color: #3A4580; }
+
+/* ---------- photos (always dark) ---------- */
+[data-theme='hilal'] .s-photos .ph-empty { inset: 0; background-color: #0A0F27; background-image: var(--hl-lattice); }
+[data-theme='hilal'] .ph-time { font-family: var(--sans); font-weight: 200; }
+[data-theme='hilal'] .ph-empty strong { font-family: var(--naskh); font-weight: 700; color: var(--hl-gold); }
+
+/* ---------- overlays: Quran, Wi-Fi, the fun panels ---------- */
+[data-theme='hilal'] .fun-scrim,
+[data-theme='hilal'] .qr .fun-scrim,
+[data-theme='hilal'] .wf .fun-scrim {
+  background-color: var(--modal);
+  background-image: var(--hl-stars), var(--hl-lattice), radial-gradient(ellipse 900px 600px at 50% 40%, #18204A 0%, rgba(24, 32, 74, 0) 100%);
+  background-repeat: no-repeat, repeat, no-repeat;
+}
+[data-theme='hilal'] .fun-menu { border-color: rgba(233, 196, 106, 0.45); }
+[data-theme='hilal'] .fun-title { font-weight: 700; color: var(--hl-gold); }
+[data-theme='hilal'] .fun-close { border-color: #3A4580; }
+[data-theme='hilal'] .fw-chip { background: rgba(26, 35, 80, 0.7); border-color: #3A4580; }
+[data-theme='hilal'] .fw-hub { font-family: var(--naskh); font-weight: 700; border-color: #0D1330; }
+[data-theme='hilal'] .fw-result-text { font-weight: 700; }
+[data-theme='hilal'] .qr-fav { font-weight: 700; background: linear-gradient(160deg, #1A2350, #0F1638); border-color: var(--hl-ring); }
+[data-theme='hilal'] .qr-fav-n { color: var(--hl-muted-2); }
+[data-theme='hilal'] .qr-np { background: rgba(10, 15, 39, 0.85); border-color: var(--hl-ring); }
+[data-theme='hilal'] .qr-np-name { font-weight: 700; }
+[data-theme='hilal'] .qr-np-bar i { background: var(--hl-gold); }
+[data-theme='hilal'] .qr-rec small { background: rgba(233, 196, 106, 0.14); color: var(--hl-gold); }
+[data-theme='hilal'] .qr-s { background: rgba(26, 35, 80, 0.45); border-color: #2E3870; }
+[data-theme='hilal'] .wf-row { background: rgba(26, 35, 80, 0.5); border-color: #2E3870; }
+[data-theme='hilal'] .wf-icon { color: var(--hl-gold); }
+[data-theme='hilal'] .pl-banner { border-color: rgba(233, 196, 106, 0.55); }
+[data-theme='hilal'] .pl-title { font-weight: 700; }
+[data-theme='hilal'] .pl-badge { background: #1A2350; border-color: var(--hl-gold); }
+[data-theme='hilal'] .pl-card-title { color: #1A2350; font-weight: 700; }
+/* the match overlay is always the pitch: keep its accents gold */
+[data-theme='hilal'] .mt-phase,
+[data-theme='hilal'] .mt-count,
+[data-theme='hilal'] .mt-cheer b { color: var(--hl-gold); }
+[data-theme='hilal'] .mt-name,
+[data-theme='hilal'] .mt-phase,
+[data-theme='hilal'] .mt-count,
+[data-theme='hilal'] .mt-goal { font-weight: 700; }
+[data-theme='hilal'] .mt-score { font-family: var(--sans); font-weight: 300; }
+
+/* the dock: night doors on the city, a silver edge, gold on the screen that is up */
+[data-theme='hilal'] .nav .tab,
+[data-theme='hilal'] .nav .tab-fun { border-color: #3A4580; }
+[data-theme='hilal'] .nav .tab.is-on { border-color: var(--hl-gold); background: #1A2350; }
+[data-theme='hilal'] .nav .tab-dock-label { font-weight: 400; }
+[data-theme='hilal'] .nav .tab-gap { background: #3A4580; }

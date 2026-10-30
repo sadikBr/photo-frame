@@ -1,0 +1,474 @@
+/* «السماء الحيّة»: the whole screen is the real sky outside, drawn from the live weather and the
+   time of day (js/themes/sky.js). Readex Pro only, thin weights for the big numbers, white text
+   with a soft dark shadow. Frosted pills and glass panels are translucent fills (no backdrop
+   blur: the clouds move behind them). Mockups: T8-Sky-Clock / Prayer / Lists. */
+
+[data-theme='sky'] {
+  --fg: 255, 255, 255;
+  --plaster: #FFFFFF;
+  --plaster-2: rgba(255, 255, 255, 0.86);
+  --plaster-3: rgba(255, 255, 255, 0.7);
+  --hair: rgba(255, 255, 255, 0.25);
+  --shade: 12, 30, 68;
+  --saffron: #FFE7A3;
+  --accent-rgb: 255, 231, 163;
+  --saffron-ink: #1E3A68;
+  --garnet: #1E3A68;
+  --garnet-deep: #1E3A68;
+  --sky: #BFD9F5;
+  --sky-2: #DCEBFB;
+  --sky-rgb: 191, 217, 245;
+  --mint: #A8E6CF;
+  --mint-rgb: 168, 230, 207;
+  --rose: #F6B3C2;
+  --rose-rgb: 246, 179, 194;
+  --deep-rgb: 16, 32, 72;
+  --deep2-rgb: 30, 52, 104;
+  --modal: #142A57;
+  --menu: rgba(20, 42, 87, 0.96);
+  --banner: rgba(20, 42, 87, 0.95);
+  --chip-bg: #1E3A68;
+  --g-home: #3A72BA;
+  --g-prayer: #3D6FB0;
+  --g-lists: #3F78BE;
+  --g-calendar: #3A6CB0;
+  --g-adhkar-m: #4A7FC0;
+  --g-adhkar-e: #2C3D78;
+  --g-photos: #0E1424;
+  --kufi: 'Readex Pro', sans-serif;
+  --sans: 'Readex Pro', sans-serif;
+  --dock-scrim: rgba(8, 20, 48, 0.62);
+  --dock-hint: #DCEBFB;
+  --door-home: #2F5E9E;
+  --door-prayer: #35609A;
+  --door-adhkar: #3A4F8E;
+  --door-calendar: #2D5690;
+  --door-lists: #33639F;
+  --door-fun: #26407A;
+  --door-wifi: #1F4A6A;
+  --door-quran: #182E62;
+  --door-photos: #16213F;
+  --k-shadow: 0 1px 3px rgba(10, 24, 56, 0.32), 0 2px 18px rgba(16, 32, 72, 0.38);
+  --glass: rgba(24, 52, 100, 0.43);
+  --glass-line: rgba(255, 255, 255, 0.4);
+}
+[data-theme='sky'] #stage { font-weight: 300; text-shadow: var(--k-shadow); }
+[data-theme='sky'] .screen { background-image: none; }
+[data-theme='sky'] .band { display: none; }
+[data-theme='sky'] .status { color: #FFFFFF; font-weight: 400; }
+
+/* ---------- the sky layers (built by sky.js) ---------- */
+[data-theme='sky'] .sk-sky,
+[data-theme='sky'] .sk-hills,
+[data-theme='sky'] .sk-horizon,
+[data-theme='sky'] .sk-strip { position: absolute; left: 0; top: 0; }
+[data-theme='sky'] .sk-clouds,
+[data-theme='sky'] .sk-fx { position: absolute; inset: 0; overflow: hidden; }
+[data-theme='sky'] .sk-cloud { position: absolute; }
+[data-theme='sky'] .sk-cloud-in { width: 100%; height: 100%; transform-origin: 0 0; }
+[data-theme='sky'] .sk-cloud svg,
+[data-theme='sky'] .sk-deck svg { display: block; }
+[data-theme='sky'] .sk-deck { position: absolute; left: -120px; top: -150px; width: 1520px; height: 300px; }
+/* slow drift: a few tens of pixels back and forth, so a cloud never wanders behind the text */
+[data-theme='sky'] .sk-cloud.d0, [data-theme='sky'] .sk-deck.d0 { animation: sk-drift-a 70s ease-in-out infinite alternate; }
+[data-theme='sky'] .sk-cloud.d1, [data-theme='sky'] .sk-deck.d1 { animation: sk-drift-b 90s ease-in-out infinite alternate; }
+[data-theme='sky'] .sk-cloud.d2 { animation: sk-drift-c 80s ease-in-out infinite alternate; }
+@keyframes sk-drift-a { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(56px, 0, 0); } }
+@keyframes sk-drift-b { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-48px, 0, 0); } }
+@keyframes sk-drift-c { from { transform: translate3d(-20px, 0, 0); } to { transform: translate3d(30px, 0, 0); } }
+
+[data-theme='sky'] .sk-rain {
+  position: absolute;
+  left: 0;
+  top: -240px;
+  width: 1280px;
+  height: 1040px;
+  animation: sk-fall 0.55s linear infinite;
+}
+[data-theme='sky'] .sk-rain.is-light { opacity: 0.6; animation-duration: 0.9s; }
+[data-theme='sky'] .sk-rain.is-storm { animation-duration: 0.42s; }
+@keyframes sk-fall { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 240px, 0); } }
+[data-theme='sky'] .sk-snow {
+  position: absolute;
+  left: 0;
+  top: -260px;
+  width: 1280px;
+  height: 1060px;
+  animation: sk-snow 11s linear infinite;
+}
+@keyframes sk-snow { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 260px, 0); } }
+[data-theme='sky'] .sk-fog i {
+  position: absolute;
+  left: -160px;
+  width: 1600px;
+  height: 190px;
+  background: linear-gradient(180deg, rgba(232, 236, 242, 0), rgba(232, 236, 242, 0.42) 50%, rgba(232, 236, 242, 0));
+}
+[data-theme='sky'] .sk-fog i:nth-child(1) { top: 70px; opacity: 0.6; animation: sk-drift-a 60s ease-in-out infinite alternate; }
+[data-theme='sky'] .sk-fog i:nth-child(2) { top: 500px; animation: sk-drift-b 75s ease-in-out infinite alternate; }
+[data-theme='sky'] .sk-fog i:nth-child(3) { top: 600px; animation: sk-drift-c 50s ease-in-out infinite alternate; }
+[data-theme='sky'] .sk-flash { position: absolute; inset: 0; background: #DDE6FF; opacity: 0; animation: sk-flash 13s linear infinite; }
+@keyframes sk-flash { 0%, 92%, 93.2%, 94.4%, 100% { opacity: 0; } 92.6% { opacity: 0.3; } 93.8% { opacity: 0.18; } }
+/* only the screen on show moves (the others hold no animated layers at all) */
+[data-theme='sky'] .t-art:not(.sk-live) .sk-anim { animation: none; }
+/* on the prayer screen the day strip covers the sky; its clouds show only in Ramadan */
+[data-theme='sky'] .s-prayer:not(.is-ramadan) .sk-clouds { display: none; }
+
+/* ======================================================================================
+   clock (T8-Sky-Clock)
+   ====================================================================================== */
+[data-theme='sky'] .s-home .home-grid { display: contents; }
+[data-theme='sky'] .s-home .rule,
+[data-theme='sky'] .s-home .h-weather { display: none; }
+[data-theme='sky'] .s-home .h-main {
+  position: absolute;
+  right: 70px;
+  top: 44px;
+  width: 720px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-start;
+}
+[data-theme='sky'] .s-home .h-dates { display: contents; }
+[data-theme='sky'] .s-home .h-weekday { order: 1; flex: 0 0 100%; font: 500 40px/1.3 var(--sans); }
+[data-theme='sky'] .s-home .h-greg,
+[data-theme='sky'] .s-home .h-hijri { order: 2; margin: 0; font-size: 23px; font-weight: 300; line-height: 1.4; color: rgba(255, 255, 255, 0.94); }
+[data-theme='sky'] .s-home .h-hijri::before { content: '·'; padding: 0 8px; }
+[data-theme='sky'] .s-home .h-clock,
+[data-theme='sky'] .s-home.has-msg .h-clock {
+  order: 3;
+  flex: 0 0 100%;
+  margin: 6px 0 0;
+  font: 200 250px/1 var(--sans);
+  letter-spacing: -6px;
+  text-align: right;
+}
+[data-theme='sky'] .s-home .h-next {
+  order: 4;
+  flex: 0 0 100%;
+  margin-top: 6px;
+  gap: 0;
+  font-size: 30px;
+  font-weight: 400;
+  color: #FFFFFF;
+}
+[data-theme='sky'] .s-home .h-next-icon { display: none; }
+[data-theme='sky'] .s-home .h-next-name { order: 1; color: #FFFFFF; font-weight: 400; }
+[data-theme='sky'] .s-home .h-next-in { order: 2; padding-right: 10px; }
+[data-theme='sky'] .s-home .h-next-time { order: 3; font-weight: 400; }
+[data-theme='sky'] .s-home .h-next-time::after { content: '·'; padding: 0 10px; }
+[data-theme='sky'] .s-home .h-msg,
+[data-theme='sky'] .s-home .h-verse { order: 5; flex: 0 0 100%; max-width: 640px; margin-top: 12px; }
+[data-theme='sky'] .s-home .h-verse { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; font-size: 22px; line-height: 1.5; color: rgba(255, 255, 255, 0.94); }
+[data-theme='sky'] .s-home .h-verse[hidden] { display: none; }
+[data-theme='sky'] .s-home .h-verse-text,
+[data-theme='sky'] .s-home .h-verse.is-verse .h-verse-text { display: inline; font: 300 22px/1.5 var(--sans); }
+[data-theme='sky'] .s-home .h-verse-ref { padding-right: 8px; font-size: 16px; color: rgba(255, 255, 255, 0.9); }
+[data-theme='sky'] .s-home .h-msg { font-size: 24px; font-weight: 400; line-height: 1.45; }
+[data-theme='sky'] .s-home .h-msg-icon { padding-top: 4px; }
+[data-theme='sky'] .s-home .h-msg-icon svg { fill: #FFE7A3; }
+
+/* the weather is the hero: big thin temperature, the condition, and the sentence set large */
+[data-theme='sky'] .s-home .h-wxm {
+  position: absolute;
+  left: 64px;
+  top: 330px;
+  width: 440px;
+  display: flex;
+  flex-direction: column;
+  color: #FFFFFF;
+}
+[data-theme='sky'] .h-wxm .hw-icon,
+[data-theme='sky'] .h-wxm .hw-next { display: none; }
+[data-theme='sky'] .h-wxm .hw-text { display: flex; align-items: baseline; gap: 18px; }
+[data-theme='sky'] .h-wxm .hw-temp { font: 200 112px/1 var(--sans); }
+[data-theme='sky'] .h-wxm .hw-cond { font-size: 30px; font-weight: 400; }
+[data-theme='sky'] .h-wxm .hw-tip {
+  margin-top: 12px;
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 1.45;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* the five prayers under the hills, on the horizon line drawn by sky.js */
+[data-theme='sky'] .s-home .h-prayers {
+  position: absolute;
+  right: -20px;
+  top: 694px;
+  display: flex;
+  gap: 100px;
+}
+[data-theme='sky'] .h-prayers .prow-i { width: 160px; display: flex; flex-direction: column; align-items: center; line-height: 1.2; text-shadow: none; }
+[data-theme='sky'] .h-prayers .prow-icon,
+[data-theme='sky'] .h-prayers .prow-in { display: none; }
+[data-theme='sky'] .h-prayers .prow-name { font-size: 17px; font-weight: 400; }
+[data-theme='sky'] .h-prayers .prow-time { font-size: 24px; font-weight: 400; }
+[data-theme='sky'] .h-prayers .is-past { opacity: 0.6; }
+[data-theme='sky'] .h-prayers .is-next .prow-name { font-weight: 600; }
+[data-theme='sky'] .h-prayers .is-next .prow-time { font-weight: 600; color: #FFE7A3; }
+
+/* status chips: frosted pills, top left on the clock, top centre elsewhere */
+[data-theme='sky'] .match-chip,
+[data-theme='sky'] .st-chip {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 19px;
+  background: rgba(30, 56, 104, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  font-size: 17px;
+  font-weight: 400;
+  color: #FFFFFF;
+  text-shadow: none;
+}
+[data-theme='sky'] .st-chip b { color: #FFE7A3; font-weight: 500; }
+[data-theme='sky'] .st-chip small { color: rgba(255, 255, 255, 0.85); }
+[data-theme='sky'] .qr-chip { height: 38px; background: rgba(30, 56, 104, 0.3); border-color: rgba(255, 255, 255, 0.4); text-shadow: none; }
+[data-theme='sky'] .qr-open { color: #FFFFFF; font-size: 17px; }
+[data-theme='sky'] .qr-icon svg { color: #FFE7A3; }
+[data-theme='sky'] .qr-bar i { background: #FFE7A3; }
+[data-theme='sky'] #stage[data-screen='home'] .top-chips { left: 64px; right: auto; top: 40px; transform: none; flex-direction: column; align-items: flex-end; gap: 8px; max-width: 520px; }
+[data-theme='sky'] #stage[data-screen='home'] .status-chips { flex-direction: column; align-items: flex-end; gap: 8px; }
+
+/* ======================================================================================
+   prayer (T8-Sky-Prayer): the day itself, each prayer at its real time
+   ====================================================================================== */
+[data-theme='sky'] .s-prayer .p-stage,
+[data-theme='sky'] .s-prayer .p-tiles,
+[data-theme='sky'] .s-prayer .p-cd { display: none; }
+[data-theme='sky'] .s-prayer .p-head { top: 30px; right: 70px; left: auto; display: block; text-align: right; }
+[data-theme='sky'] .s-prayer .p-next { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: flex-start; }
+[data-theme='sky'] .s-prayer .p-name-row { display: contents; }
+[data-theme='sky'] .s-prayer .p-name,
+[data-theme='sky'] .s-prayer.is-now .p-name { flex: 0 0 100%; font: 300 120px/1.15 var(--sans); color: #FFFFFF; }
+[data-theme='sky'] .s-prayer .p-in { display: inline; font-size: 34px; font-weight: 500; line-height: 1.3; white-space: nowrap; }
+[data-theme='sky'] .s-prayer .p-at { margin: 0; font-size: 24px; font-weight: 300; color: rgba(255, 255, 255, 0.92); white-space: nowrap; }
+[data-theme='sky'] .s-prayer .p-at::before { content: '·'; padding: 0 10px; }
+/* at the adhan: «حان الآن وقت الصلاة» alone, as large as the countdown line */
+[data-theme='sky'] .s-prayer.is-now .p-in { display: none; }
+[data-theme='sky'] .s-prayer.is-now .p-at { font-size: 34px; font-weight: 500; color: #FFE7A3; }
+[data-theme='sky'] .s-prayer.is-now .p-at::before { content: none; }
+[data-theme='sky'] .s-prayer .p-clock { display: flex; position: absolute; top: 40px; left: 64px; flex-direction: column; align-items: flex-end; }
+[data-theme='sky'] .p-clock .pc-time { font: 300 56px/1.1 var(--sans); }
+[data-theme='sky'] .p-clock .pc-date { font-size: 19px; font-weight: 300; }
+[data-theme='sky'] .p-clock .pc-date::after { content: var(--sk-wx, ''); }
+[data-theme='sky'] .sp-labels { position: absolute; inset: 0; }
+[data-theme='sky'] .sp-mark {
+  position: absolute;
+  top: 624px;
+  width: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.25;
+  text-shadow: none;
+  opacity: 1;
+}
+[data-theme='sky'] .sp-mark.is-low { top: 690px; }
+[data-theme='sky'] .sp-name { font-size: 18px; font-weight: 400; }
+[data-theme='sky'] .sp-time { font-size: 26px; font-weight: 400; }
+[data-theme='sky'] .sp-mark.is-past { opacity: 0.6; }
+[data-theme='sky'] .sp-mark.is-minor { opacity: 0.75; }
+[data-theme='sky'] .sp-mark.is-minor .sp-name { font-size: 15px; }
+[data-theme='sky'] .sp-mark.is-minor .sp-time { font-size: 20px; }
+[data-theme='sky'] .sp-mark.is-next { color: #FFE7A3; }
+[data-theme='sky'] .sp-mark.is-next .sp-name { font-size: 22px; font-weight: 600; }
+[data-theme='sky'] .sp-mark.is-next .sp-time { font-size: 34px; font-weight: 600; }
+[data-theme='sky'] .sp-now-label { position: absolute; font-size: 16px; font-weight: 500; }
+[data-theme='sky'] .sp-now-label.is-end { transform: translateX(calc(-100% - 28px)); }
+[data-theme='sky'] .sp-foot { position: absolute; left: 0; right: 0; top: 748px; text-align: center; font-size: 18px; font-weight: 300; color: rgba(255, 255, 255, 0.85); text-shadow: none; }
+
+/* Ramadan: the live sky behind the fast's own layout */
+[data-theme='sky'] .s-prayer.is-ramadan .sk-strip,
+[data-theme='sky'] .s-prayer.is-ramadan .sp-labels,
+[data-theme='sky'] .s-prayer.is-ramadan .sp-now-label,
+[data-theme='sky'] .s-prayer.is-ramadan .sp-foot,
+[data-theme='sky'] .s-prayer.is-ramadan .p-clock,
+[data-theme='sky'] .s-prayer.is-ramadan .p-in { display: none; }
+[data-theme='sky'] .s-prayer.is-ramadan .p-head { display: flex; top: 54px; right: 76px; left: 76px; align-items: flex-end; justify-content: space-between; }
+[data-theme='sky'] .s-prayer.is-ramadan .p-at::before { content: none; }
+[data-theme='sky'] .s-prayer.is-ramadan .p-next { display: block; }
+[data-theme='sky'] .s-prayer.is-ramadan .p-name { font-size: 110px; }
+[data-theme='sky'] .s-prayer.is-ramadan .p-cd { display: block; }
+[data-theme='sky'] .s-prayer.is-ramadan .p-count { font-weight: 200; color: #FFFFFF; }
+[data-theme='sky'] .s-prayer.is-ramadan .r-stage { bottom: 60px; }
+[data-theme='sky'] .r-tile { background: var(--glass); border-color: var(--glass-line); }
+[data-theme='sky'] .r-tile.is-key { background: rgba(255, 231, 163, 0.22); border-color: rgba(255, 231, 163, 0.7); }
+[data-theme='sky'] .r-quran { padding: 14px 22px; border-radius: 22px; background: var(--glass); border: 1px solid var(--glass-line); }
+
+/* ======================================================================================
+   lists (T8-Sky-Lists): two glass panels over the sky
+   ====================================================================================== */
+[data-theme='sky'] .lists-layout { inset: 0; display: block; }
+[data-theme='sky'] .s-lists .rule { display: none; }
+[data-theme='sky'] .s-lists .l-panel {
+  position: absolute;
+  top: 40px;
+  height: 720px;
+  padding: 30px 36px;
+  border-radius: 28px;
+  background: var(--glass);
+  background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 55%);
+  border: 1px solid var(--glass-line);
+}
+[data-theme='sky'] .l-shop { right: 40px; width: 580px; }
+[data-theme='sky'] .l-tasks { left: 40px; width: 600px; }
+[data-theme='sky'] .l-head { height: auto; align-items: baseline; justify-content: space-between; }
+[data-theme='sky'] .l-title { font: 400 48px/1.2 var(--sans); }
+[data-theme='sky'] .l-shop .l-spacer { display: none; }
+[data-theme='sky'] .l-meta-box,
+[data-theme='sky'] .l-meta-box .l-meta,
+[data-theme='sky'] .l-tasks .l-meta { padding: 0; font-size: 18px; font-weight: 300; color: #FFFFFF; }
+[data-theme='sky'] .l-hint { display: inline; }
+
+[data-theme='sky'] .l-shop .l-tiles {
+  flex: 0 1 auto;
+  margin-top: 14px;
+  padding-bottom: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 76px;
+  gap: 12px;
+}
+[data-theme='sky'] .l-tile {
+  position: relative;
+  padding: 0 16px;
+  gap: 12px;
+  border: 0;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #FFFFFF;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-content: center;
+  column-gap: 12px;
+}
+[data-theme='sky'] .l-tile .l-tick { grid-row: 1 / 3; width: 28px; height: 28px; border: 2px solid #FFFFFF; }
+[data-theme='sky'] .l-tile .l-tick svg { width: 15px; height: 15px; }
+[data-theme='sky'] .l-tile-text { font-size: 25px; font-weight: 400; line-height: 1.25; -webkit-line-clamp: 1; }
+[data-theme='sky'] .l-tile .l-who { display: block; grid-column: 2; font-size: 14px; font-weight: 300; line-height: 1.25; color: rgba(255, 255, 255, 0.88); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-theme='sky'] .l-tile.is-done { background: transparent; border: 0; opacity: 0.7; }
+[data-theme='sky'] .l-tile.is-done .l-tick { background: #FFFFFF; border-color: #FFFFFF; color: #3F78BE; }
+[data-theme='sky'] .l-tile.is-done .l-tile-text { color: #FFFFFF; text-decoration-color: rgba(255, 255, 255, 0.8); }
+[data-theme='sky'] .l-shop .l-foot { margin-top: auto; padding-top: 14px; font-size: 18px; color: #FFFFFF; }
+[data-theme='sky'] .l-clear {
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  color: #FFFFFF;
+  font-size: 18px;
+  font-weight: 400;
+}
+[data-theme='sky'] .l-clear.is-armed { background: #FFE7A3; border-color: #FFE7A3; color: #1E3A68; text-shadow: none; }
+
+[data-theme='sky'] .l-tasks .l-rows { flex: 0 1 auto; margin-top: 14px; padding-bottom: 0; }
+[data-theme='sky'] .l-row { min-height: 74px; padding: 6px 0; gap: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.25); }
+[data-theme='sky'] .l-circle { width: 30px; height: 30px; margin: 0; border: 2px solid #FFFFFF; }
+[data-theme='sky'] .l-row-text { flex: 1; font-size: 27px; font-weight: 400; line-height: 1.3; }
+[data-theme='sky'] .l-today { display: block; flex: none; padding: 2px 12px; border-radius: 12px; background: #FFE7A3; color: #1E3A68; font-size: 15px; font-weight: 600; text-shadow: none; }
+[data-theme='sky'] .l-repeat { color: #FFFFFF; }
+[data-theme='sky'] .l-done-head { margin-top: 16px; padding-bottom: 0; font-size: 18px; font-weight: 300; color: #FFFFFF; }
+[data-theme='sky'] .l-done-head .l-clear { min-height: 44px; padding: 0 18px; font-size: 17px; }
+[data-theme='sky'] .l-row.is-done { min-height: 60px; border-bottom: 0; opacity: 0.7; }
+[data-theme='sky'] .l-row.is-done .l-circle { width: 28px; height: 28px; margin: 0 1px; background: #FFFFFF; border-color: #FFFFFF; color: #3F78BE; }
+[data-theme='sky'] .l-row.is-done .l-circle svg { width: 15px; height: 15px; }
+[data-theme='sky'] .l-row.is-done .l-row-text { font-size: 23px; font-weight: 300; color: #FFFFFF; text-decoration-color: rgba(255, 255, 255, 0.8); }
+[data-theme='sky'] .l-now { display: flex; align-items: baseline; gap: 14px; margin-top: auto; padding-top: 12px; }
+[data-theme='sky'] .ln-time { font: 200 40px/1.1 var(--sans); }
+[data-theme='sky'] .ln-next { font-size: 19px; font-weight: 300; }
+[data-theme='sky'] .ln-next::after { content: var(--sk-wx, ''); }
+[data-theme='sky'] .l-empty { color: rgba(255, 255, 255, 0.86); }
+
+/* ======================================================================================
+   the other screens on the same sky: glass panels where there is a lot to read
+   ====================================================================================== */
+/* calendar */
+[data-theme='sky'] .cal-layout { top: 32px; right: 40px; left: 40px; bottom: 40px; column-gap: 24px; grid-template-columns: minmax(0, 1fr) 330px; }
+[data-theme='sky'] .s-calendar .rule { display: none; }
+[data-theme='sky'] .c-main,
+[data-theme='sky'] .c-side {
+  padding: 22px 28px 18px;
+  border-radius: 28px;
+  background: var(--glass);
+  background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 55%);
+  border: 1px solid var(--glass-line);
+}
+[data-theme='sky'] .c-month { font: 400 56px/1.1 var(--sans); }
+[data-theme='sky'] .c-year { font-weight: 200; color: #FFFFFF; }
+[data-theme='sky'] .c-hijri { color: #FFE7A3; font-weight: 400; }
+[data-theme='sky'] .c-nav { border-color: rgba(255, 255, 255, 0.5); color: #FFFFFF; }
+[data-theme='sky'] .c-today { border-color: rgba(255, 255, 255, 0.55); background: rgba(255, 255, 255, 0.16); color: #FFFFFF; }
+[data-theme='sky'] .c-week { color: rgba(255, 255, 255, 0.9); }
+[data-theme='sky'] .c-cell { border-top-color: rgba(255, 255, 255, 0.22); }
+[data-theme='sky'] .c-cell.is-weekend { background: rgba(255, 255, 255, 0.06); }
+[data-theme='sky'] .c-cell.is-today .c-d { background: #FFE7A3; color: #1E3A68; text-shadow: none; }
+[data-theme='sky'] .c-h { color: rgba(255, 255, 255, 0.78); }
+[data-theme='sky'] .c-cell.is-hstart .c-h { color: #FFE7A3; }
+[data-theme='sky'] .c-side-title { font: 400 30px/1.2 var(--sans); }
+[data-theme='sky'] .c-side-sub { color: #FFE7A3; }
+[data-theme='sky'] .c-plus { text-shadow: none; }
+[data-theme='sky'] .k-national { --k: #FFD27A; }
+
+/* adhkar */
+[data-theme='sky'] .a-title { font: 400 58px/1.1 var(--sans); }
+[data-theme='sky'] .a-sub { color: rgba(255, 255, 255, 0.92); }
+[data-theme='sky'] .a-body { bottom: 96px; }
+[data-theme='sky'] .a-dots { bottom: 60px; }
+[data-theme='sky'] .a-dots i { background: rgba(255, 255, 255, 0.35); }
+[data-theme='sky'] .a-card {
+  background: var(--glass);
+  background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 55%);
+  border: 1px solid var(--glass-line);
+}
+[data-theme='sky'] .a-card-title { color: #FFE7A3; }
+[data-theme='sky'] .a-text { font-weight: 400; }
+[data-theme='sky'] .a-ref { color: rgba(255, 255, 255, 0.85); }
+[data-theme='sky'] .a-ring-bg { stroke: rgba(255, 255, 255, 0.3); }
+[data-theme='sky'] .a-close,
+[data-theme='sky'] .a-nav { color: #FFFFFF; }
+[data-theme='sky'] .a-audio { background: rgba(24, 52, 100, 0.4); border-color: var(--glass-line); }
+[data-theme='sky'] .a-play { text-shadow: none; }
+[data-theme='sky'] .a-done-title { font-weight: 400; color: #FFFFFF; }
+[data-theme='sky'] .a-again { background: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.55); }
+
+/* photos (always dark) */
+[data-theme='sky'] .s-photos .ph-empty { inset: 0; background: linear-gradient(180deg, #0A1130, #2C3D6E); }
+[data-theme='sky'] .ph-time { font-weight: 200; }
+
+/* overlays: Quran, Wi-Fi and the fun panels on a night sky */
+[data-theme='sky'] .fun-scrim,
+[data-theme='sky'] .qr .fun-scrim,
+[data-theme='sky'] .wf .fun-scrim {
+  background-color: #142A57;
+  background-image: linear-gradient(180deg, #0E1C44 0%, #1E3A72 60%, #35588E 100%);
+}
+[data-theme='sky'] .fun-menu { border-color: rgba(255, 255, 255, 0.35); box-shadow: 0 16px 40px rgba(8, 20, 48, 0.45); }
+[data-theme='sky'] .fun-title { font-weight: 400; }
+[data-theme='sky'] .qr-np-bar i { background: #FFE7A3; }
+[data-theme='sky'] .pl-banner { border-color: rgba(255, 255, 255, 0.45); box-shadow: 0 18px 50px rgba(8, 20, 48, 0.45); }
+[data-theme='sky'] .pl-badge { background: #1E3A68; color: #FFFFFF; border-color: #FFE7A3; }
+[data-theme='sky'] .mt-phase,
+[data-theme='sky'] .mt-count,
+[data-theme='sky'] .mt-cheer b { color: #FFE7A3; }
+/* buttons and pills filled with the light accent take dark ink and no shadow */
+[data-theme='sky'] .a-play,
+[data-theme='sky'] .tab.is-on,
+[data-theme='sky'] .fw-hub,
+[data-theme='sky'] .pl-reply { text-shadow: none; }
+
+/* the dock: doors in shades of the sky */
+[data-theme='sky'] .nav .tab,
+[data-theme='sky'] .nav .tab-fun { border-color: rgba(255, 255, 255, 0.35); }
+[data-theme='sky'] .nav .tab.is-on { border-color: #FFE7A3; }
+[data-theme='sky'] .nav .tab[data-for='home'] .tab-icon { color: #FFE7A3; }
+[data-theme='sky'] .nav .tab[data-for='prayer'] .tab-icon { color: #A8E6CF; }
+[data-theme='sky'] .nav .tab[data-for='adhkar'] .tab-icon { color: #D6C8F6; }
+[data-theme='sky'] .nav .tab[data-for='calendar'] .tab-icon { color: #FFD27A; }
+[data-theme='sky'] .nav .tab[data-for='lists'] .tab-icon { color: #F6B3C2; }

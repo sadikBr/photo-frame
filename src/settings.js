@@ -2,7 +2,7 @@
 export const SCREENS = ['home', 'prayer', 'calendar', 'lists', 'photos'];
 export const PRAYERS = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
 // The frame's look, picked in the control panel (public/css/themes/<id>.css).
-export const THEMES = ['original', 'riad', 'bright', 'andalus', 'kids', 'sahara', 'majorelle', 'album'];
+export const THEMES = ['original', 'riad', 'bright', 'andalus', 'kids', 'sahara', 'majorelle', 'album', 'atlas', 'sky', 'flip', 'hilal'];
 
 // Only known fields with sane values are kept; anything else is dropped.
 export const clean = (v, max) => String(v == null ? '' : v).replace(/\s+/g, ' ').trim().slice(0, max);

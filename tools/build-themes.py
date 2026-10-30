@@ -3,9 +3,10 @@
 
 In the sources, `svg(<svg …>…</svg>)` becomes a data: URL, and a first line
 `/* fonts: amiri, aref-ruqaa */` pulls in the @font-face rules from tools/themes/fonts-<name>.css.
-Run: python3 tools/build-themes.py
+Run: python3 tools/build-themes.py            (every theme)
+     python3 tools/build-themes.py atlas hilal (only those)
 """
-import os, re, urllib.parse
+import os, re, sys, urllib.parse
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, 'themes')
@@ -29,7 +30,8 @@ def build(name):
     open(os.path.join(OUT, name), 'w').write(head + fonts + css)
 
 os.makedirs(OUT, exist_ok=True)
+only = set(a + '.css' for a in sys.argv[1:])
 for n in sorted(os.listdir(SRC)):
-    if n.endswith('.css') and not n.startswith('fonts-'):
+    if n.endswith('.css') and not n.startswith('fonts-') and (not only or n in only):
         build(n)
         print('built', n)

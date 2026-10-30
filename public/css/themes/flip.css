@@ -1,0 +1,674 @@
+/* Built by tools/build-themes.py from tools/themes/flip.css — edit that file, not this one. */
+@font-face { font-family: 'Changa'; font-weight: 400; font-display: block; src: url('../../fonts/themes/changa-arabic-400-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Changa'; font-weight: 400; font-display: block; src: url('../../fonts/themes/changa-latin-400-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Changa'; font-weight: 500; font-display: block; src: url('../../fonts/themes/changa-arabic-500-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Changa'; font-weight: 500; font-display: block; src: url('../../fonts/themes/changa-latin-500-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Changa'; font-weight: 600; font-display: block; src: url('../../fonts/themes/changa-arabic-600-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Changa'; font-weight: 600; font-display: block; src: url('../../fonts/themes/changa-latin-600-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Changa'; font-weight: 700; font-display: block; src: url('../../fonts/themes/changa-arabic-700-normal.woff2') format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FEFC; }
+@font-face { font-family: 'Changa'; font-weight: 700; font-display: block; src: url('../../fonts/themes/changa-latin-700-normal.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2212,U+FEFF,U+FFFD; }
+/* fonts: changa */
+/* «اللوحة القلّابة»: a split-flap station departures board. A charcoal board with rivets, tiles
+   with a lighter top half and a darker bottom half split by a dark hinge, amber for what matters
+   now, status LEDs (amber = next, green = on time, grey = past). Things really flip: flip.js
+   draws the big flip clock and the word tiles and folds the top half of a tile when its text
+   changes. Changa for everything. Mockups: T9-Flip-Clock / Prayer / Lists. */
+
+[data-theme='flip'] {
+  --fg: 241, 237, 228;
+  --plaster: rgb(var(--fg));
+  --plaster-2: rgba(var(--fg), 0.76);
+  --plaster-3: rgba(var(--fg), 0.52);
+  --hair: rgba(var(--fg), 0.12);
+  --shade: 0, 0, 0;
+  --saffron: #F5B83D;
+  --accent-rgb: 245, 184, 61;
+  --saffron-ink: #141416;
+  --garnet: #242428;
+  --garnet-deep: #141416;
+  --indigo: #1A1A1D;
+  --fes: #1A1A1D;
+  --sky: #8FB8E8;
+  --sky-2: #BFD7FF;
+  --sky-rgb: 143, 184, 232;
+  --mint: #7FC98F;
+  --mint-rgb: 127, 201, 143;
+  --rose: #EE9AAE;
+  --rose-rgb: 238, 154, 174;
+  --deep-rgb: 26, 26, 29;
+  --deep2-rgb: 46, 46, 51;
+  --modal: #141416;
+  --menu: rgba(26, 26, 29, 0.98);
+  --banner: rgba(26, 26, 29, 0.97);
+  --chip-bg: #242428;
+  --g-home: #141416;
+  --g-prayer: #141416;
+  --g-lists: #141416;
+  --g-calendar: #141416;
+  --g-adhkar-m: #141416;
+  --g-adhkar-e: #141416;
+  --g-photos: #0E0E10;
+  --kufi: 'Changa', 'Readex Pro', sans-serif;
+  --sans: 'Changa', 'Readex Pro', sans-serif;
+  /* the board */
+  --fl-ink: #F1EDE4;
+  --fl-soft: #C9C4B8;
+  --fl-mute: #8C8A85;
+  --fl-amber: #F5B83D;
+  --fl-green: #7FC98F;
+  --fl-panel: #1A1A1D;
+  --fl-line: #2A2A2E;
+  /* a tile with the hinge baked in (for the tiles drawn by CSS alone) */
+  --fl-tile: linear-gradient(#2E2E33 0, #2E2E33 calc(50% - 1px), #0E0E10 calc(50% - 1px), #0E0E10 calc(50% + 1px), #242428 calc(50% + 1px), #242428 100%);
+  --fl-tile-amber: linear-gradient(#4A3A16 0, #4A3A16 calc(50% - 1px), #0E0E10 calc(50% - 1px), #0E0E10 calc(50% + 1px), #3E3112 calc(50% + 1px), #3E3112 100%);
+  --fl-key: linear-gradient(#3A3A40, #2A2A2F);
+  /* the dock: flap doors over a dark scrim */
+  --dock-bottom: 70px;
+  --dock-scrim: rgba(10, 10, 11, 0.82);
+  --dock-hint: #8C8A85;
+  --door-fun: #2E2E33;
+  --door-wifi: #2E2E33;
+  --door-quran: #2E2E33;
+  font-synthesis: none;
+}
+[data-theme='flip'] #stage { font-weight: 400; }
+
+/* the board: a charcoal panel with four rivets, on every screen but the photos */
+[data-theme='flip'] .screen:not(.s-photos) {
+  background-color: #141416;
+  background-repeat: no-repeat;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221280%22 height=%22800%22%3E%3Crect x=%2222%22 y=%2222%22 width=%221236%22 height=%22756%22 rx=%2222%22 fill=%22%231A1A1D%22 stroke=%22%232A2A2E%22 stroke-width=%222%22/%3E%3Cg fill=%22%230C0C0E%22%3E%3Ccircle cx=%2246%22 cy=%2246%22 r=%226%22/%3E%3Ccircle cx=%221234%22 cy=%2246%22 r=%226%22/%3E%3Ccircle cx=%2246%22 cy=%22754%22 r=%226%22/%3E%3Ccircle cx=%221234%22 cy=%22754%22 r=%226%22/%3E%3C/g%3E%3C/svg%3E");
+}
+[data-theme='flip'] .band { display: none; }
+
+/* ---------- tiles (flip.js) ---------- */
+[data-theme='flip'] .fl-row { display: flex; gap: 8px; align-items: center; }
+[data-theme='flip'] .fl-t {
+  --top: #2E2E33;
+  --bot: #242428;
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 58px;
+  padding: 0 16px;
+  border-radius: 8px;
+  background: linear-gradient(var(--top) 0, var(--top) 50%, var(--bot) 50%, var(--bot) 100%);
+  box-shadow: 0 3px 0 #0A0A0B;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--fl-ink);
+  white-space: nowrap;
+}
+/* the hinge, over the text as on a real board */
+[data-theme='flip'] .fl-t::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  top: calc(50% - 1px);
+  height: 2px;
+  background: #0E0E10;
+}
+[data-theme='flip'] .fl-t > .fl-x { display: block; }
+[data-theme='flip'] .fl-t.is-amber { color: var(--fl-amber); }
+[data-theme='flip'] .fl-t.is-soft { color: var(--fl-soft); font-weight: 500; }
+[data-theme='flip'] .fl-t.is-lg { height: 64px; padding: 0 18px; font-size: 36px; font-weight: 700; }
+[data-theme='flip'] .fl-t.is-xl { height: 100px; padding: 0 24px; border-radius: 12px; font-size: 64px; font-weight: 700; box-shadow: 0 4px 0 #0A0A0B; --top: #2F2F34; --bot: #252529; }
+[data-theme='flip'] .fl-t.is-xl::after { top: calc(50% - 1.5px); height: 3px; background: #0C0C0E; }
+/* the old word's top half, folding down on the hinge (toward the viewer) */
+[data-theme='flip'] .fl-fold {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 50%;
+  overflow: hidden;
+  padding: inherit;
+  justify-content: inherit;
+  border-radius: 8px 8px 0 0;
+  background: var(--top);
+  transform-origin: 50% 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  animation: fl-fold 380ms cubic-bezier(0.5, 0, 0.9, 0.5) both;
+}
+[data-theme='flip'] .fl-fold > .fl-x {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 200%;
+  display: flex;
+  align-items: center;
+  justify-content: inherit;
+  padding: inherit;
+}
+@keyframes fl-fold {
+  from { transform: perspective(500px) rotateX(0deg); opacity: 1; }
+  92% { opacity: 1; }
+  to { transform: perspective(500px) rotateX(-88deg); opacity: 0; }
+}
+
+/* ---------- the big flip digits ---------- */
+[data-theme='flip'] .fl-d {
+  position: relative;
+  flex: none;
+  width: 204px;
+  height: 290px;
+  border-radius: 16px;
+  box-shadow: 0 6px 0 #0A0A0B;
+  font-size: 268px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--fl-ink);
+}
+[data-theme='flip'] .fl-h { position: absolute; left: 0; right: 0; height: 50%; overflow: hidden; }
+[data-theme='flip'] .fl-h-top { top: 0; border-radius: 16px 16px 0 0; background: #2F2F34; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06); transform-origin: 50% 100%; }
+[data-theme='flip'] .fl-h-bot { bottom: 0; border-radius: 0 0 16px 16px; background: #252529; transform-origin: 50% 0; }
+[data-theme='flip'] .fl-h b {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 200%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 14px;
+  font: inherit;
+}
+[data-theme='flip'] .fl-h-bot b { top: -100%; }
+[data-theme='flip'] .fl-hinge { position: absolute; z-index: 3; left: 0; right: 0; top: 143px; height: 4px; background: #0C0C0E; }
+[data-theme='flip'] .fl-pin { position: absolute; z-index: 3; top: 135px; width: 10px; height: 20px; border-radius: 3px; background: #3A3A40; }
+[data-theme='flip'] .fl-pin-l { left: -7px; }
+[data-theme='flip'] .fl-pin-r { right: -7px; }
+[data-theme='flip'] .fl-sh { position: absolute; inset: 0; background: #000; opacity: 0; }
+/* the turn: the old top half falls (0 → 90°), then the new bottom half lands (90° → 0) */
+[data-theme='flip'] .fl-flap-a { z-index: 2; animation: fl-a 250ms cubic-bezier(0.55, 0, 1, 0.45) both; }
+[data-theme='flip'] .fl-flap-b { z-index: 2; animation: fl-b 250ms 250ms cubic-bezier(0, 0.55, 0.45, 1) both; }
+[data-theme='flip'] .fl-flap-a .fl-sh { animation: fl-sh-a 250ms linear both; }
+[data-theme='flip'] .fl-flap-b .fl-sh { animation: fl-sh-b 250ms 250ms linear both; }
+@keyframes fl-a { from { transform: perspective(900px) rotateX(0deg); } to { transform: perspective(900px) rotateX(-90deg); } }
+@keyframes fl-b { from { transform: perspective(900px) rotateX(90deg); } to { transform: perspective(900px) rotateX(0deg); } }
+@keyframes fl-sh-a { from { opacity: 0; } to { opacity: 0.5; } }
+@keyframes fl-sh-b { from { opacity: 0.45; } to { opacity: 0; } }
+/* the small ones (the time on the prayer screen) */
+[data-theme='flip'] .fl-d.is-sm { width: 62px; height: 84px; border-radius: 10px; box-shadow: 0 3px 0 #0A0A0B; font-size: 64px; }
+[data-theme='flip'] .fl-d.is-sm .fl-h-top { border-radius: 10px 10px 0 0; }
+[data-theme='flip'] .fl-d.is-sm .fl-h-bot { border-radius: 0 0 10px 10px; }
+[data-theme='flip'] .fl-d.is-sm .fl-h b { padding-top: 6px; }
+[data-theme='flip'] .fl-d.is-sm .fl-hinge { top: 41px; height: 2px; }
+[data-theme='flip'] .fl-d.is-sm .fl-pin { display: none; }
+[data-theme='flip'] .fl-d.is-sm .fl-flap-a { animation-duration: 200ms; }
+[data-theme='flip'] .fl-d.is-sm .fl-flap-b { animation-duration: 200ms; animation-delay: 200ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme='flip'] .fl-fold,
+  [data-theme='flip'] .fl-flap-a,
+  [data-theme='flip'] .fl-flap-b { display: none; animation: none; }
+}
+
+/* ---------- clock (T9-Flip-Clock) ---------- */
+[data-theme='flip'] .s-home .home-grid,
+[data-theme='flip'] .s-home .h-main { display: contents; }
+[data-theme='flip'] .s-home .rule,
+[data-theme='flip'] .s-home .h-weather,
+[data-theme='flip'] .s-home .h-dates,
+[data-theme='flip'] .s-home .h-clock,
+[data-theme='flip'] .s-home .h-next,
+[data-theme='flip'] .s-home .h-prayers { display: none; }
+[data-theme='flip'] .fl-home { position: absolute; inset: 0; }
+[data-theme='flip'] .fl-head { position: absolute; right: 80px; left: 80px; top: 62px; display: flex; justify-content: space-between; align-items: center; }
+[data-theme='flip'] .fl-clock { position: absolute; left: 0; right: 0; top: 150px; display: flex; justify-content: center; align-items: center; gap: 16px; }
+[data-theme='flip'] .fl-colon { flex: none; width: 56px; height: 290px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 58px; }
+[data-theme='flip'] .fl-colon i { width: 22px; height: 22px; border-radius: 6px; background: var(--fl-ink); }
+[data-theme='flip'] .fl-line { position: absolute; right: 186px; left: 186px; display: flex; align-items: center; gap: 8px; }
+[data-theme='flip'] .fl-next { top: 486px; }
+[data-theme='flip'] .fl-wx { top: 572px; }
+[data-theme='flip'] .fl-wx.is-empty { visibility: hidden; }
+[data-theme='flip'] .fl-lab { flex: none; width: 140px; font-size: 17px; font-weight: 500; color: var(--fl-mute); }
+[data-theme='flip'] .fl-ww .fl-t { height: 56px; }
+/* a long countdown («بعد 7 ساعات و34 دقيقة») gets smaller tiles (flip.js measures) */
+[data-theme='flip'] .fl-nw.is-fit1 .fl-t { padding: 0 14px; font-size: 31px; }
+[data-theme='flip'] .fl-nw.is-fit2 .fl-t { padding: 0 11px; font-size: 27px; }
+[data-theme='flip'] .fl-rule { position: absolute; right: 186px; left: 186px; top: 660px; height: 2px; background: var(--fl-line); }
+
+/* the weather sentence (.hw-tip): plain text right after the weather tiles */
+[data-theme='flip'] .s-home .h-wxm {
+  position: absolute;
+  top: 556px;
+  height: 88px;
+  right: var(--fl-tip-right, 520px);
+  left: 186px;
+  display: flex;
+  align-items: center;
+}
+[data-theme='flip'] .h-wxm .hw-icon,
+[data-theme='flip'] .h-wxm .hw-text { display: none; }
+[data-theme='flip'] .h-wxm .hw-tip {
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--fl-soft);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* the footer: the family's message or the verse on the right, the status chips on the left */
+[data-theme='flip'] .s-home .h-msg:not([hidden]),
+[data-theme='flip'] .s-home .h-verse:not([hidden]) {
+  position: absolute;
+  right: 186px;
+  top: 721px;
+  transform: translateY(-50%);
+  width: 540px;
+  max-width: none;
+  font-size: 22px;
+  line-height: 1.45;
+  font-weight: 400;
+  color: var(--fl-soft);
+}
+[data-theme='flip'] .s-home .h-msg { gap: 10px; color: var(--fl-ink); }
+[data-theme='flip'] .s-home .h-msg-icon { padding-top: 4px; }
+[data-theme='flip'] .s-home .h-msg-icon svg { width: 22px; height: 22px; fill: var(--fl-amber); }
+[data-theme='flip'] .s-home .h-msg-text { -webkit-line-clamp: 3; }
+[data-theme='flip'] .s-home .h-verse:not([hidden]) {
+  display: block;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+[data-theme='flip'] .s-home .h-verse-text,
+[data-theme='flip'] .s-home .h-verse.is-verse .h-verse-text { display: inline; font-family: var(--sans); font-size: 22px; line-height: 1.45; font-weight: 400; }
+[data-theme='flip'] .s-home .h-verse-ref { display: inline; margin-right: 6px; font-size: 16px; color: var(--fl-mute); }
+
+/* status chips: an LED and a line of text each */
+[data-theme='flip'] #stage[data-screen='home'] .top-chips {
+  top: 664px;
+  bottom: 22px;
+  left: 186px;
+  right: auto;
+  max-width: 380px;
+  transform: none;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+}
+[data-theme='flip'] #stage[data-screen='home'] .status-chips { flex-direction: column; align-items: flex-start; gap: 2px; }
+[data-theme='flip'] #stage[data-screen='home'] .match-chip,
+[data-theme='flip'] #stage[data-screen='home'] .st-chip {
+  height: 26px;
+  max-width: 380px;
+  padding: 0;
+  gap: 10px;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--fl-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+[data-theme='flip'] #stage[data-screen='home'] .match-chip::before,
+[data-theme='flip'] #stage[data-screen='home'] .st-chip::before {
+  content: '';
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--fl-amber);
+  box-shadow: 0 0 10px var(--fl-amber);
+}
+[data-theme='flip'] #stage[data-screen='home'] .st-chip::before { background: var(--fl-green); box-shadow: 0 0 10px var(--fl-green); }
+[data-theme='flip'] .st-chip b { font-weight: 600; color: var(--fl-ink); }
+[data-theme='flip'] .st-chip small { color: var(--fl-mute); }
+/* elsewhere (and the Quran card everywhere): small flap tiles */
+[data-theme='flip'] .match-chip,
+[data-theme='flip'] .st-chip {
+  border: 0;
+  border-radius: 8px;
+  background: var(--fl-tile);
+  box-shadow: 0 3px 0 #0A0A0B;
+  font-weight: 500;
+}
+[data-theme='flip'] .qr-chip { border: 0; border-radius: 8px; background: var(--fl-tile); box-shadow: 0 3px 0 #0A0A0B; }
+[data-theme='flip'] .qr-icon svg { color: var(--fl-amber); }
+[data-theme='flip'] .qr-bar i { background: var(--fl-amber); }
+
+/* ---------- prayer: the departures board (T9-Flip-Prayer) ---------- */
+[data-theme='flip'] .s-prayer:not(.is-ramadan) .p-head,
+[data-theme='flip'] .s-prayer .p-stage { display: none; }
+[data-theme='flip'] .s-prayer.is-ramadan .fl-pr { display: none; }
+[data-theme='flip'] .fl-pr { position: absolute; inset: 0; }
+[data-theme='flip'] .fl-pr-head { position: absolute; right: 80px; top: 52px; }
+[data-theme='flip'] .fl-pr-title { font-size: 20px; font-weight: 500; line-height: 1.4; color: var(--fl-mute); }
+[data-theme='flip'] .fl-big { margin-top: 10px; gap: 10px; }
+[data-theme='flip'] .fl-big.is-fit1 { gap: 8px; }
+[data-theme='flip'] .fl-big.is-fit1 .fl-t { height: 84px; padding: 0 18px; font-size: 50px; }
+[data-theme='flip'] .fl-big.is-fit2 { gap: 8px; }
+[data-theme='flip'] .fl-big.is-fit2 .fl-t { height: 72px; padding: 0 14px; font-size: 40px; }
+[data-theme='flip'] .fl-pr-now { position: absolute; left: 80px; top: 52px; display: flex; gap: 6px; align-items: center; }
+[data-theme='flip'] .fl-colon-sm { flex: none; width: 28px; text-align: center; font-size: 64px; font-weight: 700; line-height: 84px; color: var(--fl-ink); }
+[data-theme='flip'] .fl-cols,
+[data-theme='flip'] .fl-r { display: grid; grid-template-columns: 300px 220px minmax(0, 1fr); column-gap: 16px; }
+[data-theme='flip'] .fl-cols {
+  position: absolute;
+  right: 80px;
+  left: 80px;
+  top: 230px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--fl-line);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--fl-mute);
+}
+[data-theme='flip'] .fl-board { position: absolute; right: 80px; left: 80px; top: 280px; display: flex; flex-direction: column; gap: 12px; }
+[data-theme='flip'] .fl-r { align-items: center; }
+[data-theme='flip'] .fl-r .fl-t { height: 62px; }
+[data-theme='flip'] .fl-c-name { justify-content: flex-start; padding: 0 20px; font-size: 32px; font-weight: 700; }
+[data-theme='flip'] .fl-c-time { font-size: 40px; font-weight: 700; }
+[data-theme='flip'] .fl-c-stat { justify-content: flex-start; padding: 0 44px 0 20px; font-size: 26px; font-weight: 600; color: var(--fl-soft); }
+[data-theme='flip'] .fl-led { position: absolute; right: 20px; top: 50%; width: 12px; height: 12px; margin-top: -6px; border-radius: 50%; background: #55534F; }
+[data-theme='flip'] .fl-r.is-minor .fl-c-name { font-size: 26px; }
+[data-theme='flip'] .fl-r.is-past .fl-t,
+[data-theme='flip'] .fl-r.is-minor.is-past .fl-t { opacity: 0.55; }
+[data-theme='flip'] .fl-r.is-later .fl-led { background: var(--fl-green); box-shadow: 0 0 10px var(--fl-green); }
+[data-theme='flip'] .fl-r.is-minor.is-later .fl-led { background: #55534F; box-shadow: none; }
+[data-theme='flip'] .fl-r.is-next .fl-c-name,
+[data-theme='flip'] .fl-r.is-next .fl-c-time,
+[data-theme='flip'] .fl-r.is-now .fl-c-name,
+[data-theme='flip'] .fl-r.is-now .fl-c-time { color: var(--fl-amber); }
+[data-theme='flip'] .fl-r.is-next .fl-c-stat,
+[data-theme='flip'] .fl-r.is-now .fl-c-stat { --top: #4A3A16; --bot: #3E3112; color: var(--fl-amber); }
+[data-theme='flip'] .fl-r.is-next .fl-led,
+[data-theme='flip'] .fl-r.is-now .fl-led { background: var(--fl-amber); box-shadow: 0 0 10px var(--fl-amber); }
+[data-theme='flip'] .fl-pr-foot {
+  position: absolute;
+  right: 80px;
+  left: 80px;
+  top: 722px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--fl-mute);
+}
+
+/* Ramadan: the fast's countdown and times, on tiles */
+[data-theme='flip'] .s-prayer.is-ramadan { background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221280%22 height=%22800%22%3E%3Crect x=%2222%22 y=%2222%22 width=%221236%22 height=%22756%22 rx=%2222%22 fill=%22%231A1A1D%22 stroke=%22%232A2A2E%22 stroke-width=%222%22/%3E%3Cg fill=%22%230C0C0E%22%3E%3Ccircle cx=%2246%22 cy=%2246%22 r=%226%22/%3E%3Ccircle cx=%221234%22 cy=%2246%22 r=%226%22/%3E%3Ccircle cx=%2246%22 cy=%22754%22 r=%226%22/%3E%3Ccircle cx=%221234%22 cy=%22754%22 r=%226%22/%3E%3C/g%3E%3C/svg%3E"); }
+[data-theme='flip'] .s-prayer.is-ramadan .p-head { top: 52px; right: 80px; left: 80px; }
+[data-theme='flip'] .s-prayer.is-ramadan .p-name { font: 700 96px/1.2 var(--kufi); color: var(--fl-amber); }
+[data-theme='flip'] .s-prayer.is-ramadan .p-at { margin-top: 6px; font-size: 24px; color: var(--fl-soft); }
+[data-theme='flip'] .s-prayer.is-ramadan .p-count {
+  padding: 4px 24px 0;
+  border-radius: 12px;
+  background: var(--fl-tile);
+  box-shadow: 0 4px 0 #0A0A0B;
+  font: 700 96px/1.15 var(--kufi);
+  letter-spacing: 2px;
+  color: var(--fl-ink);
+}
+[data-theme='flip'] .s-prayer.is-ramadan .p-cap { font-size: 20px; color: var(--fl-mute); }
+[data-theme='flip'] .s-prayer .r-stage { top: 270px; right: 80px; left: 80px; bottom: 50px; }
+[data-theme='flip'] .r-day { font-weight: 700; }
+[data-theme='flip'] .r-dots i { border-radius: 2px; background: #2E2E33; }
+[data-theme='flip'] .r-dots i.is-past { background: rgba(245, 184, 61, 0.5); }
+[data-theme='flip'] .r-tile { border: 0; border-radius: 8px; background: var(--fl-tile); box-shadow: 0 3px 0 #0A0A0B; }
+[data-theme='flip'] .r-tile.is-key { background: var(--fl-tile-amber); }
+[data-theme='flip'] .r-tile.is-key .r-t-name { color: var(--fl-amber); }
+[data-theme='flip'] .r-tile.is-past { opacity: 0.55; }
+[data-theme='flip'] .r-t-time { font-weight: 700; }
+[data-theme='flip'] .r-quran { padding: 14px 20px; border: 0; border-radius: 10px; background: #242428; box-shadow: 0 3px 0 #0A0A0B; }
+[data-theme='flip'] .r-q-bar i { border-radius: 2px; }
+[data-theme='flip'] .r-q-btn { border: 0; border-radius: 10px; background: var(--fl-key); box-shadow: 0 4px 0 #0A0A0B; }
+[data-theme='flip'] .r-garland-box { display: none; }
+
+/* ---------- lists: two boards of flap strips (T9-Flip-Lists) ---------- */
+[data-theme='flip'] .lists-layout { top: 52px; right: 70px; left: 70px; bottom: 48px; grid-template-columns: 560px 2px 560px; column-gap: 0; justify-content: space-between; }
+[data-theme='flip'] .s-lists .rule { width: 2px; margin: 8px 0 -8px; background: var(--fl-line); }
+[data-theme='flip'] .l-shop { position: relative; }
+[data-theme='flip'] .l-head { height: auto; align-items: baseline; justify-content: space-between; }
+[data-theme='flip'] .l-title { font: 700 46px/1.3 var(--kufi); color: var(--fl-amber); }
+[data-theme='flip'] .l-meta-box { padding-top: 0; }
+[data-theme='flip'] .l-meta { padding-top: 0; font-size: 18px; font-weight: 500; color: var(--fl-mute); }
+/* the hint (.l-hint) goes to the foot of the shopping board, as the mockup has it */
+[data-theme='flip'] .l-hint { display: block; position: absolute; right: 0; bottom: 13px; font-size: 0; }
+[data-theme='flip'] .l-hint::after { content: 'المس الغرض حين تشتريه'; display: inline-block; font-size: 18px; color: var(--fl-mute); }
+[data-theme='flip'] .l-shop .l-tiles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+  padding-bottom: 12px;
+}
+[data-theme='flip'] .l-tile {
+  flex: none;
+  height: 56px;
+  padding: 0;
+  gap: 8px;
+  align-items: stretch;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+[data-theme='flip'] .l-tile .l-tick { display: none; }
+[data-theme='flip'] .l-tile-text,
+[data-theme='flip'] .l-row-text {
+  flex: 1;
+  min-width: 0;
+  display: block;
+  padding: 0 18px;
+  border-radius: 8px;
+  background: var(--fl-tile);
+  box-shadow: 0 3px 0 #0A0A0B;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 56px;
+  color: var(--fl-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+[data-theme='flip'] .l-who {
+  flex: none;
+  width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  border-radius: 8px;
+  background: var(--fl-tile);
+  box-shadow: 0 3px 0 #0A0A0B;
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.15;
+  text-align: center;
+  color: var(--fl-soft);
+  overflow: hidden;
+}
+[data-theme='flip'] .l-who:empty::after { content: '—'; }
+[data-theme='flip'] .l-tile.is-done { border: 0; background: none; opacity: 0.55; }
+[data-theme='flip'] .l-tile.is-done .l-tile-text { color: var(--fl-ink); text-decoration: line-through; text-decoration-color: rgba(241, 237, 228, 0.7); }
+[data-theme='flip'] .l-tile.is-done .l-who { font-size: 15px; color: var(--fl-green); }
+[data-theme='flip'] .l-tile:active .l-tile-text { box-shadow: 0 1px 0 #0A0A0B; transform: translateY(2px); }
+[data-theme='flip'] .l-shop .l-foot { justify-content: flex-end; gap: 14px; padding-top: 12px; font-size: 17px; color: var(--fl-mute); }
+
+/* tasks: a strip and a status tile («اليوم», «تتكرر», — or «تمّت») */
+[data-theme='flip'] .l-tasks .l-rows { margin-top: 12px; padding-bottom: 12px; }
+[data-theme='flip'] .l-row {
+  min-height: 0;
+  height: 62px;
+  margin-bottom: 10px;
+  padding: 0;
+  gap: 8px;
+  align-items: stretch;
+  border: 0;
+}
+[data-theme='flip'] .l-row .l-circle { display: none; }
+[data-theme='flip'] .l-row-text { line-height: 62px; }
+[data-theme='flip'] .l-today,
+[data-theme='flip'] .l-repeat,
+[data-theme='flip'] .l-row:not(.is-done):not(:has(.l-today)):not(:has(.l-repeat))::after,
+[data-theme='flip'] .l-row.is-done::after {
+  flex: none;
+  width: 120px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--fl-tile);
+  box-shadow: 0 3px 0 #0A0A0B;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--fl-soft);
+}
+[data-theme='flip'] .l-today { background: var(--fl-tile-amber); color: var(--fl-amber); }
+[data-theme='flip'] .l-repeat svg { display: none; }
+[data-theme='flip'] .l-repeat::before { content: 'تتكرر'; }
+[data-theme='flip'] .l-row:not(.is-done):not(:has(.l-today)):not(:has(.l-repeat))::after { content: '—'; }
+[data-theme='flip'] .l-row.is-done::after { content: 'تمّت'; }
+[data-theme='flip'] .l-row.is-done .l-today,
+[data-theme='flip'] .l-row.is-done .l-repeat { display: none; }
+[data-theme='flip'] .l-row.is-done { height: 56px; opacity: 0.55; }
+[data-theme='flip'] .l-row.is-done .l-row-text { font-size: 25px; font-weight: 500; line-height: 56px; color: var(--fl-ink); text-decoration: line-through; text-decoration-color: rgba(241, 237, 228, 0.7); }
+[data-theme='flip'] .l-row:active { opacity: 0.8; }
+[data-theme='flip'] .l-done-head { margin: 8px 0 10px; padding: 0; font-size: 18px; font-weight: 500; color: var(--fl-mute); }
+/* «حذف المنجزة» and «إزالة المشترى»: chunky keys */
+[data-theme='flip'] .l-clear {
+  min-height: 46px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--fl-key);
+  box-shadow: 0 4px 0 #0A0A0B;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--fl-ink);
+  transition: transform 80ms, box-shadow 80ms;
+}
+[data-theme='flip'] .l-shop .l-clear { min-height: 50px; padding: 0 22px; font-size: 19px; }
+[data-theme='flip'] .l-clear:active { transform: translateY(3px); box-shadow: 0 1px 0 #0A0A0B; }
+[data-theme='flip'] .l-clear.is-armed { background: var(--fl-amber); color: #141416; }
+[data-theme='flip'] .l-now { display: flex; align-items: baseline; gap: 14px; padding-top: 10px; }
+[data-theme='flip'] .ln-time { font-size: 40px; font-weight: 700; line-height: 1.1; color: var(--fl-ink); }
+[data-theme='flip'] .ln-next { font-size: 19px; font-weight: 500; color: var(--fl-amber); }
+[data-theme='flip'] .l-empty { font-size: 24px; color: var(--fl-mute); }
+
+/* ---------- calendar: the month as a board of tiles ---------- */
+[data-theme='flip'] .cal-layout { top: 52px; right: 72px; left: 64px; bottom: 50px; }
+[data-theme='flip'] .s-calendar .rule { background: var(--fl-line); width: 2px; }
+[data-theme='flip'] .c-month { font-weight: 700; color: var(--fl-amber); }
+[data-theme='flip'] .c-year { font-weight: 500; color: var(--fl-soft); }
+[data-theme='flip'] .c-hijri { font-weight: 500; color: var(--fl-soft); }
+[data-theme='flip'] .c-nav,
+[data-theme='flip'] .c-close { border: 0; border-radius: 10px; background: var(--fl-key); box-shadow: 0 4px 0 #0A0A0B; }
+[data-theme='flip'] .c-today { border-radius: 10px; background: var(--fl-amber); color: #141416; font-weight: 600; box-shadow: 0 4px 0 #0A0A0B; }
+[data-theme='flip'] .c-week { font-weight: 500; color: var(--fl-mute); }
+[data-theme='flip'] .c-grid { gap: 6px; }
+[data-theme='flip'] .c-cell {
+  border: 0;
+  border-radius: 8px;
+  background: var(--fl-tile);
+  box-shadow: 0 3px 0 #0A0A0B;
+}
+[data-theme='flip'] .c-cell.is-weekend { background: linear-gradient(#28282C 0, #28282C calc(50% - 1px), #0E0E10 calc(50% - 1px), #0E0E10 calc(50% + 1px), #1F1F23 calc(50% + 1px)); }
+[data-theme='flip'] .c-cell.is-out { opacity: 0.3; }
+[data-theme='flip'] .c-d { font-weight: 700; }
+[data-theme='flip'] .c-h { color: var(--fl-mute); }
+[data-theme='flip'] .c-cell.k-national,
+[data-theme='flip'] .c-cell.k-religious,
+[data-theme='flip'] .c-cell.k-family { background: var(--fl-tile); box-shadow: inset 0 3px 0 var(--k), 0 3px 0 #0A0A0B; }
+[data-theme='flip'] .c-cell.is-today { background: var(--fl-tile-amber); box-shadow: inset 0 0 0 2px var(--fl-amber), 0 3px 0 #0A0A0B; }
+[data-theme='flip'] .c-cell.is-today .c-d { background: var(--fl-amber); color: #141416; border-radius: 6px; }
+[data-theme='flip'] .c-cell.is-picked::after { border-radius: 8px; inset: 0; }
+[data-theme='flip'] .c-side-title { font-weight: 700; color: var(--fl-ink); }
+[data-theme='flip'] .c-up-row { border-top: 0; margin-top: 8px; padding: 8px 12px; border-radius: 8px; background: #242428; box-shadow: 0 3px 0 #0A0A0B; }
+[data-theme='flip'] .c-up-d { font-weight: 700; }
+[data-theme='flip'] .c-legend { border-top-color: var(--fl-line); }
+
+/* ---------- adhkar ---------- */
+[data-theme='flip'] .a-body { bottom: 96px; }
+[data-theme='flip'] .a-dots { bottom: 54px; }
+[data-theme='flip'] .a-title { font-weight: 700; color: var(--fl-amber); }
+[data-theme='flip'] .a-sub { color: var(--fl-mute); }
+[data-theme='flip'] .a-card {
+  border: 0;
+  border-radius: 14px;
+  background: #242428;
+  box-shadow: 0 4px 0 #0A0A0B, inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+[data-theme='flip'] .a-card-title { color: var(--fl-amber); font-weight: 600; }
+[data-theme='flip'] .a-text { font-weight: 500; color: var(--fl-ink); }
+[data-theme='flip'] .a-ref { color: var(--fl-mute); }
+[data-theme='flip'] .a-close,
+[data-theme='flip'] .a-play { border: 0; border-radius: 10px; background: var(--fl-key); box-shadow: 0 4px 0 #0A0A0B; }
+[data-theme='flip'] .a-dots i { border-radius: 2px; }
+[data-theme='flip'] .a-done-title { font-weight: 700; color: var(--fl-amber); }
+
+/* ---------- photos (always dark) ---------- */
+[data-theme='flip'] .s-photos .ph-empty { inset: 0; background-color: #141416; }
+[data-theme='flip'] .ph-time { font-weight: 700; }
+
+/* ---------- overlays ---------- */
+[data-theme='flip'] .fun-scrim,
+[data-theme='flip'] .qr .fun-scrim,
+[data-theme='flip'] .wf .fun-scrim {
+  background-color: #141416;
+  background-repeat: no-repeat;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221280%22 height=%22800%22%3E%3Crect x=%2222%22 y=%2222%22 width=%221236%22 height=%22756%22 rx=%2222%22 fill=%22%231A1A1D%22 stroke=%22%232A2A2E%22 stroke-width=%222%22/%3E%3Cg fill=%22%230C0C0E%22%3E%3Ccircle cx=%2246%22 cy=%2246%22 r=%226%22/%3E%3Ccircle cx=%221234%22 cy=%2246%22 r=%226%22/%3E%3Ccircle cx=%2246%22 cy=%22754%22 r=%226%22/%3E%3Ccircle cx=%221234%22 cy=%22754%22 r=%226%22/%3E%3C/g%3E%3C/svg%3E");
+}
+[data-theme='flip'] .fun-menu { border: 0; border-radius: 14px; box-shadow: 0 6px 0 #0A0A0B, 0 16px 40px rgba(0, 0, 0, 0.5); }
+[data-theme='flip'] .fun-title { font-weight: 700; color: var(--fl-amber); }
+[data-theme='flip'] .fun-btn { border-radius: 10px; box-shadow: 0 4px 0 #0A0A0B; font-weight: 600; }
+[data-theme='flip'] .fun-close { border: 0; border-radius: 10px; background: var(--fl-key); box-shadow: 0 4px 0 #0A0A0B; }
+[data-theme='flip'] .fw-chip { border-radius: 8px; background: var(--fl-tile); }
+[data-theme='flip'] .fw-chip.is-on { background: var(--fl-tile-amber); color: var(--fl-amber); }
+[data-theme='flip'] .qr-fav { border-radius: 8px; border-color: transparent; background: var(--fl-tile); box-shadow: 0 3px 0 #0A0A0B; }
+[data-theme='flip'] .qr-np { border-radius: 12px; border-color: var(--fl-line); background: #242428; }
+[data-theme='flip'] .qr-np-bar i,
+[data-theme='flip'] .qr-bar i { background: var(--fl-amber); }
+[data-theme='flip'] .pl-banner { border-radius: 14px; border-color: rgba(245, 184, 61, 0.5); box-shadow: 0 6px 0 #0A0A0B, 0 18px 50px rgba(0, 0, 0, 0.5); }
+[data-theme='flip'] .pl-card { border-radius: 14px; }
+
+/* ---------- the dock: flap doors ---------- */
+[data-theme='flip'] .nav .tab,
+[data-theme='flip'] .nav .tab-fun {
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(#2E2E33 0, #2E2E33 calc(50% - 1px), #0E0E10 calc(50% - 1px), #0E0E10 calc(50% + 1px), #242428 calc(50% + 1px));
+  box-shadow: 0 4px 0 #0A0A0B;
+  font-weight: 500;
+}
+[data-theme='flip'] .nav .tab.is-on {
+  border: 0;
+  background: linear-gradient(#4A3A16 0, #4A3A16 calc(50% - 1px), #0E0E10 calc(50% - 1px), #0E0E10 calc(50% + 1px), #3E3112 calc(50% + 1px));
+  box-shadow: inset 0 0 0 2px var(--fl-amber), 0 4px 0 #0A0A0B;
+  color: var(--fl-amber);
+}
+[data-theme='flip'] .nav .tab-quran,
+[data-theme='flip'] .nav .tab-wifi,
+[data-theme='flip'] .nav .tab-fun:not(.tab-quran):not(.tab-wifi) { border: 0; }
+[data-theme='flip'] .nav .tab[data-for='photos'] { color: var(--fl-ink); }
+[data-theme='flip'] .nav .tab[data-for='prayer'] .tab-icon { color: var(--fl-green); }
+[data-theme='flip'] .nav .tab[data-for='calendar'] .tab-icon { color: var(--fl-amber); }
+[data-theme='flip'] .nav .tab-gap { background: var(--fl-line); }
+
+/* the match overlay keeps its pitch; its accents stay amber */
+[data-theme='flip'] .mt-phase,
+[data-theme='flip'] .mt-count,
+[data-theme='flip'] .mt-cheer b { color: var(--fl-amber); }
+[data-theme='flip'] .r-q-plus { background: var(--fl-amber); color: #141416; }
+[data-theme='flip'] .r-q-btn:disabled { opacity: 0.4; }

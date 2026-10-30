@@ -126,13 +126,15 @@ Colours and sizes are in [`public/css/app.css`](public/css/app.css).
 
 ### The frame's look (مظهر الإطار)
 
-**الإعدادات → المظهر** picks one of eight looks for the whole frame, special screens included:
-الأصلي (the original), رياض, فاتح, أندلسي, للأطفال, صحراء, ماجوريل and ألبوم العائلة (every screen over
-the family's photos). The choice is saved at once; «جرّب» shows the selected look on the frame for
+**الإعدادات → المظهر** picks one of twelve looks for the whole frame, special screens included:
+الأصلي (the original), رياض, فاتح, أندلسي, للأطفال, صحراء, ماجوريل, ألبوم العائلة (every screen over
+the family's photos), الأطلس (the mountains follow the season), السماء الحيّة (the sky drawn from the
+live weather), اللوحة القلّابة (a split-flap station board whose tiles flip) and الهلال (tonight's moon
+and the Hijri month). The choice is saved at once; «جرّب» shows the selected look on the frame for
 one minute without changing the setting. On the preview page, `/?demo&theme=kids` shows a look.
 
 Each look is a stylesheet and a small script: edit `tools/themes/<id>.css`, then run
-`python3 tools/build-themes.py` to rebuild `public/css/themes/<id>.css` (it turns inline
+`python3 tools/build-themes.py` (or `… build-themes.py <id>` for one look) to rebuild `public/css/themes/<id>.css` (it turns inline
 `svg(…)` drawings into data URLs and adds the look's fonts). The pictures drawn behind the screens
 (the window, the clock hands, the dunes…) are in `public/js/themes/<id>.js`. Only the chosen
 look's files and fonts are loaded on the frame.
