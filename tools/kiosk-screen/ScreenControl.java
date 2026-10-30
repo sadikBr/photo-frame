@@ -1,7 +1,9 @@
 package com.wesbos.homehq;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
@@ -18,6 +20,9 @@ import java.util.regex.Pattern;
  * asks Android for the lowest brightness, which is all that happens when no light can be found
  * or su is refused. window.HomeHQ.info() says which: "backlight", "dim", or "probing" while it
  * is still looking.
+ *
+ * Also window.HomeHQ.alarmVolume(true|false): while a timer rings, the media volume goes to the
+ * maximum so the alarm is heard from another room, then back to the family's level. No root needed.
  *
  * Only fixed commands are run: the light's path is found by the app itself and checked against a
  * strict pattern, and the only number written is one read from that same file.
@@ -54,6 +59,27 @@ final class ScreenControl {
         }
       }
     }, "screen-probe").start();
+  }
+
+  private int volumeBefore = -1; // the media volume before an alarm raised it, or -1
+
+  @JavascriptInterface
+  public void alarmVolume(final boolean loud) {
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        AudioManager am = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
+        if (am == null) return;
+        if (loud) {
+          if (volumeBefore < 0) volumeBefore = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+          am.setStreamVolume(AudioManager.STREAM_MUSIC, am.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
+        } else if (volumeBefore >= 0) {
+          am.setStreamVolume(AudioManager.STREAM_MUSIC, volumeBefore, 0);
+          volumeBefore = -1;
+        }
+        Log.i(TAG, "Alarm volume " + (loud ? "up" : "back"));
+      }
+    });
   }
 
   @JavascriptInterface

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Adds "screen fully off at night" to the frame's Home HQ app and reinstalls it (keeps its
+# Adds "screen fully off at night" and "loud timer alarms" to the frame's Home HQ app and reinstalls it (keeps its
 # saved dashboard address and Home setting). Run from this folder with the frame on adb:
 #   bash update_kiosk.sh
 set -euo pipefail

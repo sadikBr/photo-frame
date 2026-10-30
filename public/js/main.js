@@ -18,6 +18,7 @@ import { createStatus } from './frame-status.js';
 import { createColoring } from './frame-color.js';
 import { createQuran } from './frame-quran.js';
 import { createWifi, WIFI_ICON } from './frame-wifi.js';
+import { createTimers, TIMER_ICON } from './frame-timers.js';
 import { setScreen } from './screen.js';
 import { initTheme, previewTheme, themeTick } from './theme.js';
 import { BOOK } from './quran-common.js';
@@ -93,7 +94,10 @@ quranTab.addEventListener('click', () => { closeMenu(); closeDock(); touched(); 
 // Guest Wi-Fi: a round button, only once a network is set in the control panel.
 const wifiTab = h('button', { class: 'tab tab-fun tab-wifi', type: 'button', hidden: true, 'aria-label': 'الواي فاي للضيوف', html: WIFI_ICON(26) + '<span class="tab-dock-label">الواي فاي</span>' });
 wifiTab.addEventListener('click', () => { closeMenu(); closeDock(); touched(); wifi.open(); });
-nav.append(h('span', { class: 'tab-gap' }), quranTab, funTab, wifiTab);
+// «مؤقّت»: kitchen timers (frame-timers.js). In the original look the tab shows the countdown.
+const timerTab = h('button', { class: 'tab tab-fun tab-timer', type: 'button', 'aria-label': 'مؤقّت', html: TIMER_ICON(24) + '<span class="tm-tab-text">مؤقّت</span>' });
+timerTab.addEventListener('click', () => { closeMenu(); closeDock(); touched(); });
+nav.append(h('span', { class: 'tab-gap' }), quranTab, timerTab, funTab, wifiTab);
 stage.appendChild(funMenu);
 // Small cards at the top of the clock screen: the next match, and what everyone is up to.
 const chipBox = h('div', { class: 'top-chips' });
@@ -109,17 +113,20 @@ const wheel = createWheel({ stage, onChange: (n) => { wheelTab.hidden = !n; } })
 const coloring = createColoring({ stage });
 // «القرآن»: paused by the adhan, turned down while a moment from a phone plays.
 const wifi = createWifi({ stage, tab: wifiTab });
+// Timers ring over everything (and wake the screen); the alarm waits while the adhan plays.
+const timers = createTimers({ stage, tab: timerTab, wake: () => touched(), held: () => !!adhan.adhanPlaying() });
 // The Quran waits while the adhan or the adhkar recording plays; starting it stops the adhkar recording.
-const quran = createQuran({ stage, chipBox, held: () => !!adhan.adhanPlaying() || adhkarScreen.audioPlaying(), duck: () => pulse.busy(), onStart: () => adhkarScreen.stopAudio() });
+const quran = createQuran({ stage, chipBox, held: () => !!adhan.adhanPlaying() || adhkarScreen.audioPlaying() || timers.ringing(), duck: () => pulse.busy(), onStart: () => adhkarScreen.stopAudio() });
 const pulse = createPulse({
   stage,
   isNight: () => isNight(now()) && Date.now() > awakeUntil && !match.active(),
-  hold: () => !!adhan.adhanPlaying() || knock.busy() || wheel.busy() || coloring.busy() || quran.busy(),
+  hold: () => !!adhan.adhanPlaying() || knock.busy() || wheel.busy() || coloring.busy() || quran.busy() || timers.ringing(),
   fun: { knock, wheel },
   onSocket: (m) => { match.socket(m); wheel.socket(m); statuses.socket(m); coloring.socket(m); quran.socket(m); },
 });
 
 stage.insertBefore(night, null); // keep the night layer last
+stage.appendChild(timers.ringEl); // …except a ringing timer, which shows over the night
 // The look picked in the control panel (a layer behind each screen for its pictures).
 initTheme(screens, stage);
 
@@ -242,7 +249,7 @@ stage.addEventListener('contextmenu', (e) => e.preventDefault());
 // A tap on nothing in particular (not a button, a tile or a panel) opens the dock in the themes.
 stage.addEventListener('click', (e) => {
   if (!themed() || !config.touchNavigation || stage.classList.contains('dock-open')) return;
-  if (e.target.closest('button, a, input, [role="button"], .fun-modal, .match, .pl-layer, .c-cell, .fun-menu, .top-chips')) return;
+  if (e.target.closest('button, a, input, [role="button"], .fun-modal, .match, .pl-layer, .c-cell, .fun-menu, .top-chips, .tm-ring, .tm-pills, .h-clock')) return;
   openDock();
 });
 
@@ -282,7 +289,7 @@ function schedule(t) {
   // The adhan brings the prayer screen forward, even while someone is using the frame.
   if (adhan.adhanPlaying()) { if (screens[index].name !== 'prayer') go('prayer'); shownAt = real; return; }
   // A moment from a phone is playing, the door or the wheel is open, or the match is on: stay.
-  if (pulse.busy() || knock.busy() || wheel.busy() || coloring.busy() || quran.busy() || wifi.busy() || match.active() || adhkarScreen.audioPlaying()) { shownAt = real; return; }
+  if (pulse.busy() || knock.busy() || wheel.busy() || coloring.busy() || quran.busy() || wifi.busy() || timers.busy() || match.active() || adhkarScreen.audioPlaying()) { shownAt = real; return; }
   if (idle < config.resumeAfterSeconds * 1000) return; // someone is using it
   if (!resumed) { resumed = true; rotIndex = 0; go('home'); return; }
   if (ramadanPreviewing()) { if (screens[index].name !== 'prayer') go('prayer'); shownAt = real; return; }
@@ -377,6 +384,7 @@ if (DEMO) {
     knock() { try { demo.pulseAdd({ kind: 'knock', from: 'سلمى', rhythm: [0, 160, 320, 900, 1060] }); } catch (e) { return; } pulse.poke(); },
     spin() { const w = demo.wheels()[0]; try { demo.spin(w.id, 'يوسف'); } catch (e) { return; } pulse.poke(); },
     match(on) { demo.matchPreview(!on); match.poke(); },
+    timer(seconds, name) { timers.demo(seconds || 5, name); },
     beat() { try { demo.pulseAdd({ kind: 'beat', from: 'ماما', bpm: 74, intervals: [800, 820, 812, 790, 805, 818, 800, 810] }); } catch (e) { return; } pulse.poke(); },
     surprise() { try { demo.pulseAdd({ kind: 'tap', tap: 'news', from: 'بابا', sched: true, sentAt: Date.now() - 20 * 3600000 }); } catch (e) { return; } pulse.poke(); },
   };
@@ -403,10 +411,19 @@ function loop() {
   try { match.tick(screens[index].name); } catch (e) { console.error(e); }
   try { statuses.tick(screens[index].name); } catch (e) { console.error(e); }
   try { quran.tick(t); } catch (e) { console.error(e); }
+  try { timers.tick(); } catch (e) { console.error(e); }
   try { schedule(t); } catch (e) { console.error(e); }
   try { themeTick(t, screens[index].name); } catch (e) { console.error(e); }
   setTimeout(loop, 1000 - (Date.now() % 1000) + 5);
 }
+
+// A tap on the big clock (clock screen) opens the timers too.
+stage.addEventListener('click', (e) => {
+  if (!e.target.closest('.s-home .h-clock') || drag) return;
+  touched();
+  closeDock();
+  timers.open();
+});
 
 const startScreen = (location.hash || '').slice(1);
 start();

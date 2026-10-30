@@ -188,6 +188,21 @@ written beside it (untick «كتابة كلمة السر…» to show only the c
 opens it from your phone. The password is stored with the frame's settings in your Cloudflare
 account, like everything else.
 
+### Timers (مؤقّت)
+
+The «مؤقّت» tab (or a tap on the big clock) opens kitchen timers: pick a name if you like (أتاي، الطبخ،
+الفرن…) and touch a duration (1 to 60 minutes) or set another one. Up to six run at once; they
+show in the tab in the original look and as small counters in the bottom-left corner in the other
+looks, and keep running through a reload or a power cut. When one ends, a red card fills the
+screen (even at night, when it wakes the screen) and a loud two-tone alarm rings until someone
+touches «إيقاف», or «غفوة» for 1, 5 or 10 more minutes. It stops by itself after 10 minutes and
+waits while the adhan plays.
+
+The alarm plays at full volume, but it can't be louder than the frame's media volume. With the
+updated kiosk app (`bash tools/kiosk-screen/update_kiosk.sh`, needs the frame on adb), the frame
+turns its media volume up to the maximum while a timer rings and puts it back afterwards. On the
+preview page, `frameDemo.timer(5, 'أتاي')` in the console starts a 5-second timer.
+
 ### Night: dimmed or fully off
 
 **الإعدادات › الوضع الليلي** dims the screen between the two times. With **«إطفاء الشاشة كلياً»**
