@@ -45,7 +45,7 @@ import { sendPush, validSubscription } from './webpush.js';
 import { tileCount, PATTERN_COUNT, weekIndex } from '../public/js/zellige.js';
 import { validSurah, validReciter, DEFAULT_FAVS } from '../public/js/quran-common.js';
 import { timerOp, cleanTimers, timerName, alarmOp, cleanAlarms } from '../public/js/timers-common.js';
-import { LEAGUES, scoreboardUrl, parseScoreboard, pickMatch, matchChanges, changeMessage, previewMatch, PREVIEW_MS } from './match.js';
+import { LEAGUES, fetchMatches, pickMatch, matchChanges, changeMessage, previewMatch, PREVIEW_MS } from './match.js';
 
 export const pushDeps = { fetch: (...a) => fetch(...a) }; // tests swap this
 export const matchDeps = { fetch: (...a) => fetch(...a), now: () => Date.now() }; // and this
@@ -741,13 +741,7 @@ export class PulseHub {
     // Look for Morocco's matches every 3 hours; every 30 minutes on a match day.
     const soon = before && before.state !== 'post' && before.kickoff - now < 6 * HOUR;
     if (!st.scannedAt || now - st.scannedAt > (soon ? 30 * MIN : 3 * HOUR)) {
-      const lists = await Promise.all(LEAGUES.map(async (slug) => {
-        try {
-          const r = await matchDeps.fetch(scoreboardUrl(slug, now - 86400000, now + 2 * 86400000), { headers: { accept: 'application/json' } });
-          if (!r.ok) return null;
-          return parseScoreboard(await r.json(), slug);
-        } catch (e) { return null; }
-      }));
+      const lists = await Promise.all(LEAGUES.map((slug) => fetchMatches(matchDeps.fetch, slug, now - 86400000, now + 2 * 86400000)));
       // ESPN didn't answer at all: try again in 10 minutes.
       st.scannedAt = lists.some(Boolean) ? now : now - (soon ? 20 * MIN : 3 * HOUR - 10 * MIN);
       if (lists.some(Boolean)) {
@@ -760,13 +754,10 @@ export class PulseHub {
     // During the match: the score every 15 seconds.
     const c = st.cur;
     if (!dirty && c && c.state !== 'post' && now >= c.kickoff - 20 * MIN && now < c.kickoff + 4 * HOUR && now - (st.liveAt || 0) >= 15000) {
-      try {
-        const r = await matchDeps.fetch(scoreboardUrl(c.slug, c.kickoff - 86400000, c.kickoff + 86400000), { headers: { accept: 'application/json' } });
-        if (r.ok) {
-          const found = parseScoreboard(await r.json(), c.slug).find((x) => x.id === c.id);
-          if (found) { changes.push(...matchChanges(c, found)); st.cur = found; }
-        }
-      } catch (e) { /* next time */ }
+      // Its US day and its UTC day (the same for an evening match in Morocco: one request).
+      const list = await fetchMatches(matchDeps.fetch, c.slug, c.kickoff - 6 * HOUR, c.kickoff);
+      const found = list && list.find((x) => x.id === c.id);
+      if (found) { changes.push(...matchChanges(c, found)); st.cur = found; }
       st.liveAt = now;
       dirty = true;
     }

@@ -1,7 +1,7 @@
 // The secret knock, the wheel and match mode (server side).
 import assert from 'node:assert/strict';
 import { PulseHub, pushDeps, matchDeps, cleanRhythm, knockWords, knockVibration, cleanWheels } from '../src/pulse-hub.js';
-import { parseScoreboard, pickMatch, matchChanges, changeMessage, scoreboardUrl, previewMatch, nameAr } from '../src/match.js';
+import { parseScoreboard, pickMatch, matchChanges, changeMessage, scoreboardUrl, scoreboardUrls, previewMatch, nameAr } from '../src/match.js';
 import { b64u } from '../src/webpush.js';
 import { fakeNamespace } from './fake-do.mjs';
 
@@ -158,7 +158,9 @@ assert.equal(parsed[0].phase, 'الشوط الثاني');
 assert.equal(parsed[0].clock, "67'");
 assert.deepEqual(parsed[0].goals.map((g) => g.side + g.min), ["mar12'", "opp40'", "mar61'"], 'goals only, in order');
 assert.equal(parsed[0].goals[2].pen, true);
-assert.match(scoreboardUrl('fifa.friendly', T0 - 86400000, T0 + 86400000), /\/soccer\/fifa\.friendly\/scoreboard\?dates=20261113-20261115&limit=100$/);
+assert.match(scoreboardUrl('fifa.friendly', T0), /\/soccer\/fifa\.friendly\/scoreboard\?dates=20261114&limit=100$/);
+assert.deepEqual(scoreboardUrls('fifa.friendly', T0 - 86400000, T0 + 86400000).map((u) => /dates=(\d+)&/.exec(u)[1]), ['20261113', '20261114', '20261115'], 'one request per day (ESPN refuses ranges)');
+assert.equal(scoreboardUrls('x', T0 - 6 * 3600000, T0).length, 1, 'an evening kick-off: one day');
 // Which one matters
 const m = (o) => parseScoreboard({ events: [espnEvent(o)] }, 'fifa.friendly')[0];
 assert.equal(pickMatch([m({ id: 'a', date: T0 + 30 * 3600000 }), m({ id: 'b', date: T0 + 3600000 })], T0).id, 'b', 'the next one');
@@ -186,13 +188,14 @@ matchDeps.fetch = async (url) => {
   asked.push(url);
   const slug = /soccer\/([^/]+)\/scoreboard/.exec(url)[1];
   if (slug === 'fifa.arab') return new Response('nope', { status: 404 });
+  if (/dates=\d+-\d+/.test(url)) return new Response('{"code":400}', { status: 400 }); // like ESPN since Nov 2026
   return new Response(JSON.stringify({ events: espn[slug] || [] }));
 };
 r = await call('/api/pulse/match');
 let v = await r.json();
 assert.equal(v.mode, 'today');
 assert.equal(v.match.opp.name, 'مالي');
-assert.equal(asked.length, 6, 'one look per competition');
+assert.equal(asked.length, 6 * 4, 'one look per competition and day');
 assert.equal(hub.alarmAt, now + 3 * 3600000, 'looks again in 3 hours (kick-off is further)');
 now = T0 - 2 * 3600000; await fireAlarm();
 assert.equal(hub.alarmAt, T0 - 20 * 60000, 'then wakes up 20 minutes before kick-off');

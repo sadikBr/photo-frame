@@ -2,7 +2,7 @@
 // behind espn.com, free, no key). This file only reads and tidies that data; pulse-hub.js decides
 // when to ask and tells the frame and the phones.
 //
-//   https://site.api.espn.com/apis/site/v2/sports/soccer/<league>/scoreboard?dates=YYYYMMDD-YYYYMMDD
+//   https://site.api.espn.com/apis/site/v2/sports/soccer/<league>/scoreboard?dates=YYYYMMDD
 //
 // ESPN files a national team's matches under the competition (friendlies, AFCON, its qualifiers,
 // the World Cup and its qualifiers), so we look in each of those. Morocco is team 2869.
@@ -23,10 +23,35 @@ export const COMP_AR = {
 const BASE = 'https://site.api.espn.com/apis/site/v2/sports/soccer/';
 
 // ESPN's days are US days; asking a day either side is enough for any kick-off in Morocco.
+// One request per day: since Nov 2026 ESPN answers a range (dates=YYYYMMDD-YYYYMMDD) with an
+// error for every competition, which hid Morocco–Niger (13 Nov) from the frame.
 const ymd = (ms) => new Date(ms).toISOString().slice(0, 10).replace(/-/g, '');
-export function scoreboardUrl(slug, fromMs, toMs) {
-  const a = ymd(fromMs), b = ymd(toMs == null ? fromMs : toMs);
-  return BASE + slug + '/scoreboard?dates=' + a + (b !== a ? '-' + b : '') + '&limit=100';
+export function scoreboardUrl(slug, dayMs) {
+  return BASE + slug + '/scoreboard?dates=' + ymd(dayMs) + '&limit=100';
+}
+export function scoreboardUrls(slug, fromMs, toMs) {
+  const days = [];
+  for (let t = fromMs; ; t += 86400000) {
+    const d = ymd(Math.min(t, toMs));
+    if (!days.includes(d)) days.push(d);
+    if (t >= toMs) break;
+  }
+  return days.map((d) => BASE + slug + '/scoreboard?dates=' + d + '&limit=100');
+}
+
+// Ask ESPN for each day; null if no day answered, else Morocco's matches (each once).
+export async function fetchMatches(fetchFn, slug, fromMs, toMs) {
+  let answered = false;
+  const byId = new Map();
+  await Promise.all(scoreboardUrls(slug, fromMs, toMs).map(async (u) => {
+    try {
+      const r = await fetchFn(u, { headers: { accept: 'application/json' } });
+      if (!r.ok) { console.warn('match: ESPN', r.status, u); return; }
+      answered = true;
+      for (const m of parseScoreboard(await r.json(), slug)) byId.set(m.id, m);
+    } catch (e) { console.warn('match: ESPN', String(e), u); }
+  }));
+  return answered ? [...byId.values()] : null;
 }
 
 // Opponents' names in Arabic (ESPN gives English). Anything not here keeps its English name.
