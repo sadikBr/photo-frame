@@ -7,8 +7,8 @@
 // ESPN files a national team's matches under the competition (friendlies, AFCON, its qualifiers,
 // the World Cup and its qualifiers), so we look in each of those. Morocco is team 2869.
 
-import { phaseAr, previewMatch, PREVIEW_MS } from '../public/js/match-common.js';
-export { phaseAr, previewMatch, PREVIEW_MS };
+import { phaseAr, previewMatch, PREVIEW_MS, tvFor } from '../public/js/match-common.js';
+export { phaseAr, previewMatch, PREVIEW_MS, tvFor };
 
 export const MOROCCO = '2869';
 export const LEAGUES = ['fifa.friendly', 'caf.nations_qual', 'caf.nations', 'fifa.worldq.caf', 'fifa.world', 'fifa.arab'];
@@ -90,6 +90,30 @@ const logo = (t) => {
 };
 const clean = (s, n) => String(s == null ? '' : s).replace(/\s+/g, ' ').trim().slice(0, n);
 
+// TV channels ESPN lists for a match. ESPN is American: its plain "broadcasts" and anything with
+// region "us" are American channels (ESPN+, Fox…), useless in Morocco, so they're skipped unless
+// the name is one watched here. Channels for other regions are kept as given.
+const WATCHED_HERE = /bein|\bssc\b|shahid|arryadia|riyadia|aoula|snrt|\b2m\b|medi ?1|canal\+ ?afrique|supersport|الرياضية|الأولى/i;
+const TV_AR = [[/arryadia|riyadia/i, 'الرياضية'], [/al[ -]?aoula/i, 'الأولى']];
+export function channelsFrom(ev) {
+  const c = (ev && ev.competitions && ev.competitions[0]) || {};
+  const out = [];
+  const add = (name, keepAnyway) => {
+    let n = clean(name, 30);
+    if (!n || (!keepAnyway && !WATCHED_HERE.test(n))) return;
+    for (const [re, ar] of TV_AR) if (re.test(n)) n = ar;
+    if (!out.some((x) => x.toLowerCase() === n.toLowerCase())) out.push(n);
+  };
+  for (const g of [].concat(c.geoBroadcasts || [], ev.geoBroadcasts || [])) {
+    const media = (g && g.media) || {};
+    const region = String((g && g.region) || '').toLowerCase();
+    add(media.shortName || media.name, region !== '' && region !== 'us');
+  }
+  for (const b of [].concat(c.broadcasts || [], ev.broadcasts || [])) for (const n of (b && b.names) || []) add(n, false);
+  if (typeof c.broadcast === 'string') for (const n of c.broadcast.split(/[,/]/)) add(n, false);
+  return out.slice(0, 4);
+}
+
 // One ESPN event → what we keep, or null if Morocco isn't playing.
 export function parseEvent(ev, slug) {
   if (!ev) return null;
@@ -139,6 +163,7 @@ export function parseEvent(ev, slug) {
     mar: side(mar, true),
     opp: side(opp, false),
     goals: goals.slice(0, 20),
+    tv: channelsFrom(ev),
   };
   out.phase = phaseAr(out);
   return out;
@@ -192,4 +217,3 @@ export function changeMessage(m, ch) {
   const res = m.mar.score > m.opp.score || (m.mar.pens || 0) > (m.opp.pens || 0) ? ' 🎉' : '';
   return Object.assign(base, { title: res ? '🎉 فاز المغرب!' : 'انتهت المباراة', body: scoreLine(m) });
 }
-

@@ -1,7 +1,7 @@
 // The secret knock, the wheel and match mode (server side).
 import assert from 'node:assert/strict';
 import { PulseHub, pushDeps, matchDeps, cleanRhythm, knockWords, knockVibration, cleanWheels } from '../src/pulse-hub.js';
-import { parseScoreboard, pickMatch, matchChanges, changeMessage, scoreboardUrl, scoreboardUrls, previewMatch, nameAr } from '../src/match.js';
+import { parseScoreboard, pickMatch, matchChanges, changeMessage, scoreboardUrl, scoreboardUrls, previewMatch, nameAr, channelsFrom, tvFor } from '../src/match.js';
 import { b64u } from '../src/webpush.js';
 import { fakeNamespace } from './fake-do.mjs';
 
@@ -161,6 +161,22 @@ assert.equal(parsed[0].goals[2].pen, true);
 assert.match(scoreboardUrl('fifa.friendly', T0), /\/soccer\/fifa\.friendly\/scoreboard\?dates=20261114&limit=100$/);
 assert.deepEqual(scoreboardUrls('fifa.friendly', T0 - 86400000, T0 + 86400000).map((u) => /dates=(\d+)&/.exec(u)[1]), ['20261113', '20261114', '20261115'], 'one request per day (ESPN refuses ranges)');
 assert.equal(scoreboardUrls('x', T0 - 6 * 3600000, T0).length, 1, 'an evening kick-off: one day');
+// Where to watch
+const m0 = () => parseScoreboard({ events: [espnEvent({})] }, 'fifa.friendly')[0];
+const withTv = (comp) => { const e = espnEvent({}); Object.assign(e.competitions[0], comp); return e; };
+assert.deepEqual(channelsFrom(espnEvent({})), [], 'nothing listed (like Morocco–Niger, 13 Nov 2026)');
+assert.deepEqual(channelsFrom(withTv({ broadcasts: [{ market: 'national', names: ['ESPN+', 'beIN SPORTS'] }], geoBroadcasts: [{ media: { shortName: 'Fox Sports' }, region: 'us' }] })),
+  ['beIN SPORTS'], 'American channels left out, beIN kept');
+assert.deepEqual(channelsFrom(withTv({ geoBroadcasts: [{ media: { shortName: 'Arryadia TNT' }, region: 'ma' }, { media: { shortName: 'Al Aoula' }, region: 'ma' }, { media: { shortName: 'SSC 1' }, region: 'mena' }, { media: { shortName: 'ESPN' }, region: 'us' }] })),
+  ['الرياضية', 'الأولى', 'SSC 1'], 'channels for other regions kept, SNRT names in Arabic');
+assert.deepEqual(channelsFrom(withTv({ broadcast: 'beIN Sports 1, ESPN+' })), ['beIN Sports 1']);
+let tvM = parseScoreboard({ events: [withTv({ geoBroadcasts: [{ media: { shortName: 'beIN Sports 2' }, region: 'mena' }] })] }, 'caf.nations')[0];
+assert.deepEqual(tvM.tv, ['beIN Sports 2']);
+assert.deepEqual(tvFor(tvM, {}), { names: ['beIN Sports 2'], src: 'api' });
+assert.deepEqual(tvFor(m0(), {}), { names: ['الرياضية', 'الأولى'], src: 'default' }, 'SNRT when ESPN lists nothing');
+assert.deepEqual(tvFor(tvM, { tv: { id: tvM.id, text: 'الرياضية 3' } }), { names: ['الرياضية 3'], src: 'manual' }, 'typed beats ESPN');
+assert.equal(tvFor(tvM, { tv: { id: 'other', text: 'X' } }).src, 'api', 'typed for another match: ignored');
+assert.equal(tvFor(previewMatch(0, 1000), {}), null);
 // Which one matters
 const m = (o) => parseScoreboard({ events: [espnEvent(o)] }, 'fifa.friendly')[0];
 assert.equal(pickMatch([m({ id: 'a', date: T0 + 30 * 3600000 }), m({ id: 'b', date: T0 + 3600000 })], T0).id, 'b', 'the next one');
@@ -196,6 +212,11 @@ let v = await r.json();
 assert.equal(v.mode, 'today');
 assert.equal(v.match.opp.name, 'مالي');
 assert.equal(asked.length, 6 * 4, 'one look per competition and day');
+assert.deepEqual(v.tv, { names: ['الرياضية', 'الأولى'], src: 'default' }, 'the frame is told where to watch');
+r = await call('/api/pulse/match', 'PUT', { tv: { id: v.match.id, text: '  beIN   Sports 1 ' } });
+assert.deepEqual((await r.json()).tv, { names: ['beIN Sports 1'], src: 'manual' });
+r = await call('/api/pulse/match', 'PUT', { tv: { id: v.match.id, text: '' } });
+assert.equal((await r.json()).tv.src, 'default', 'empty = automatic again');
 assert.equal(hub.alarmAt, now + 3 * 3600000, 'looks again in 3 hours (kick-off is further)');
 now = T0 - 2 * 3600000; await fireAlarm();
 assert.equal(hub.alarmAt, T0 - 20 * 60000, 'then wakes up 20 minutes before kick-off');

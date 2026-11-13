@@ -4,6 +4,7 @@
 import { store } from './util.js';
 import * as demo from './demo.js';
 import { wheelSvg, landingAngle, choiceAt, WHEEL_TEMPLATES, doorSvg, flagSvg, teamBadge, CHEERS, cheerOf, rhythmRecorder, playRhythm, rhythmVibration, rhythmDots } from './fun-common.js';
+import { tvLine, TV_SRC_AR } from './match-common.js';
 import { unlockAudio, tick, fanfare, roar, whistle, plip } from './sound.js';
 import { zelligeSvg, GLAZE, GLAZE_NAMES, EMPTY, pattern } from './zellige.js';
 
@@ -43,6 +44,8 @@ export function initFun({ api, send, toast, el, $, DEMO, me, needName, showView,
     $('matchPush').checked = !!(v && v.cfg && v.cfg.push);
     $('matchPush').closest('label').hidden = !(v && v.on);
     const m = v && v.match;
+    const tvIn = $('matchTv');
+    $('matchTvEdit').hidden = !(v && v.on && m && !m.preview && m.state !== 'post');
     const live = !!(v && v.on && v.mode === 'live' && m);
     $('cheers').hidden = !live;
     $('matchPreview').textContent = m && m.preview ? 'إيقاف المعاينة' : 'معاينة على الإطار (3 دقائق)';
@@ -52,6 +55,11 @@ export function initFun({ api, send, toast, el, $, DEMO, me, needName, showView,
     body.append(scoreRow(m));
     const meta = m.state === 'in' ? [m.phase, m.clock].filter(Boolean).join(' · ') : m.state === 'pre' ? (m.comp ? m.comp + ' · ' : '') + when(m.kickoff) : m.phase || 'انتهت';
     body.append(el('p', { class: 'mc-meta' + (m.state === 'in' ? ' is-live' : '') }, meta));
+    if (v.tv && m.state !== 'post') {
+      body.append(el('p', { class: 'mc-tv' }, tvLine(v.tv)), el('p', { class: 'hint mc-tv-src' }, TV_SRC_AR[v.tv.src] || ''));
+      // Not while someone is typing (this card redraws every few seconds).
+      if (document.activeElement !== tvIn) tvIn.value = v.tv.src === 'manual' ? v.tv.names[0] : '';
+    }
     if (m.goals && m.goals.length) {
       body.append(el('ul', { class: 'mc-goals' }, m.goals.map((g) => el('li', { class: g.side === 'mar' ? 'is-mar' : '' }, '⚽ ' + (g.who || 'هدف') + ' ' + (g.min || '') + (g.side === 'mar' ? '' : ' (' + m.opp.name + ')')))));
     }
@@ -82,6 +90,19 @@ export function initFun({ api, send, toast, el, $, DEMO, me, needName, showView,
   $('matchPush').addEventListener('change', async () => {
     try { applyMatch(DEMO ? demo.matchCfg({ push: $('matchPush').checked }) : await send('/api/pulse/match', 'PUT', { push: $('matchPush').checked })); toast('حُفظ.'); } catch (e) { toast(e.message); }
   });
+  // «القناة الناقلة» for this match only; empty = automatic again.
+  async function saveTv() {
+    const m = view && view.match;
+    if (!m) return;
+    const tv = { id: m.id, text: $('matchTv').value.trim() };
+    try {
+      applyMatch(DEMO ? demo.matchCfg({ tv: tv.text ? tv : null }) : await send('/api/pulse/match', 'PUT', { tv }));
+      $('matchTv').blur();
+      toast(tv.text ? 'حُفظت القناة لهذه المباراة.' : 'رجعت القناة إلى التلقائي.');
+    } catch (e) { toast(e.message); }
+  }
+  $('matchTvSave').addEventListener('click', saveTv);
+  $('matchTv').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); saveTv(); } });
   $('matchPreview').addEventListener('click', async () => {
     const stop = !!(view && view.match && view.match.preview);
     try {

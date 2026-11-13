@@ -13,6 +13,20 @@ export function phaseAr(m) {
   return m.period === 2 ? 'الشوط الثاني' : 'الشوط الأول';
 }
 
+// Where to watch. In order: what someone typed in the control panel for this match; the channels
+// ESPN lists for it (American ones are left out when the match is read, see match.js); otherwise
+// SNRT's free channels, which have shown the national team's matches in Morocco for years.
+export const DEFAULT_TV = ['الرياضية', 'الأولى'];
+export function tvFor(m, cfg) {
+  if (!m || m.preview) return null;
+  const own = cfg && cfg.tv && cfg.tv.id === m.id && cfg.tv.text;
+  if (own) return { names: [own], src: 'manual' };
+  if (m.tv && m.tv.length) return { names: m.tv.slice(0, 4), src: 'api' };
+  return { names: DEFAULT_TV, src: 'default' };
+}
+export const tvLine = (tv) => (tv && tv.names.length ? '📺 ' + tv.names.join(' · ') : '');
+export const TV_SRC_AR = { api: 'حسب ESPN', default: 'عادةً: مباريات المنتخب مجاناً على قنوات SNRT', manual: 'أدخلتَها أنت' };
+
 // A practice match for «معاينة» in the control panel: 3 minutes, Morocco scores at 0:20 and
 // the other side at 1:10, then it ends. Built from the clock, so frame and phones agree.
 export const PREVIEW_MS = 3 * 60000;

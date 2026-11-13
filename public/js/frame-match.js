@@ -7,6 +7,7 @@ import { frameFetch, DEMO } from './data.js';
 import * as demo from './demo.js';
 import { flagSvg, teamBadge, cheerOf, ballSvg } from './fun-common.js';
 import { roar, sigh, whistle } from './sound.js';
+import { tvLine } from './match-common.js';
 
 export function createMatch({ stage, held, chipBox }) {
   let view = null, known = null, hiddenUntil = 0, cheerSince = 0, timer = 0;
@@ -14,6 +15,7 @@ export function createMatch({ stage, held, chipBox }) {
 
   const comp = h('div', { class: 'mt-comp' });
   const phase = h('div', { class: 'mt-phase' });
+  const tv = h('div', { class: 'mt-tv' });
   const clock = h('div', { class: 'mt-clock' });
   const teamA = h('div', { class: 'mt-team' });
   const teamB = h('div', { class: 'mt-team' });
@@ -26,7 +28,7 @@ export function createMatch({ stage, held, chipBox }) {
   const hide = h('button', { class: 'mt-hide', type: 'button' }, 'إخفاء 10 دقائق');
   const el = h('div', { class: 'match', hidden: true },
     h('div', { class: 'mt-pitch' }),
-    h('div', { class: 'mt-head' }, comp, phase),
+    h('div', { class: 'mt-head' }, comp, phase, tv),
     h('div', { class: 'mt-board' }, teamA, h('div', { class: 'mt-mid' }, score, clock), teamB),
     h('div', { class: 'mt-lists' }, goalsA, goalsB),
     count, cheers, fx, hide);
@@ -52,6 +54,7 @@ export function createMatch({ stage, held, chipBox }) {
     if (x && live) {
       comp.textContent = x.comp || '';
       phase.textContent = x.state === 'pre' ? 'قبل البداية' : x.phase || '';
+      tv.textContent = x.state === 'post' ? '' : tvLine(view.tv);
       team(teamA, x.mar, true);
       team(teamB, x.opp, false);
       const pens = x.mar.pens != null && x.opp.pens != null ? ' (' + x.mar.pens + '–' + x.opp.pens + ')' : '';
@@ -74,7 +77,7 @@ export function createMatch({ stage, held, chipBox }) {
     count.hidden = false;
     count.textContent = left > 0 ? 'تنطلق بعد ' + Math.floor(left / 60000) + ':' + String(Math.floor((left % 60000) / 1000)).padStart(2, '0') : 'تنطلق الآن…';
   }
-  // The line on the clock screen: «⚽ الليلة 20:00 · المغرب × مالي».
+  // The line on the clock screen: «⚽ الليلة 20:00 · المغرب × مالي · 📺 الرياضية · الأولى».
   function renderChip(screen) {
     const x = m();
     const show = !!x && view.on && (view.mode === 'today' || view.mode === 'next') && screen === 'home' && !active();
@@ -82,7 +85,8 @@ export function createMatch({ stage, held, chipBox }) {
     if (!show) return;
     const day = Math.round((startOfDay(x.kickoff) - startOfDay(now())) / DAY);
     const when = (day === 0 ? (parts(x.kickoff).h >= 17 ? 'الليلة' : 'اليوم') : day === 1 ? 'غداً' : WEEKDAYS[new Date(x.kickoff).getDay()]) + ' ' + hhmm(x.kickoff);
-    const text = when + ' · المغرب × ' + x.opp.name;
+    const ch = tvLine(view.tv);
+    const text = when + ' · المغرب × ' + x.opp.name + (ch ? ' · ' + ch : '');
     if (chip.dataset.t !== text) {
       chip.dataset.t = text;
       chip.innerHTML = '';

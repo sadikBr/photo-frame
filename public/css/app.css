@@ -1142,6 +1142,8 @@ html.is-ready #boot { opacity: 0; visibility: hidden; }
 .mt-head { position: absolute; top: 34px; left: 0; right: 0; text-align: center; }
 .mt-comp { font-size: 24px; color: rgba(255, 255, 255, 0.7); }
 .mt-phase { font-family: var(--kufi); font-size: 32px; color: var(--saffron); margin-top: 2px; }
+.mt-tv { font-size: 21px; color: rgba(255, 255, 255, 0.82); margin-top: 4px; }
+.mt-tv:empty { display: none; }
 .mt-board { position: absolute; top: 150px; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 40px; }
 .mt-team { width: 320px; text-align: center; }
 .mt-badge { height: 132px; display: flex; align-items: center; justify-content: center; }

@@ -45,7 +45,7 @@ import { sendPush, validSubscription } from './webpush.js';
 import { tileCount, PATTERN_COUNT, weekIndex } from '../public/js/zellige.js';
 import { validSurah, validReciter, DEFAULT_FAVS } from '../public/js/quran-common.js';
 import { timerOp, cleanTimers, timerName, alarmOp, cleanAlarms } from '../public/js/timers-common.js';
-import { LEAGUES, fetchMatches, pickMatch, matchChanges, changeMessage, previewMatch, PREVIEW_MS } from './match.js';
+import { LEAGUES, fetchMatches, tvFor, pickMatch, matchChanges, changeMessage, previewMatch, PREVIEW_MS } from './match.js';
 
 export const pushDeps = { fetch: (...a) => fetch(...a) }; // tests swap this
 export const matchDeps = { fetch: (...a) => fetch(...a), now: () => Date.now() }; // and this
@@ -629,6 +629,11 @@ export class PulseHub {
         const cfg = await this.matchCfg();
         if (typeof body.on === 'boolean') cfg.on = body.on;
         if (typeof body.push === 'boolean') cfg.push = body.push;
+        // «القناة الناقلة» typed for one match ("" = back to automatic).
+        if (body.tv && typeof body.tv === 'object') {
+          const text = String(body.tv.text == null ? '' : body.tv.text).replace(/\s+/g, ' ').trim().slice(0, 60);
+          cfg.tv = text ? { id: String(body.tv.id == null ? '' : body.tv.id).slice(0, 40), text } : null;
+        }
         await this.ctx.storage.put('matchCfg', cfg);
         const v = await this.matchView(0);
         this.broadcast({ type: 'match', view: v });
@@ -732,7 +737,7 @@ export class PulseHub {
     const st = (await this.ctx.storage.get('match')) || {};
     if (st.preview && now - st.preview < PREVIEW_MS + 15 * 1000) {
       const m = previewMatch(st.preview, now);
-      return { on: true, cfg, mode: 'live', match: m, now };
+      return { on: true, cfg, mode: 'live', match: m, tv: null, now };
     }
     if (!cfg.on) return { on: false, cfg, mode: 'none', match: null, now };
     let dirty = false;
@@ -763,7 +768,7 @@ export class PulseHub {
     }
     if (st.cur && st.cur.state === 'post' && st.endId !== st.cur.id && changes.some((x) => x.type === 'end')) { st.endId = st.cur.id; st.endedAt = now; }
     if (dirty) await this.ctx.storage.put('match', st);
-    const view = { on: true, cfg, mode: this.matchMode(st, now), match: st.cur || null, now };
+    const view = { on: true, cfg, mode: this.matchMode(st, now), match: st.cur || null, tv: tvFor(st.cur, cfg), now };
     if (dirty) this.broadcast({ type: 'match', view });
     if (changes.length && cfg.push && st.cur) {
       const subs = (await this.subs()).filter((s) => s.notify === 'all');

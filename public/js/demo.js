@@ -2,7 +2,7 @@
 import { startOfDay, now, parts, dayKey, DAY, MINUTE, HOUR, store } from './util.js';
 import { timerOp as timerOpShared, cleanTimers, alarmOp as alarmOpShared, cleanAlarms } from './timers-common.js';
 import { dueFrom, addDays } from './routines.js';
-import { previewMatch, PREVIEW_MS } from './match-common.js';
+import { previewMatch, PREVIEW_MS, tvFor } from './match-common.js';
 import { tileCount, PATTERN_COUNT, weekIndex } from './zellige.js';
 import { DEFAULT_FAVS, SCHEDULE_SUGGESTIONS } from './quran-common.js';
 
@@ -254,7 +254,7 @@ export function match() {
   Object.assign(m, { id: 'demo-tonight', comp: 'مباراة ودية', kickoff: kick, state: 'pre', status: 'STATUS_SCHEDULED', clock: '', period: 0, goals: [], preview: false, phase: '' });
   m.mar.score = 0;
   m.opp = { name: 'مالي', abbr: 'MLI', logo: '', score: 0, home: false };
-  return { on: true, cfg, mode: t < kick - 15 * MINUTE ? 'today' : 'none', match: m, now: t, cheers: [] };
+  return { on: true, cfg, mode: t < kick - 15 * MINUTE ? 'today' : 'none', match: m, tv: tvFor(m, cfg), now: t, cheers: [] };
 }
 export function matchPreview(stop) { store.set('demo-match-start', stop ? 0 : Date.now()); return match(); }
 export function matchCfg(c) { store.set('demo-match-cfg', Object.assign(store.get('demo-match-cfg', {}), c)); return match(); }
